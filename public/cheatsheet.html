@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Worship Flow Cheatsheet</title>
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --card: #16161e;
+      --border: #2a2a35;
+      --text: #ffffff;
+      --text-muted: #888;
+      --green: #27ae60;
+      --orange: #f39c12;
+      --red: #e74c3c;
+      --blue: #3498db;
+      --purple: #9b59b6;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 1rem;
+      line-height: 1.4;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      color: var(--orange);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1rem;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem;
+    }
+
+    .card h2 {
+      font-size: 0.9rem;
+      color: var(--orange);
+      margin-bottom: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.5rem;
+    }
+
+    .card h3 {
+      font-size: 0.8rem;
+      color: var(--blue);
+      margin: 0.75rem 0 0.5rem;
+    }
+
+    /* Signal Flow Diagram */
+    .signal-flow {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      font-size: 0.75rem;
+    }
+
+    .signal-box {
+      background: var(--bg);
+      padding: 0.4rem 0.6rem;
+      border-radius: 4px;
+      text-align: center;
+      border-left: 3px solid var(--border);
+    }
+
+    .signal-box.gain { border-left-color: var(--red); }
+    .signal-box.eq { border-left-color: var(--blue); }
+    .signal-box.comp { border-left-color: var(--purple); }
+    .signal-box.fader { border-left-color: var(--green); }
+
+    .signal-arrow {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.7rem;
+    }
+
+    /* Meter Visual */
+    .meter-visual {
+      display: flex;
+      align-items: flex-end;
+      gap: 2px;
+      height: 80px;
+      padding: 0.5rem;
+      background: var(--bg);
+      border-radius: 6px;
+      margin: 0.5rem 0;
+    }
+
+    .meter-bar {
+      flex: 1;
+      border-radius: 2px;
+      position: relative;
+    }
+
+    .meter-bar::after {
+      content: attr(data-label);
+      position: absolute;
+      bottom: -18px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.55rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    .meter-bar.clip { background: linear-gradient(to top, var(--green), var(--orange) 70%, var(--red)); height: 100%; }
+    .meter-bar.hot { background: linear-gradient(to top, var(--green), var(--orange)); height: 85%; }
+    .meter-bar.good { background: linear-gradient(to top, var(--green), var(--green)); height: 50%; }
+    .meter-bar.target { background: var(--green); height: 40%; }
+    .meter-bar.low { background: var(--orange); height: 15%; }
+    .meter-bar.noise { background: var(--red); height: 5%; }
+
+    /* Quick Reference Table */
+    .ref-table {
+      width: 100%;
+      font-size: 0.7rem;
+      border-collapse: collapse;
+    }
+
+    .ref-table th, .ref-table td {
+      padding: 0.35rem 0.5rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .ref-table th {
+      color: var(--text-muted);
+      font-weight: normal;
+    }
+
+    .ref-table .good { color: var(--green); }
+    .ref-table .warn { color: var(--orange); }
+    .ref-table .bad { color: var(--red); }
+
+    /* Instrument Gains */
+    .gain-list {
+      font-size: 0.7rem;
+    }
+
+    .gain-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.3rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .gain-item:last-child {
+      border-bottom: none;
+    }
+
+    .gain-value {
+      color: var(--blue);
+      font-family: monospace;
+    }
+
+    /* Stream Mix Visual */
+    .stream-chain {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: center;
+      margin: 0.5rem 0;
+    }
+
+    .chain-step {
+      background: var(--bg);
+      padding: 0.4rem 0.6rem;
+      border-radius: 4px;
+      font-size: 0.65rem;
+      text-align: center;
+      border: 1px solid var(--border);
+      min-width: 70px;
+    }
+
+    .chain-step.active {
+      border-color: var(--green);
+      color: var(--green);
+    }
+
+    .chain-arrow {
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+    }
+
+    /* FX Routing */
+    .fx-routing {
+      background: var(--bg);
+      padding: 0.75rem;
+      border-radius: 6px;
+      font-size: 0.65rem;
+      font-family: monospace;
+      line-height: 1.6;
+    }
+
+    .fx-routing .muted { color: var(--text-muted); }
+    .fx-routing .active { color: var(--green); }
+    .fx-routing .label { color: var(--blue); }
+
+    /* Keyboard Settings */
+    .keyboard-visual {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      background: var(--bg);
+      padding: 0.75rem;
+      border-radius: 6px;
+      margin: 0.5rem 0;
+    }
+
+    .vol-bar {
+      flex: 1;
+      height: 12px;
+      background: var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .vol-fill {
+      height: 100%;
+      background: var(--green);
+      border-radius: 6px;
+    }
+
+    .vol-label {
+      font-size: 0.7rem;
+      white-space: nowrap;
+    }
+
+    /* Scene Buttons */
+    .scene-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.4rem;
+      margin: 0.5rem 0;
+    }
+
+    .scene-btn {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.5rem 0.25rem;
+      text-align: center;
+      font-size: 0.6rem;
+    }
+
+    .scene-btn .icon {
+      font-size: 1rem;
+      display: block;
+      margin-bottom: 0.2rem;
+    }
+
+    .scene-btn .name {
+      font-weight: bold;
+      font-size: 0.55rem;
+    }
+
+    .scene-btn .zaal {
+      font-size: 0.5rem;
+      margin-top: 0.2rem;
+      padding: 1px 4px;
+      border-radius: 2px;
+      display: inline-block;
+    }
+
+    .scene-btn .zaal.aan { background: rgba(52, 152, 219, 0.3); color: var(--blue); }
+    .scene-btn .zaal.uit { background: rgba(100, 100, 100, 0.3); color: var(--text-muted); }
+
+    /* Camera Layout */
+    .camera-layout {
+      background: var(--bg);
+      padding: 0.75rem;
+      border-radius: 6px;
+      font-size: 0.6rem;
+      text-align: center;
+      position: relative;
+      min-height: 120px;
+    }
+
+    .camera-layout .stage {
+      border: 1px dashed var(--border);
+      padding: 0.5rem;
+      margin-bottom: 0.5rem;
+      border-radius: 4px;
+    }
+
+    .camera-layout .cam {
+      display: inline-block;
+      background: var(--purple);
+      color: white;
+      padding: 0.2rem 0.4rem;
+      border-radius: 3px;
+      margin: 0.2rem;
+      font-size: 0.55rem;
+    }
+
+    /* Quick Tips */
+    .tips {
+      font-size: 0.7rem;
+    }
+
+    .tip {
+      display: flex;
+      gap: 0.5rem;
+      padding: 0.3rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .tip:last-child {
+      border-bottom: none;
+    }
+
+    .tip-icon {
+      font-size: 0.8rem;
+    }
+
+    /* Processing Values */
+    .proc-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+      font-size: 0.65rem;
+    }
+
+    .proc-item {
+      background: var(--bg);
+      padding: 0.5rem;
+      border-radius: 4px;
+    }
+
+    .proc-item .label {
+      color: var(--text-muted);
+      font-size: 0.55rem;
+      text-transform: uppercase;
+    }
+
+    .proc-item .value {
+      color: var(--green);
+      font-family: monospace;
+      font-size: 0.8rem;
+    }
+
+    /* Print Styles */
+    @media print {
+      body {
+        background: white;
+        color: black;
+      }
+      .card {
+        background: #f5f5f5;
+        border: 1px solid #ccc;
+        break-inside: avoid;
+      }
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      margin-top: 1.5rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 0.7rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>Worship Flow Cheatsheet</h1>
+
+  <div class="grid">
+    <!-- Signal Flow -->
+    <div class="card">
+      <h2>Signaal Flow</h2>
+      <div class="signal-flow">
+        <div class="signal-box gain">GAIN <span style="color: var(--red);">- zet 1x goed!</span></div>
+        <div class="signal-arrow">|</div>
+        <div class="signal-box eq">EQ <span style="color: var(--text-muted);">- voor kleur, niet volume</span></div>
+        <div class="signal-arrow">|</div>
+        <div class="signal-box comp">COMPRESSOR <span style="color: var(--text-muted);">- dynamiek</span></div>
+        <div class="signal-arrow">|</div>
+        <div class="signal-box fader">FADER <span style="color: var(--green);">- mix balans</span></div>
+      </div>
+    </div>
+
+    <!-- Meter Levels -->
+    <div class="card">
+      <h2>Meter Niveaus</h2>
+      <div class="meter-visual">
+        <div class="meter-bar clip" data-label="CLIP!"></div>
+        <div class="meter-bar hot" data-label="Te heet"></div>
+        <div class="meter-bar good" data-label="Pieken"></div>
+        <div class="meter-bar target" data-label="Target"></div>
+        <div class="meter-bar low" data-label="Laag"></div>
+        <div class="meter-bar noise" data-label="Ruis"></div>
+      </div>
+      <table class="ref-table">
+        <tr><th>%</th><th>dB</th><th>Status</th></tr>
+        <tr><td>100%</td><td>0dB</td><td class="bad">CLIP!</td></tr>
+        <tr><td>85%</td><td>-1.5dB</td><td class="warn">Te heet</td></tr>
+        <tr><td>50%</td><td>-6dB</td><td class="good">Pieken OK</td></tr>
+        <tr><td>40%</td><td>-8dB</td><td class="good">Target</td></tr>
+        <tr><td>15%</td><td>-16dB</td><td class="warn">Te laag</td></tr>
+      </table>
+    </div>
+
+    <!-- Gain per Instrument -->
+    <div class="card">
+      <h2>Gain per Instrument</h2>
+      <div class="gain-list">
+        <div class="gain-item"><span>Zang</span><span class="gain-value">+5 tot +25dB</span></div>
+        <div class="gain-item"><span>Spraak</span><span class="gain-value">+10 tot +30dB</span></div>
+        <div class="gain-item"><span>Keyboard</span><span class="gain-value">-30 tot 0dB</span></div>
+        <div class="gain-item"><span>Akoest. Gitaar</span><span class="gain-value">0 tot +20dB</span></div>
+        <div class="gain-item"><span>Elektr. Gitaar</span><span class="gain-value">-10 tot +10dB</span></div>
+        <div class="gain-item"><span>Bas DI</span><span class="gain-value">-20 tot +5dB</span></div>
+        <div class="gain-item"><span>Kick Drum</span><span class="gain-value">0 tot +15dB</span></div>
+        <div class="gain-item"><span>Backing Track</span><span class="gain-value">-30 tot -10dB</span></div>
+      </div>
+    </div>
+
+    <!-- Keyboard Settings -->
+    <div class="card">
+      <h2>Keyboard / Line Level</h2>
+      <div class="keyboard-visual">
+        <span class="vol-label">Volume:</span>
+        <div class="vol-bar"><div class="vol-fill" style="width: 77%;"></div></div>
+        <span class="vol-label" style="color: var(--green);">75-80%</span>
+      </div>
+      <div class="tips">
+        <div class="tip"><span class="tip-icon">EQ</span><span>FLAT laten (alles op 0)</span></div>
+        <div class="tip"><span class="tip-icon">Mixer</span><span>Gain: -20 tot 0dB</span></div>
+        <div class="tip"><span class="tip-icon">FX</span><span>Eigen reverb UIT of mixer FX UIT</span></div>
+      </div>
+    </div>
+
+    <!-- Scenes -->
+    <div class="card">
+      <h2>Scenes</h2>
+      <div class="scene-grid">
+        <div class="scene-btn">
+          <span class="icon">🎤</span>
+          <span class="name">WORSHIP</span>
+          <span class="zaal uit">Zaal UIT</span>
+        </div>
+        <div class="scene-btn">
+          <span class="icon">🎙️</span>
+          <span class="name">SPRAAK</span>
+          <span class="zaal aan">Zaal AAN</span>
+        </div>
+        <div class="scene-btn">
+          <span class="icon">🙏</span>
+          <span class="name">GEBED</span>
+          <span class="zaal aan">Zaal AAN</span>
+        </div>
+        <div class="scene-btn">
+          <span class="icon">⚖️</span>
+          <span class="name">NEUTRAAL</span>
+          <span class="zaal uit">Handmatig</span>
+        </div>
+      </div>
+      <table class="ref-table" style="margin-top: 0.5rem;">
+        <tr><th>Scene</th><th>Mute</th><th>Unmute</th></tr>
+        <tr><td>Worship</td><td>Preek</td><td>Zang + Muziek</td></tr>
+        <tr><td>Spraak</td><td>Zang + Muziek</td><td>Preek</td></tr>
+        <tr><td>Gebed</td><td>Preek + Muziek</td><td>Zang</td></tr>
+      </table>
+    </div>
+
+    <!-- Stream Mix Chain -->
+    <div class="card">
+      <h2>Stream Mix (AUX 2)</h2>
+      <div class="stream-chain">
+        <div class="chain-step">Balans<br><small>+3dB zang</small></div>
+        <span class="chain-arrow">→</span>
+        <div class="chain-step">EQ<br><small>HPF 80Hz</small></div>
+        <span class="chain-arrow">→</span>
+        <div class="chain-step">Comp<br><small>4:1 -18dB</small></div>
+        <span class="chain-arrow">→</span>
+        <div class="chain-step">Limiter<br><small>-3dB</small></div>
+        <span class="chain-arrow">→</span>
+        <div class="chain-step active">Stream</div>
+      </div>
+      <h3>Processing Waarden</h3>
+      <div class="proc-grid">
+        <div class="proc-item">
+          <div class="label">Compressor</div>
+          <div class="value">-18dB / 4:1</div>
+        </div>
+        <div class="proc-item">
+          <div class="label">Attack/Release</div>
+          <div class="value">10ms / 100ms</div>
+        </div>
+        <div class="proc-item">
+          <div class="label">EQ HPF</div>
+          <div class="value">80-100 Hz</div>
+        </div>
+        <div class="proc-item">
+          <div class="label">Limiter</div>
+          <div class="value">-3dB ceiling</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reverb Routing -->
+    <div class="card">
+      <h2>Reverb Routing (Stream Only)</h2>
+      <div class="fx-routing">
+<span class="label">FX SEND per kanaal:</span>
+Zang:    <span class="active">████████░░ 60%</span>
+Preek:   <span class="active">████████░░ 70%</span>
+Keys:    <span class="muted">░░░░░░░░░░ 0%</span> (eigen FX)
+Drums:   <span class="muted">██░░░░░░░░ 15%</span>
+
+<span class="label">FX1 RETURN:</span>
+MAIN:    <span class="muted">-∞ (MUTE)</span> ← geen reverb naar PA
+AUX 2:   <span class="active">0 dB ✓</span> ← alleen naar stream
+      </div>
+    </div>
+
+    <!-- Stream Balance -->
+    <div class="card">
+      <h2>Stream Balans (vs FOH)</h2>
+      <div class="gain-list">
+        <div class="gain-item"><span>Preek/Spraak</span><span class="gain-value" style="color: var(--green);">+2 tot +3 dB</span></div>
+        <div class="gain-item"><span>Zang</span><span class="gain-value" style="color: var(--green);">+2 tot +3 dB</span></div>
+        <div class="gain-item"><span>Keys/Pads</span><span class="gain-value">0 dB</span></div>
+        <div class="gain-item"><span>Gitaar</span><span class="gain-value">-2 dB</span></div>
+        <div class="gain-item"><span>Bas</span><span class="gain-value" style="color: var(--orange);">-3 dB</span></div>
+        <div class="gain-item"><span>Drums</span><span class="gain-value" style="color: var(--red);">-6 dB</span></div>
+        <div class="gain-item"><span>Room Mic</span><span class="gain-value" style="color: var(--green);">+6 dB</span></div>
+      </div>
+    </div>
+
+    <!-- Camera Layout -->
+    <div class="card">
+      <h2>Camera Posities</h2>
+      <div class="camera-layout">
+        <div class="stage">
+          PODIUM / BAND
+          <div style="margin-top: 0.3rem;">
+            <span class="cam">CAM 2 - Worship L</span>
+            <span class="cam">CAM 3 - Wide R</span>
+          </div>
+        </div>
+        <div>
+          <span class="cam">CAM 1 - Main/Preek</span>
+        </div>
+        <div style="color: var(--text-muted); margin-top: 0.3rem;">PUBLIEK</div>
+      </div>
+      <table class="ref-table" style="margin-top: 0.5rem;">
+        <tr><th>CAM</th><th>Shot</th><th>Gebruik</th></tr>
+        <tr><td>1</td><td>Close-up</td><td>Preek, Solist</td></tr>
+        <tr><td>2</td><td>Medium</td><td>Worship leader</td></tr>
+        <tr><td>3</td><td>Wide</td><td>Band, Safe shot</td></tr>
+      </table>
+    </div>
+
+    <!-- Troubleshooting -->
+    <div class="card">
+      <h2>Problemen Oplossen</h2>
+      <div class="tips">
+        <div class="tip">
+          <span class="tip-icon" style="color: var(--red);">🔇</span>
+          <span><b>Niet hoorbaar:</b> Check GAIN → FADER → MUTE</span>
+        </div>
+        <div class="tip">
+          <span class="tip-icon" style="color: var(--orange);">📢</span>
+          <span><b>Feedback:</b> GAIN omlaag, EQ cut @ freq</span>
+        </div>
+        <div class="tip">
+          <span class="tip-icon" style="color: var(--red);">💥</span>
+          <span><b>Vervormd:</b> GAIN omlaag tot &lt;85%</span>
+        </div>
+        <div class="tip">
+          <span class="tip-icon" style="color: var(--purple);">🔊</span>
+          <span><b>Ruis:</b> GAIN omhoog tot ~40%</span>
+        </div>
+        <div class="tip">
+          <span class="tip-icon" style="color: var(--blue);">🌊</span>
+          <span><b>Stream "onder water":</b> Gebruik AUX, niet mic!</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Rules -->
+    <div class="card">
+      <h2>Gouden Regels</h2>
+      <div class="tips">
+        <div class="tip">
+          <span class="tip-icon">1️⃣</span>
+          <span><b>GAIN</b> = zet 1x goed bij soundcheck</span>
+        </div>
+        <div class="tip">
+          <span class="tip-icon">2️⃣</span>
+          <span><b>FADER</b> = mix balans, pas continu aan</span>
+        </div>
+        <div class="tip">
+          <span class="tip-icon">3️⃣</span>
+          <span><b>EQ</b> = voor kleur, NIET voor volume</span>
+        </div>
+        <div class="tip">
+          <span class="tip-icon">4️⃣</span>
+          <span><b>-18dB</b> = target gemiddeld niveau</span>
+        </div>
+        <div class="tip">
+          <span class="tip-icon">5️⃣</span>
+          <span><b>Headroom</b> = 12-18dB voor pieken</span>
+        </div>
+        <div class="tip">
+          <span class="tip-icon">6️⃣</span>
+          <span><b>Line level</b> (keys) = volume 75-80%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pre-Stream Checklist -->
+    <div class="card">
+      <h2>Pre-Stream Checklist</h2>
+      <div class="tips">
+        <div class="tip"><span class="tip-icon">📱</span><span>Telefoons opgeladen &gt;80%</span></div>
+        <div class="tip"><span class="tip-icon">🔒</span><span>Auto-lock UIT op alle telefoons</span></div>
+        <div class="tip"><span class="tip-icon">🔌</span><span>HDMI kabels aangesloten</span></div>
+        <div class="tip"><span class="tip-icon">🎚️</span><span>AUX 2 kabel naar ATEM</span></div>
+        <div class="tip"><span class="tip-icon">📺</span><span>Multiview check - alle cam's OK</span></div>
+        <div class="tip"><span class="tip-icon">🔊</span><span>Audio level check</span></div>
+        <div class="tip"><span class="tip-icon">🔴</span><span>Test stream (unlisted)</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    Worship Flow Cheatsheet v1.0 | <a href="/dirigent" style="color: var(--blue);">← Terug</a>
+  </div>
+</body>
+</html>
