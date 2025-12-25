@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Monitor Mix - Worship Flow</title>
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --bg-card: #16161e;
+      --bg-surface: #1e1e28;
+      --text: #ffffff;
+      --text-dim: #888888;
+      --accent: #d4a853;
+      --border: #2a2a35;
+      --color-vocals: #e74c3c;
+      --color-instruments: #3498db;
+      --color-master: #27ae60;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header {
+      background: var(--bg-card);
+      padding: 1rem;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header h1 {
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+
+    .header .subtitle {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      margin-top: 0.25rem;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+      padding: 0.3rem 0.75rem;
+      background: var(--bg-surface);
+      border-radius: 20px;
+      font-size: 0.75rem;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #e74c3c;
+    }
+
+    .status-dot.connected {
+      background: #27ae60;
+    }
+
+    .main {
+      flex: 1;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      max-width: 400px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .mix-section {
+      background: var(--bg-card);
+      border-radius: 16px;
+      padding: 1.5rem;
+      border: 1px solid var(--border);
+    }
+
+    .mix-section.master {
+      border-color: var(--color-master);
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+
+    .section-title {
+      font-size: 1rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .section-title .icon {
+      font-size: 1.25rem;
+    }
+
+    .section-value {
+      font-size: 1.25rem;
+      font-weight: 700;
+      font-family: monospace;
+    }
+
+    .vocals .section-title { color: var(--color-vocals); }
+    .instruments .section-title { color: var(--color-instruments); }
+    .master .section-title { color: var(--color-master); }
+
+    /* Slider styling */
+    .slider-container {
+      position: relative;
+      padding: 1rem 0;
+    }
+
+    .slider {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 60px;
+      background: transparent;
+      cursor: pointer;
+    }
+
+    .slider::-webkit-slider-runnable-track {
+      width: 100%;
+      height: 60px;
+      background: var(--bg-surface);
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+
+    .slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 24px;
+      height: 60px;
+      background: linear-gradient(to bottom, #fff, #ddd);
+      border-radius: 4px;
+      cursor: grab;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+
+    .slider::-webkit-slider-thumb:active {
+      cursor: grabbing;
+      background: linear-gradient(to bottom, #eee, #ccc);
+    }
+
+    /* Colored slider tracks */
+    .vocals .slider::-webkit-slider-runnable-track {
+      background: linear-gradient(to right, var(--bg-surface) 0%, rgba(231, 76, 60, 0.3) 100%);
+    }
+
+    .instruments .slider::-webkit-slider-runnable-track {
+      background: linear-gradient(to right, var(--bg-surface) 0%, rgba(52, 152, 219, 0.3) 100%);
+    }
+
+    .master .slider::-webkit-slider-runnable-track {
+      background: linear-gradient(to right, var(--bg-surface) 0%, rgba(39, 174, 96, 0.3) 100%);
+    }
+
+    /* Quick buttons */
+    .quick-buttons {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+    }
+
+    .quick-btn {
+      flex: 1;
+      padding: 0.75rem;
+      border: 1px solid var(--border);
+      background: var(--bg-surface);
+      color: var(--text);
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .quick-btn:hover {
+      background: var(--border);
+    }
+
+    .quick-btn:active {
+      transform: scale(0.98);
+    }
+
+    .quick-btn.active {
+      background: var(--accent);
+      color: #000;
+      border-color: var(--accent);
+    }
+
+    /* Balance visualization */
+    .balance-visual {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 1rem;
+      background: var(--bg-surface);
+      border-radius: 8px;
+      margin-top: 1rem;
+    }
+
+    .balance-label {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      width: 80px;
+      text-align: center;
+    }
+
+    .balance-label.left { color: var(--color-vocals); }
+    .balance-label.right { color: var(--color-instruments); }
+
+    .balance-bar {
+      flex: 1;
+      height: 8px;
+      background: var(--bg);
+      border-radius: 4px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .balance-fill-left {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 50%;
+      background: linear-gradient(to right, transparent, var(--color-vocals));
+      border-radius: 4px 0 0 4px;
+    }
+
+    .balance-fill-right {
+      position: absolute;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      width: 50%;
+      background: linear-gradient(to left, transparent, var(--color-instruments));
+      border-radius: 0 4px 4px 0;
+    }
+
+    .balance-indicator {
+      position: absolute;
+      top: -4px;
+      width: 4px;
+      height: 16px;
+      background: var(--accent);
+      border-radius: 2px;
+      transform: translateX(-50%);
+      transition: left 0.1s;
+    }
+
+    /* Preset buttons */
+    .presets {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .preset-btn {
+      padding: 1rem 0.5rem;
+      border: 1px solid var(--border);
+      background: var(--bg-surface);
+      color: var(--text);
+      border-radius: 8px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-align: center;
+    }
+
+    .preset-btn:hover {
+      border-color: var(--accent);
+    }
+
+    .preset-btn:active {
+      transform: scale(0.98);
+    }
+
+    .preset-btn .emoji {
+      font-size: 1.5rem;
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+
+    /* Info text */
+    .info-text {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      text-align: center;
+      padding: 1rem;
+    }
+
+    /* Footer nav */
+    .footer-nav {
+      padding: 1rem;
+      background: var(--bg-card);
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+    }
+
+    .footer-link {
+      color: var(--text-dim);
+      text-decoration: none;
+      font-size: 0.85rem;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      transition: all 0.15s;
+    }
+
+    .footer-link:hover {
+      color: var(--text);
+      background: var(--bg-surface);
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <h1>Monitor Mix</h1>
+    <div class="subtitle">Zanger Monitor Controle</div>
+    <div class="status">
+      <span class="status-dot" id="status-dot"></span>
+      <span id="status-text">Verbinden...</span>
+    </div>
+  </header>
+
+  <main class="main">
+    <!-- Master Volume -->
+    <div class="mix-section master">
+      <div class="section-header">
+        <div class="section-title">
+          <span class="icon">🔊</span>
+          Monitor Volume
+        </div>
+        <div class="section-value" id="master-value">0 dB</div>
+      </div>
+      <div class="slider-container">
+        <input type="range" class="slider" id="master-slider" min="0" max="100" value="75">
+      </div>
+      <div class="quick-buttons">
+        <button class="quick-btn" onclick="setMaster(50)">Zacht</button>
+        <button class="quick-btn active" onclick="setMaster(75)">Normaal</button>
+        <button class="quick-btn" onclick="setMaster(90)">Luid</button>
+      </div>
+    </div>
+
+    <!-- Vocals -->
+    <div class="mix-section vocals">
+      <div class="section-header">
+        <div class="section-title">
+          <span class="icon">🎤</span>
+          Stemmen
+        </div>
+        <div class="section-value" id="vocals-value">0 dB</div>
+      </div>
+      <div class="slider-container">
+        <input type="range" class="slider" id="vocals-slider" min="0" max="100" value="75">
+      </div>
+      <div class="quick-buttons">
+        <button class="quick-btn" onclick="setVocals(50)">Minder</button>
+        <button class="quick-btn active" onclick="setVocals(75)">Normaal</button>
+        <button class="quick-btn" onclick="setVocals(100)">Meer</button>
+      </div>
+    </div>
+
+    <!-- Instruments -->
+    <div class="mix-section instruments">
+      <div class="section-header">
+        <div class="section-title">
+          <span class="icon">🎹</span>
+          Begeleiding
+        </div>
+        <div class="section-value" id="instruments-value">0 dB</div>
+      </div>
+      <div class="slider-container">
+        <input type="range" class="slider" id="instruments-slider" min="0" max="100" value="75">
+      </div>
+      <div class="quick-buttons">
+        <button class="quick-btn" onclick="setInstruments(50)">Minder</button>
+        <button class="quick-btn active" onclick="setInstruments(75)">Normaal</button>
+        <button class="quick-btn" onclick="setInstruments(100)">Meer</button>
+      </div>
+    </div>
+
+    <!-- Balance visualization -->
+    <div class="balance-visual">
+      <div class="balance-label left">Stemmen</div>
+      <div class="balance-bar">
+        <div class="balance-fill-left"></div>
+        <div class="balance-fill-right"></div>
+        <div class="balance-indicator" id="balance-indicator" style="left: 50%"></div>
+      </div>
+      <div class="balance-label right">Begeleiding</div>
+    </div>
+
+    <!-- Presets -->
+    <div class="presets">
+      <button class="preset-btn" onclick="applyPreset('rehearsal')">
+        <span class="emoji">🎯</span>
+        Repetitie
+      </button>
+      <button class="preset-btn" onclick="applyPreset('performance')">
+        <span class="emoji">🎤</span>
+        Optreden
+      </button>
+      <button class="preset-btn" onclick="applyPreset('vocals-focus')">
+        <span class="emoji">👥</span>
+        Meer Zang
+      </button>
+    </div>
+
+    <div class="info-text">
+      Schuif de balken om je monitor mix aan te passen.<br>
+      Wijzigingen worden direct toegepast.
+    </div>
+  </main>
+
+  <nav class="footer-nav">
+    <a href="/live" class="footer-link">Lyrics</a>
+    <a href="/dirigent" class="footer-link">Dirigent</a>
+  </nav>
+
+  <script>
+    // Configuration - which AUX to use for singer monitors
+    const MONITOR_AUX = 3; // AUX 3 for singer monitors
+
+    // Channel groups
+    const VOCAL_CHANNELS = [2, 3, 4];      // Zang mics
+    const INSTRUMENT_CHANNELS = [5, 6, 7, 8, 9, 10, 11, 12]; // Instruments including keyboard
+
+    // State
+    let connected = false;
+    let ws = null;
+
+    // Elements
+    const masterSlider = document.getElementById('master-slider');
+    const vocalsSlider = document.getElementById('vocals-slider');
+    const instrumentsSlider = document.getElementById('instruments-slider');
+    const masterValue = document.getElementById('master-value');
+    const vocalsValue = document.getElementById('vocals-value');
+    const instrumentsValue = document.getElementById('instruments-value');
+    const balanceIndicator = document.getElementById('balance-indicator');
+
+    // Connect WebSocket
+    function connect() {
+      const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+      ws = new WebSocket(`${protocol}//${location.host}?type=monitor`);
+
+      ws.onopen = () => {
+        connected = true;
+        updateStatus(true);
+      };
+
+      ws.onclose = () => {
+        connected = false;
+        updateStatus(false);
+        setTimeout(connect, 3000);
+      };
+
+      ws.onmessage = (e) => {
+        const msg = JSON.parse(e.data);
+        handleMessage(msg);
+      };
+    }
+
+    function updateStatus(isConnected) {
+      document.getElementById('status-dot').classList.toggle('connected', isConnected);
+      document.getElementById('status-text').textContent = isConnected ? 'Verbonden' : 'Niet verbonden';
+    }
+
+    function handleMessage(msg) {
+      // Handle status updates from server
+      if (msg.type === 'monitorLevels') {
+        // Update sliders from server state
+      }
+    }
+
+    // Convert slider (0-100) to dB display
+    function sliderToDb(value) {
+      if (value <= 0) return '-∞';
+      if (value >= 100) return '+10';
+      // 75 = 0dB
+      if (value < 75) {
+        const db = Math.round(-40 + (value / 75) * 40);
+        return db + ' dB';
+      } else {
+        const db = Math.round((value - 75) / 25 * 10);
+        return '+' + db + ' dB';
+      }
+    }
+
+    // Update balance indicator
+    function updateBalance() {
+      const vocals = parseInt(vocalsSlider.value);
+      const instruments = parseInt(instrumentsSlider.value);
+      const total = vocals + instruments;
+      const balance = total > 0 ? (instruments / total) * 100 : 50;
+      balanceIndicator.style.left = balance + '%';
+    }
+
+    // Send AUX level to server
+    async function sendAuxLevel(channels, level) {
+      // Convert 0-100 to 0-1
+      const normalizedLevel = level / 100;
+
+      for (const ch of channels) {
+        try {
+          await fetch(`/api/mixer/channel/${ch}/aux/${MONITOR_AUX}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ level: normalizedLevel })
+          });
+        } catch (e) {
+          console.error('Failed to set aux level:', e);
+        }
+      }
+    }
+
+    // Send master AUX level
+    async function sendMasterLevel(level) {
+      const normalizedLevel = level / 100;
+      try {
+        await fetch(`/api/mixer/aux/${MONITOR_AUX}/master`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ level: normalizedLevel })
+        });
+      } catch (e) {
+        console.error('Failed to set master level:', e);
+      }
+    }
+
+    // Slider handlers
+    masterSlider.addEventListener('input', (e) => {
+      masterValue.textContent = sliderToDb(e.target.value);
+      updateQuickButtons('.master .quick-btn', e.target.value);
+    });
+
+    masterSlider.addEventListener('change', (e) => {
+      sendMasterLevel(parseInt(e.target.value));
+    });
+
+    vocalsSlider.addEventListener('input', (e) => {
+      vocalsValue.textContent = sliderToDb(e.target.value);
+      updateQuickButtons('.vocals .quick-btn', e.target.value);
+      updateBalance();
+    });
+
+    vocalsSlider.addEventListener('change', (e) => {
+      sendAuxLevel(VOCAL_CHANNELS, parseInt(e.target.value));
+    });
+
+    instrumentsSlider.addEventListener('input', (e) => {
+      instrumentsValue.textContent = sliderToDb(e.target.value);
+      updateQuickButtons('.instruments .quick-btn', e.target.value);
+      updateBalance();
+    });
+
+    instrumentsSlider.addEventListener('change', (e) => {
+      sendAuxLevel(INSTRUMENT_CHANNELS, parseInt(e.target.value));
+    });
+
+    // Quick button handlers
+    function setMaster(value) {
+      masterSlider.value = value;
+      masterValue.textContent = sliderToDb(value);
+      updateQuickButtons('.master .quick-btn', value);
+      sendMasterLevel(value);
+    }
+
+    function setVocals(value) {
+      vocalsSlider.value = value;
+      vocalsValue.textContent = sliderToDb(value);
+      updateQuickButtons('.vocals .quick-btn', value);
+      updateBalance();
+      sendAuxLevel(VOCAL_CHANNELS, value);
+    }
+
+    function setInstruments(value) {
+      instrumentsSlider.value = value;
+      instrumentsValue.textContent = sliderToDb(value);
+      updateQuickButtons('.instruments .quick-btn', value);
+      updateBalance();
+      sendAuxLevel(INSTRUMENT_CHANNELS, value);
+    }
+
+    function updateQuickButtons(selector, value) {
+      document.querySelectorAll(selector).forEach(btn => {
+        btn.classList.remove('active');
+      });
+      // Highlight appropriate button based on value
+      const buttons = document.querySelectorAll(selector);
+      if (value <= 55) buttons[0]?.classList.add('active');
+      else if (value <= 85) buttons[1]?.classList.add('active');
+      else buttons[2]?.classList.add('active');
+    }
+
+    // Presets
+    function applyPreset(preset) {
+      switch (preset) {
+        case 'rehearsal':
+          setMaster(75);
+          setVocals(80);
+          setInstruments(70);
+          break;
+        case 'performance':
+          setMaster(80);
+          setVocals(75);
+          setInstruments(75);
+          break;
+        case 'vocals-focus':
+          setMaster(75);
+          setVocals(90);
+          setInstruments(60);
+          break;
+      }
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      connect();
+
+      // Set initial display values
+      masterValue.textContent = sliderToDb(masterSlider.value);
+      vocalsValue.textContent = sliderToDb(vocalsSlider.value);
+      instrumentsValue.textContent = sliderToDb(instrumentsSlider.value);
+      updateBalance();
+    });
+  </script>
+</body>
+</html>

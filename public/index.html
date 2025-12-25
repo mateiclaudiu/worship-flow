@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Worship Flow</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-deep: #0a0a0f;
+      --bg-card: #12121a;
+      --bg-elevated: #1a1a24;
+      --accent-gold: #d4a853;
+      --accent-gold-dim: #8b7355;
+      --text-primary: #f5f5f0;
+      --text-secondary: #a0a0a0;
+      --text-muted: #606060;
+      --border: #2a2a35;
+    }
+
+    body {
+      font-family: 'Source Sans 3', sans-serif;
+      background: var(--bg-deep);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      background-image: 
+        radial-gradient(ellipse at top, rgba(212, 168, 83, 0.03) 0%, transparent 50%),
+        radial-gradient(ellipse at bottom, rgba(212, 168, 83, 0.02) 0%, transparent 50%);
+    }
+
+    .container {
+      max-width: 800px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .logo {
+      margin-bottom: 3rem;
+    }
+
+    .logo h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 3.5rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .logo p {
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      font-weight: 300;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .nav-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+    }
+
+    .nav-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 2.5rem 2rem;
+      text-decoration: none;
+      color: inherit;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .nav-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--accent-gold), transparent);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .nav-card:hover {
+      background: var(--bg-elevated);
+      border-color: var(--accent-gold-dim);
+      transform: translateY(-4px);
+    }
+
+    .nav-card:hover::before {
+      opacity: 1;
+    }
+
+    .nav-card .icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      display: block;
+    }
+
+    .nav-card h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+      color: var(--text-primary);
+    }
+
+    .nav-card p {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .quick-actions {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .quick-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+
+    .quick-btn:hover {
+      border-color: var(--accent-gold-dim);
+      color: var(--accent-gold);
+    }
+
+    .footer {
+      margin-top: 4rem;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo">
+      <h1>Worship Flow</h1>
+      <p>Live Worship Management</p>
+    </div>
+
+    <div class="nav-cards">
+      <a href="/live" class="nav-card" style="border-color: var(--accent-gold); grid-column: 1 / -1;">
+        <span class="icon">▶️</span>
+        <h2>Live</h2>
+        <p>Alles-in-één scherm. Toggle tussen Presentatie en Zanger view. Leader mode voor liedjeskeuze en sectie-sync.</p>
+      </a>
+
+      <a href="/dirigent" class="nav-card">
+        <span class="icon">⚙️</span>
+        <h2>Beheer</h2>
+        <p>Voeg liedjes toe, maak setlists, en bewerk teksten.</p>
+      </a>
+
+      <a href="/leider" class="nav-card" style="opacity: 0.6;">
+        <span class="icon">🎹</span>
+        <h2>Leider</h2>
+        <p>Simpele view om liedjes te selecteren. Tik op een liedje en alle zangers zien het direct.</p>
+      </a>
+
+      <a href="/zanger" class="nav-card" style="opacity: 0.6;">
+        <span class="icon">🎤</span>
+        <h2>Zanger</h2>
+        <p>Bekijk de setlist, scroll door de teksten. Ontvang een melding wanneer de leider een liedje kiest.</p>
+      </a>
+
+      <a href="/presentatie" class="nav-card" style="opacity: 0.6;">
+        <span class="icon">📺</span>
+        <h2>Presentatie</h2>
+        <p>Grote tekst voor meerdere zangers op één scherm. Toont huidige + volgende sectie. Licht/donker thema.</p>
+      </a>
+
+      <a href="/mixer" class="nav-card">
+        <span class="icon">🎛</span>
+        <h2>Mixer</h2>
+        <p>Soundcraft UI24 integratie. Auto-gain limiter, scene recall per liedje, en realtime meters.</p>
+      </a>
+    </div>
+
+    <div class="quick-actions">
+      <a href="/live?leader=true" class="quick-btn">▶️ Live (leader)</a>
+      <a href="/live" class="quick-btn">🎤 Live (zanger)</a>
+      <a href="/dirigent#songs" class="quick-btn">📚 Liedjes beheren</a>
+      <a href="/dirigent#setlists" class="quick-btn">📋 Setlists</a>
+      <a href="/mixer" class="quick-btn">🎛 Mixer</a>
+    </div>
+
+    <div class="footer">
+      <p>Worship Flow v1.0 • Gebouwd voor live worship management</p>
+    </div>
+  </div>
+</body>
+</html>

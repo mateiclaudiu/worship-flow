@@ -1,0 +1,1985 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Live • Worship Flow</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #0a0a0f;
+      --bg-section: #111118;
+      --bg-next: #0d0d12;
+      --text: #ffffff;
+      --text-dim: #888888;
+      --accent: #d4a853;
+      --border: #2a2a35;
+      --lyrics-size: 2.75rem;
+    }
+
+    /* Light theme */
+    .light {
+      --bg: #f5f5f0;
+      --bg-section: #ffffff;
+      --bg-next: #eeeee8;
+      --text: #1a1a1a;
+      --text-dim: #666666;
+      --accent: #b8860b;
+      --border: #ddd;
+    }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    /* Header - auto-hide */
+    .header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: var(--bg-section);
+      border-bottom: 1px solid var(--border);
+      padding: 0.5rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 100;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .header:hover,
+    .header.show {
+      opacity: 1;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .header select {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.4rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-family: inherit;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .live-btn {
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      border: none;
+      color: white;
+      padding: 0.4rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .live-btn:hover {
+      background: linear-gradient(135deg, #16a34a, #15803d);
+      transform: scale(1.02);
+    }
+
+    .live-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .live-btn.sent {
+      background: linear-gradient(135deg, #a855f7, #9333ea);
+    }
+
+    .header-center {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .song-info-item {
+      font-size: 0.85rem;
+    }
+
+    .song-info-item .label {
+      color: var(--text-dim);
+    }
+
+    .song-info-item .value {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .icon-btn {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+    }
+
+    .icon-btn:hover {
+      border-color: var(--accent);
+    }
+
+    .icon-btn.active {
+      background: var(--accent);
+      color: var(--bg);
+      border-color: var(--accent);
+    }
+
+    .font-controls {
+      display: flex;
+      gap: 0.25rem;
+    }
+
+    .font-controls .icon-btn {
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    /* View toggle in header */
+    .view-toggle {
+      display: flex;
+      background: var(--bg);
+      border-radius: 6px;
+      padding: 2px;
+      border: 1px solid var(--border);
+    }
+
+    .view-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-dim);
+      padding: 0.3rem 0.6rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: all 0.15s;
+    }
+
+    .view-btn.active {
+      background: var(--accent);
+      color: var(--bg);
+    }
+
+    /* Main content */
+    .main {
+      height: 100%;
+      display: flex;
+      flex-direction: row;
+      padding-top: 50px;
+    }
+
+    /* Current section - takes most space */
+    .current-section {
+      flex: 3;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      padding-bottom: 5rem;
+      text-align: center;
+      background: var(--bg-section);
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .section-label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.25em;
+      color: var(--accent);
+      margin-bottom: 1.5rem;
+      font-weight: 700;
+    }
+
+    .lyrics-text {
+      font-size: var(--lyrics-size);
+      line-height: 2.1;
+      font-weight: 500;
+      white-space: pre-wrap;
+      max-width: 90%;
+      letter-spacing: 0.04em;
+      word-spacing: 0.1em;
+    }
+
+    .lyrics-text .accent {
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    /* Next section - smaller preview on right */
+    .next-section {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      text-align: center;
+      background: var(--bg-next);
+      border-left: 1px solid var(--border);
+      opacity: 0.6;
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    .next-section .section-label {
+      font-size: 0.7rem;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .next-section .section-label::before {
+      content: '→';
+      font-size: 0.8rem;
+    }
+
+    .next-section .lyrics-text {
+      font-size: calc(var(--lyrics-size) * 0.55);
+      line-height: 1.6;
+      font-weight: 400;
+      overflow: hidden;
+    }
+
+    /* Instrumentaal styling */
+    .current-section.instrumentaal .lyrics-text {
+      font-size: calc(var(--lyrics-size) * 1.25);
+      color: var(--accent);
+    }
+
+    .next-section.instrumentaal .lyrics-text {
+      color: var(--accent);
+    }
+
+    /* Navigation buttons */
+    .nav-buttons {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: space-between;
+      padding: 1rem;
+      background: linear-gradient(to top, var(--bg) 50%, transparent);
+      z-index: 60;
+    }
+
+    .nav-btn {
+      background: var(--bg-section);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 1rem 2rem;
+      border-radius: 12px;
+      font-size: 1.25rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.15s;
+    }
+
+    .nav-btn:hover {
+      background: var(--bg-next);
+      border-color: var(--accent);
+    }
+
+    .nav-btn:active {
+      transform: scale(0.95);
+    }
+
+    .nav-btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    .nav-btn .arrow {
+      font-size: 1.5rem;
+    }
+
+    .section-counter {
+      background: var(--bg-section);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      padding: 1rem 1.5rem;
+      border-radius: 12px;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .section-counter .current {
+      color: var(--accent);
+      font-weight: 700;
+      font-size: 1.25rem;
+    }
+
+    .amen-btn {
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      border-color: #22c55e;
+      color: white;
+    }
+
+    .amen-btn:hover {
+      background: linear-gradient(135deg, #16a34a, #15803d);
+      border-color: #16a34a;
+    }
+
+    .amen-btn.done {
+      background: linear-gradient(135deg, #a855f7, #9333ea);
+      border-color: #a855f7;
+      pointer-events: none;
+    }
+
+    /* Waiting state */
+    .waiting {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: var(--text-dim);
+    }
+
+    .waiting .icon {
+      font-size: 4rem;
+      margin-bottom: 1.5rem;
+      opacity: 0.3;
+    }
+
+    .waiting h2 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: var(--text);
+    }
+
+    /* SINGER VIEW - scrollable sections */
+    .singer-view {
+      display: none;
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.5rem;
+      padding-bottom: 6rem;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .singer-view.active {
+      display: block;
+    }
+
+    .singer-section {
+      margin-bottom: 2rem;
+      padding: 1.5rem;
+      background: var(--bg-section);
+      border-radius: 12px;
+      border-left: 4px solid var(--border);
+    }
+
+    .singer-section.current-singer {
+      border-left-color: var(--accent);
+      box-shadow: 0 0 30px rgba(212, 168, 83, 0.1);
+    }
+
+    .singer-section .section-label {
+      font-size: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .singer-section .lyrics-text {
+      font-size: calc(var(--lyrics-size) * 0.7);
+      line-height: 1.8;
+    }
+
+    /* Presentation view wrapper */
+    .presentation-view {
+      display: flex;
+      flex: 1;
+      height: 100%;
+    }
+
+    .presentation-view.hidden {
+      display: none;
+    }
+
+    /* Leader panel - slide down overlay */
+    .leader-panel {
+      position: fixed;
+      top: 50px;
+      left: 0;
+      right: 0;
+      background: var(--bg-section);
+      border-bottom: 1px solid var(--border);
+      padding: 0.75rem 1rem;
+      z-index: 90;
+      transform: translateY(-100%);
+      opacity: 0;
+      transition: transform 0.3s, opacity 0.3s;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+
+    .leader-panel.active {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .leader-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .leader-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .leader-row label {
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      min-width: 50px;
+    }
+
+    .leader-row select {
+      flex: 1;
+      max-width: 250px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.4rem 0.6rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-family: inherit;
+    }
+
+    .now-badge {
+      background: var(--accent);
+      color: var(--bg);
+      padding: 0.2rem 0.6rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      display: none;
+    }
+
+    .now-badge.active {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .now-badge .pulse {
+      width: 6px;
+      height: 6px;
+      background: var(--bg);
+      border-radius: 50%;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    /* Song chips */
+    .song-chips {
+      display: flex;
+      gap: 0.4rem;
+      overflow-x: auto;
+      max-width: 50vw;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .song-chips::-webkit-scrollbar {
+      height: 2px;
+    }
+
+    .song-chips::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 2px;
+    }
+
+    .song-chip {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      padding: 0.3rem 0.6rem;
+      border-radius: 15px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: all 0.15s;
+      flex-shrink: 0;
+    }
+
+    .song-chip:hover {
+      border-color: var(--accent);
+      color: var(--text);
+    }
+
+    .song-chip.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: var(--bg);
+    }
+
+    /* Notification */
+    .notification {
+      position: fixed;
+      top: 60px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-100px);
+      background: var(--accent);
+      color: var(--bg);
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 600;
+      z-index: 200;
+      transition: transform 0.3s ease;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+
+    .notification.show {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Adjust main when leader panel is active */
+    body.leader-active .main {
+      padding-top: 130px;
+    }
+
+    body.leader-active .leader-panel {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    /* Quick Access Drawer */
+    .quick-access-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 200;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.2s ease;
+    }
+
+    .quick-access-overlay.open {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .quick-access-drawer {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.95);
+      width: 90%;
+      max-width: 500px;
+      max-height: 80vh;
+      background: var(--bg-section);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      z-index: 201;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .quick-access-overlay.open + .quick-access-drawer,
+    .quick-access-drawer.open {
+      opacity: 1;
+      visibility: visible;
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    .quick-access-header {
+      padding: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .quick-access-search {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 1rem;
+      font-family: inherit;
+      outline: none;
+    }
+
+    .quick-access-search:focus {
+      border-color: var(--accent);
+    }
+
+    .quick-access-search::placeholder {
+      color: var(--text-dim);
+    }
+
+    .quick-access-shortcut {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+      font-size: 0.75rem;
+      color: var(--text-dim);
+    }
+
+    .quick-access-shortcut kbd {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      font-family: monospace;
+    }
+
+    .quick-access-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0.5rem;
+    }
+
+    .quick-access-section {
+      margin-bottom: 0.5rem;
+    }
+
+    .quick-access-section-title {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 0.5rem 0.75rem;
+    }
+
+    .quick-access-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .quick-access-item:hover {
+      background: var(--bg);
+    }
+
+    .quick-access-item.selected {
+      background: var(--bg);
+      border: 1px solid var(--accent);
+    }
+
+    .quick-access-item-icon {
+      font-size: 1.25rem;
+    }
+
+    .quick-access-item-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .quick-access-item-title {
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .quick-access-item-meta {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .quick-access-empty {
+      padding: 2rem;
+      text-align: center;
+      color: var(--text-dim);
+    }
+
+    .quick-access-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .quick-access-tab {
+      flex: 1;
+      background: none;
+      border: none;
+      padding: 0.75rem;
+      color: var(--text-dim);
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+      border-bottom: 2px solid transparent;
+    }
+
+    .quick-access-tab:hover {
+      color: var(--text);
+      background: var(--bg);
+    }
+
+    .quick-access-tab.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+
+    .quick-access-btn {
+      position: fixed;
+      bottom: 1rem;
+      right: 1rem;
+      width: 48px;
+      height: 48px;
+      background: var(--accent);
+      color: var(--bg);
+      border: none;
+      border-radius: 50%;
+      font-size: 1.25rem;
+      cursor: pointer;
+      z-index: 150;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      transition: transform 0.2s, background 0.2s;
+    }
+
+    .quick-access-btn:hover {
+      transform: scale(1.1);
+    }
+
+    /* ===================== */
+    /* Monitor Mix Panel     */
+    /* ===================== */
+    .monitor-btn {
+      position: fixed;
+      bottom: 1rem;
+      left: 1rem;
+      width: 48px;
+      height: 48px;
+      background: var(--bg-section);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 50%;
+      font-size: 1.25rem;
+      cursor: pointer;
+      z-index: 150;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      transition: transform 0.2s, background 0.2s;
+    }
+
+    .monitor-btn:hover {
+      transform: scale(1.1);
+      border-color: var(--accent);
+    }
+
+    .monitor-btn.active {
+      background: var(--accent);
+      color: var(--bg);
+      border-color: var(--accent);
+    }
+
+    .monitor-panel {
+      position: fixed;
+      bottom: 70px;
+      left: 1rem;
+      width: 280px;
+      background: var(--bg-section);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1rem;
+      z-index: 140;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+      transform: translateY(20px);
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.2s ease;
+    }
+
+    .monitor-panel.open {
+      transform: translateY(0);
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .monitor-panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .monitor-panel-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .monitor-close {
+      background: none;
+      border: none;
+      color: var(--text-dim);
+      font-size: 1.25rem;
+      cursor: pointer;
+      padding: 0.25rem;
+    }
+
+    .monitor-close:hover {
+      color: var(--text);
+    }
+
+    .monitor-slider-group {
+      margin-bottom: 1rem;
+    }
+
+    .monitor-slider-group:last-child {
+      margin-bottom: 0;
+    }
+
+    .monitor-slider-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .monitor-slider-label {
+      font-size: 0.8rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .monitor-slider-label.vocals { color: #e74c3c; }
+    .monitor-slider-label.instruments { color: #3498db; }
+
+    .monitor-slider-value {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      font-family: monospace;
+    }
+
+    .monitor-slider {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 36px;
+      background: var(--bg);
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .monitor-slider::-webkit-slider-runnable-track {
+      height: 36px;
+      background: var(--bg);
+      border-radius: 6px;
+      border: 1px solid var(--border);
+    }
+
+    .monitor-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px;
+      height: 36px;
+      background: linear-gradient(to bottom, #fff, #ddd);
+      border-radius: 4px;
+      cursor: grab;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .monitor-slider::-webkit-slider-thumb:active {
+      cursor: grabbing;
+    }
+
+    .monitor-slider.vocals::-webkit-slider-runnable-track {
+      background: linear-gradient(to right, var(--bg) 0%, rgba(231, 76, 60, 0.2) 100%);
+    }
+
+    .monitor-slider.instruments::-webkit-slider-runnable-track {
+      background: linear-gradient(to right, var(--bg) 0%, rgba(52, 152, 219, 0.2) 100%);
+    }
+
+    .monitor-presets {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .monitor-preset-btn {
+      flex: 1;
+      padding: 0.5rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text-dim);
+      font-size: 0.7rem;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .monitor-preset-btn:hover {
+      border-color: var(--accent);
+      color: var(--text);
+    }
+
+    .monitor-preset-btn:active {
+      background: var(--accent);
+      color: var(--bg);
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header" id="header">
+    <div class="header-left">
+      <div class="view-toggle">
+        <button class="view-btn active" data-view="presentatie" onclick="setView('presentatie')">Scherm</button>
+        <button class="view-btn" data-view="zanger" onclick="setView('zanger')">Scroll</button>
+      </div>
+      <select id="setlist-select" onchange="loadSetlist()">
+        <option value="">-- Setlist --</option>
+      </select>
+      <div class="song-chips" id="song-chips"></div>
+    </div>
+    <div class="header-center" id="header-center" style="display: none;">
+      <span class="song-info-item"><span class="label">Toon:</span> <span class="value" id="header-song-key">-</span></span>
+      <span class="song-info-item"><span class="label">Tempo:</span> <span class="value" id="header-song-tempo">-</span></span>
+    </div>
+    <div class="header-right">
+      <button class="live-btn" id="live-btn" onclick="broadcastSong()" title="Zet live voor andere schermen">📡 Live</button>
+      <div class="font-controls">
+        <button class="icon-btn" onclick="adjustFontSize(-0.25)">A-</button>
+        <button class="icon-btn" onclick="adjustFontSize(0.25)">A+</button>
+      </div>
+      <button class="icon-btn" onclick="toggleTheme()" title="Thema">◐</button>
+      <button class="icon-btn" onclick="toggleFullscreen()" title="Volledig scherm">⛶</button>
+    </div>
+  </header>
+
+  <!-- Main content -->
+  <div class="main" id="main">
+    <!-- Presentation view -->
+    <div class="presentation-view" id="presentation-view">
+      <div class="waiting" id="waiting">
+        <div class="icon">🎵</div>
+        <h2>Wachten op liedje</h2>
+        <p>Hover bovenaan voor instellingen</p>
+      </div>
+    </div>
+
+    <!-- Singer view (hidden by default) -->
+    <div class="singer-view" id="singer-view"></div>
+  </div>
+
+  <!-- Navigation buttons -->
+  <div class="nav-buttons" id="nav-buttons" style="display: none;">
+    <button class="nav-btn" id="prev-btn" onclick="prevSection()">
+      <span class="arrow">◀</span>
+      <span>Vorige</span>
+    </button>
+    <div class="section-counter">
+      <span class="current" id="section-current">1</span>
+      <span>/</span>
+      <span id="section-total">1</span>
+    </div>
+    <button class="nav-btn" id="next-btn" onclick="nextSection()">
+      <span>Volgende</span>
+      <span class="arrow">▶</span>
+    </button>
+    <button class="nav-btn amen-btn" id="amen-btn" onclick="logAmen()" style="display: none;">
+      <span>🙏</span>
+      <span>AMEN</span>
+    </button>
+  </div>
+
+  <div class="notification" id="notification"></div>
+
+  <!-- Quick Access Drawer -->
+  <div class="quick-access-overlay" id="quick-access-overlay" onclick="closeQuickAccess()"></div>
+  <div class="quick-access-drawer" id="quick-access-drawer">
+    <div class="quick-access-header">
+      <input type="text"
+             class="quick-access-search"
+             id="quick-access-search"
+             placeholder="Zoek een liedje..."
+             autocomplete="off"
+             oninput="searchSongs(this.value)">
+      <div class="quick-access-shortcut">
+        Druk <kbd>Ctrl</kbd> + <kbd>K</kbd> om te openen
+      </div>
+    </div>
+    <div class="quick-access-tabs">
+      <button class="quick-access-tab active" data-tab="all" onclick="switchQuickAccessTab('all')">Alle liedjes</button>
+      <button class="quick-access-tab" data-tab="recent" onclick="switchQuickAccessTab('recent')">Recent</button>
+    </div>
+    <div class="quick-access-content" id="quick-access-content">
+      <div id="songs-list"></div>
+    </div>
+  </div>
+
+  <!-- Quick Access FAB button -->
+  <button class="quick-access-btn" id="quick-access-btn" onclick="openQuickAccess()" title="Zoek liedje (Ctrl+K)">🔍</button>
+
+  <!-- Monitor Mix Button & Panel -->
+  <button class="monitor-btn" id="monitor-btn" onclick="toggleMonitorPanel()" title="Monitor Mix">🎧</button>
+  <div class="monitor-panel" id="monitor-panel">
+    <div class="monitor-panel-header">
+      <div class="monitor-panel-title">🎧 Monitor Mix</div>
+      <button class="monitor-close" onclick="toggleMonitorPanel()">×</button>
+    </div>
+    <div class="monitor-slider-group">
+      <div class="monitor-slider-header">
+        <span class="monitor-slider-label vocals">🎤 Stemmen</span>
+        <span class="monitor-slider-value" id="vocals-value">0 dB</span>
+      </div>
+      <input type="range" class="monitor-slider vocals" id="vocals-slider"
+             min="0" max="100" value="75"
+             oninput="updateMonitorSlider('vocals', this.value)"
+             onchange="sendMonitorLevel('vocals')">
+    </div>
+    <div class="monitor-slider-group">
+      <div class="monitor-slider-header">
+        <span class="monitor-slider-label instruments">🎹 Begeleiding</span>
+        <span class="monitor-slider-value" id="instruments-value">0 dB</span>
+      </div>
+      <input type="range" class="monitor-slider instruments" id="instruments-slider"
+             min="0" max="100" value="75"
+             oninput="updateMonitorSlider('instruments', this.value)"
+             onchange="sendMonitorLevel('instruments')">
+    </div>
+    <div class="monitor-presets">
+      <button class="monitor-preset-btn" onclick="applyMonitorPreset('vocals')">Meer Zang</button>
+      <button class="monitor-preset-btn" onclick="applyMonitorPreset('balanced')">Gebalanceerd</button>
+      <button class="monitor-preset-btn" onclick="applyMonitorPreset('instruments')">Meer Keys</button>
+    </div>
+  </div>
+
+  <script>
+    // State
+    let currentView = 'presentatie';
+    let isLeader = true; // Always leader mode now
+    let isDarkTheme = true;
+    let baseFontSize = 2.75;
+
+    let setlists = [];
+    let currentSetlist = null;
+    let currentSong = null;
+    let currentSongId = null;
+    let sections = [];
+    let currentSectionIndex = 0;
+
+    // WebSocket
+    let ws;
+    let reconnectInterval;
+
+    function connectWebSocket() {
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      ws = new WebSocket(`${protocol}//${window.location.host}?type=live`);
+
+      ws.onopen = () => {
+        clearInterval(reconnectInterval);
+      };
+
+      ws.onclose = () => {
+        reconnectInterval = setInterval(connectWebSocket, 3000);
+      };
+
+      ws.onmessage = (event) => {
+        const msg = JSON.parse(event.data);
+        handleMessage(msg);
+      };
+    }
+
+    function handleMessage(msg) {
+      switch (msg.type) {
+        case 'selectSong':
+          if (!isLeader) {
+            loadSongById(msg.data.songId, msg.data.songTitle);
+            showNotification(`${msg.data.songTitle}`);
+          }
+          break;
+        case 'navigate':
+          if (!isLeader && msg.data.sectionIndex !== undefined) {
+            currentSectionIndex = msg.data.sectionIndex;
+            renderCurrentView();
+            if (currentView === 'zanger') {
+              scrollToSection(currentSectionIndex);
+            }
+          }
+          break;
+        case 'state':
+          if (msg.data.currentSongId && !currentSongId) {
+            loadSongById(msg.data.currentSongId);
+          }
+          break;
+      }
+    }
+
+    function sendSelectSong(songId, songTitle) {
+      if (ws && ws.readyState === WebSocket.OPEN && isLeader) {
+        ws.send(JSON.stringify({
+          type: 'selectSong',
+          data: { setlistId: currentSetlist?.id, songId, songTitle }
+        }));
+      }
+    }
+
+    function sendNavigate(sectionIndex) {
+      if (ws && ws.readyState === WebSocket.OPEN && isLeader) {
+        ws.send(JSON.stringify({
+          type: 'navigate',
+          data: { sectionIndex }
+        }));
+      }
+    }
+
+    // View toggle
+    function setView(view) {
+      currentView = view;
+      document.querySelectorAll('.view-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.view === view);
+      });
+
+      const presView = document.getElementById('presentation-view');
+      const singView = document.getElementById('singer-view');
+
+      if (view === 'presentatie') {
+        presView.classList.remove('hidden');
+        singView.classList.remove('active');
+      } else {
+        presView.classList.add('hidden');
+        singView.classList.add('active');
+      }
+
+      renderCurrentView();
+    }
+
+    // Theme toggle
+    function toggleTheme() {
+      isDarkTheme = !isDarkTheme;
+      document.body.classList.toggle('light', !isDarkTheme);
+    }
+
+    // Fullscreen toggle
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => {
+          console.log('Fullscreen error:', err);
+        });
+      } else {
+        document.exitFullscreen();
+      }
+    }
+
+    // Broadcast current song to other screens
+    function broadcastSong() {
+      if (!currentSongId || !currentSong) return;
+
+      sendSelectSong(currentSongId, currentSong.title);
+
+      // Visual feedback
+      const btn = document.getElementById('live-btn');
+      btn.classList.add('sent');
+      btn.textContent = '✓ Live';
+      setTimeout(() => {
+        btn.classList.remove('sent');
+        btn.textContent = '📡 Live';
+      }, 2000);
+    }
+
+    // Header auto-hide (only when song is selected)
+    let headerTimeout;
+    function showHeader() {
+      const header = document.getElementById('header');
+      header.classList.add('show');
+      clearTimeout(headerTimeout);
+
+      // Only auto-hide if a song is selected
+      if (currentSongId) {
+        headerTimeout = setTimeout(() => {
+          header.classList.remove('show');
+        }, 5000);
+      }
+    }
+
+    function keepHeaderVisible() {
+      const header = document.getElementById('header');
+      header.classList.add('show');
+      clearTimeout(headerTimeout);
+    }
+
+    // Font size
+    function adjustFontSize(delta) {
+      baseFontSize = Math.max(1.5, Math.min(5, baseFontSize + delta));
+      document.documentElement.style.setProperty('--lyrics-size', baseFontSize + 'rem');
+      renderCurrentView();
+    }
+
+    function resetFontSize() {
+      baseFontSize = 2.75;
+      document.documentElement.style.setProperty('--lyrics-size', baseFontSize + 'rem');
+      renderCurrentView();
+    }
+
+    // Load setlists
+    async function loadSetlists() {
+      const res = await fetch('/api/setlists');
+      setlists = await res.json();
+
+      const options = '<option value="">-- Setlist --</option>' +
+        setlists.map(sl => `<option value="${sl.id}">${sl.pinned ? '📌 ' : ''}${sl.name}</option>`).join('');
+
+      document.getElementById('setlist-select').innerHTML = options;
+    }
+
+    // Load setlist
+    async function loadSetlist() {
+      const setlistId = document.getElementById('setlist-select').value;
+
+      if (!setlistId) {
+        document.getElementById('song-chips').innerHTML = '';
+        currentSetlist = null;
+        return;
+      }
+
+      const res = await fetch(`/api/setlists/${setlistId}`);
+      currentSetlist = await res.json();
+      renderSongChips();
+    }
+
+    // Render song chips
+    function renderSongChips() {
+      const container = document.getElementById('song-chips');
+      if (!currentSetlist?.songs?.length) {
+        container.innerHTML = '<span style="color: var(--text-dim); font-size: 0.8rem;">Geen liedjes</span>';
+        return;
+      }
+
+      container.innerHTML = currentSetlist.songs.map((song, i) => `
+        <button class="song-chip ${song.id === currentSongId ? 'active' : ''}"
+                data-song-id="${song.id}"
+                onclick="selectSong('${song.id}', '${song.title.replace(/'/g, "\\'")}')">
+          ${i + 1}. ${song.title}
+        </button>
+      `).join('');
+    }
+
+    // Select song (as leader)
+    function selectSong(songId, songTitle) {
+      currentSongId = songId;
+      currentSong = currentSetlist?.songs?.find(s => s.id === songId);
+      resetAmenButton();
+
+      // Update chips
+      document.querySelectorAll('.song-chip').forEach(chip => {
+        chip.classList.toggle('active', chip.dataset.songId === songId);
+      });
+
+      // Update header center with key/tempo
+      document.getElementById('header-center').style.display = 'flex';
+      document.getElementById('header-song-key').textContent = currentSong?.key || '-';
+      document.getElementById('header-song-tempo').textContent = currentSong?.tempo ? `${currentSong.tempo} BPM` : '-';
+
+      // Parse and render
+      if (currentSong) {
+        parseSong(currentSong);
+        renderCurrentView();
+        document.getElementById('nav-buttons').style.display = 'flex';
+        document.getElementById('waiting').style.display = 'none';
+      }
+
+      // Broadcast
+      sendSelectSong(songId, songTitle);
+
+      // Start auto-hide timer
+      showHeader();
+    }
+
+    // Load song by ID (when receiving from leader)
+    async function loadSongById(songId, songTitle) {
+      currentSongId = songId;
+      resetAmenButton();
+
+      if (currentSetlist?.songs) {
+        currentSong = currentSetlist.songs.find(s => s.id === songId);
+      }
+
+      if (!currentSong) {
+        const res = await fetch(`/api/songs/${songId}`);
+        currentSong = await res.json();
+      }
+
+      if (currentSong) {
+        // Update header center with key/tempo
+        document.getElementById('header-center').style.display = 'flex';
+        document.getElementById('header-song-key').textContent = currentSong.key || '-';
+        document.getElementById('header-song-tempo').textContent = currentSong.tempo ? `${currentSong.tempo} BPM` : '-';
+
+        // Update song dropdown
+        document.getElementById('song-select').value = songId;
+
+        parseSong(currentSong);
+        currentSectionIndex = 0;
+        renderCurrentView();
+        document.getElementById('nav-buttons').style.display = 'flex';
+        document.getElementById('waiting').style.display = 'none';
+      }
+
+      // Update chips if visible
+      document.querySelectorAll('.song-chip').forEach(chip => {
+        chip.classList.toggle('active', chip.dataset.songId === songId);
+      });
+    }
+
+    // Parse song into sections
+    function parseSong(song) {
+      sections = [];
+      if (!song.lyrics) return;
+
+      const parts = song.lyrics.split('---').map(s => s.trim()).filter(Boolean);
+      const structureParts = song.structure ? song.structure.split(',').map(s => s.trim()) : [];
+      let lastRefrein = null;
+
+      parts.forEach((part, i) => {
+        let label = structureParts[i] || '';
+        let text = part;
+
+        // Special markers
+        if (part.includes('[[REFREIN_HIER]]') || part.includes('[[REFREIN]]')) {
+          if (lastRefrein) sections.push({ ...lastRefrein });
+          return;
+        }
+
+        if (part.includes('[[INSTRUMENTAAL_HIER]]') || part.includes('[[INSTRUMENTAAL]]')) {
+          sections.push({ label: 'Instrumentaal', text: '🎹', isInstrumentaal: true });
+          return;
+        }
+
+        // Flexible repeat format
+        const herhaalMatch = part.match(/\[\[HERHAAL:\s*(.+?),\s*(\d+)x\]\]/i);
+        if (herhaalMatch) {
+          const herhaalType = herhaalMatch[1].trim();
+          const numRepeats = parseInt(herhaalMatch[2]) || 3;
+
+          const customTextMatch = herhaalType.match(/^"(.+)"$/);
+          if (customTextMatch) {
+            const repeated = Array(numRepeats).fill(customTextMatch[1]).join('\n\n');
+            sections.push({ label: `Herhaling ${numRepeats}x`, text: repeated });
+            return;
+          }
+
+          const laatsteMatch = herhaalType.match(/laatste\s*(\d+)?\s*zinnen?/i);
+          if (laatsteMatch) {
+            const numLines = parseInt(laatsteMatch[1]) || 2;
+            const prev = sections[sections.length - 1];
+            if (prev) {
+              const lines = prev.text.split('\n').filter(l => l.trim());
+              const lastLines = lines.slice(-numLines).join('\n');
+              const repeated = Array(numRepeats).fill(lastLines).join('\n\n');
+              sections.push({ label: `Herhaling ${numRepeats}x`, text: repeated });
+            }
+            return;
+          }
+
+          if (herhaalType.match(/refrein\s*\+\s*laatste/i)) {
+            if (lastRefrein) {
+              sections.push({ ...lastRefrein });
+              const lines = lastRefrein.text.split('\n').filter(l => l.trim());
+              const lastLines = lines.slice(-2).join('\n');
+              const repeated = Array(numRepeats).fill(lastLines).join('\n\n');
+              sections.push({ label: `Herhaling ${numRepeats}x`, text: repeated });
+            }
+            return;
+          }
+
+          if (herhaalType.match(/^refrein$/i)) {
+            if (lastRefrein) {
+              for (let r = 0; r < numRepeats; r++) sections.push({ ...lastRefrein });
+            }
+            return;
+          }
+        }
+
+        // Legacy markers
+        const lastLinesMatch = part.match(/\[\[LAATSTE\s*(\d+)?\s*ZINNEN?\s*(\d+)?x?\]\]/i);
+        if (lastLinesMatch) {
+          const numLines = parseInt(lastLinesMatch[1]) || 2;
+          const numRepeats = parseInt(lastLinesMatch[2]) || 3;
+          const prev = sections[sections.length - 1];
+          if (prev) {
+            const lines = prev.text.split('\n').filter(l => l.trim());
+            const lastLines = lines.slice(-numLines).join('\n');
+            const repeated = Array(numRepeats).fill(lastLines).join('\n\n');
+            sections.push({ label: `Herhaling ${numRepeats}x`, text: repeated });
+          }
+          return;
+        }
+
+        const refreinPlusMatch = part.match(/\[\[REFREIN\s*\+\s*LAATSTE\s*(\d+)?x?\]\]/i);
+        if (refreinPlusMatch) {
+          const numRepeats = parseInt(refreinPlusMatch[1]) || 2;
+          if (lastRefrein) {
+            sections.push({ ...lastRefrein });
+            const lines = lastRefrein.text.split('\n').filter(l => l.trim());
+            const lastLines = lines.slice(-2).join('\n');
+            const repeated = Array(numRepeats).fill(lastLines).join('\n\n');
+            sections.push({ label: `Herhaling ${numRepeats}x`, text: repeated });
+          }
+          return;
+        }
+
+        // Parse label from text
+        const labelMatch = part.match(/^(Vers\s*\d*|Refrein|Bridge|Pre-chorus|Chorus|Intro|Outro|Instrumentaal)\s*:?\s*/i);
+        if (labelMatch) {
+          if (!label) label = labelMatch[1];
+          text = part.substring(labelMatch[0].length).trim();
+        }
+
+        const isInstrumentaal = label.toLowerCase().includes('instrumentaal') || text.includes('🎹');
+        const section = { label, text, isInstrumentaal };
+
+        if (label.toLowerCase().includes('refrein') || label.toLowerCase().includes('chorus')) {
+          lastRefrein = { ...section };
+        }
+
+        sections.push(section);
+      });
+
+      currentSectionIndex = 0;
+    }
+
+    // Render based on current view
+    function renderCurrentView() {
+      if (currentView === 'presentatie') {
+        renderPresentationView();
+      } else {
+        renderSingerView();
+      }
+      updateNavInfo();
+    }
+
+    // Render presentation view
+    function renderPresentationView() {
+      const container = document.getElementById('presentation-view');
+
+      if (sections.length === 0) {
+        container.innerHTML = `
+          <div class="waiting" id="waiting">
+            <div class="icon">🎵</div>
+            <h2>Wachten op liedje</h2>
+            <p>Hover bovenaan voor instellingen</p>
+          </div>
+        `;
+        return;
+      }
+
+      const current = sections[currentSectionIndex];
+      const next = sections[currentSectionIndex + 1];
+      const formatText = (text) => text.replace(/\*\*([^*]+)\*\*/g, '<span class="accent">$1</span>');
+
+      container.innerHTML = `
+        <div class="current-section ${current.isInstrumentaal ? 'instrumentaal' : ''}">
+          ${current.label ? `<div class="section-label">${current.label}</div>` : ''}
+          <div class="lyrics-text">${current.isInstrumentaal ? '🎹 Instrumentaal' : formatText(current.text)}</div>
+        </div>
+        ${next ? `
+          <div class="next-section ${next.isInstrumentaal ? 'instrumentaal' : ''}">
+            <div class="section-label">${next.label || 'Volgende'}</div>
+            <div class="lyrics-text">${next.isInstrumentaal ? '🎹' : formatText(next.text)}</div>
+          </div>
+        ` : '<div class="next-section"><div class="section-label">Einde</div></div>'}
+      `;
+
+      // Auto-fit text
+      requestAnimationFrame(autoFitText);
+    }
+
+    // Auto-fit text to container
+    function autoFitText() {
+      const container = document.querySelector('.current-section');
+      const text = container?.querySelector('.lyrics-text');
+      if (!container || !text) return;
+
+      let size = baseFontSize;
+      text.style.fontSize = size + 'rem';
+
+      while (text.scrollHeight > container.clientHeight * 0.85 && size > 1) {
+        size -= 0.1;
+        text.style.fontSize = size + 'rem';
+      }
+    }
+
+    // Render singer view
+    function renderSingerView() {
+      const container = document.getElementById('singer-view');
+
+      if (sections.length === 0) {
+        container.innerHTML = `
+          <div class="waiting">
+            <div class="icon">🎵</div>
+            <h2>Wachten op liedje</h2>
+          </div>
+        `;
+        return;
+      }
+
+      const formatText = (text) => text.replace(/\*\*([^*]+)\*\*/g, '<span class="accent">$1</span>');
+
+      container.innerHTML = sections.map((section, i) => `
+        <div class="singer-section ${i === currentSectionIndex ? 'current-singer' : ''} ${section.isInstrumentaal ? 'instrumentaal' : ''}" data-index="${i}">
+          ${section.label ? `<div class="section-label">${section.label}</div>` : ''}
+          <div class="lyrics-text">${section.isInstrumentaal ? '🎹 Instrumentaal' : formatText(section.text)}</div>
+        </div>
+      `).join('');
+
+      scrollToSection(currentSectionIndex);
+    }
+
+    // Scroll to section in singer view
+    function scrollToSection(index) {
+      const container = document.getElementById('singer-view');
+      const section = container.querySelector(`[data-index="${index}"]`);
+      if (section) {
+        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+
+    // Navigation
+    function nextSection() {
+      if (currentSectionIndex < sections.length - 1) {
+        currentSectionIndex++;
+        renderCurrentView();
+        if (isLeader) sendNavigate(currentSectionIndex);
+      }
+    }
+
+    function prevSection() {
+      if (currentSectionIndex > 0) {
+        currentSectionIndex--;
+        renderCurrentView();
+        if (isLeader) sendNavigate(currentSectionIndex);
+      }
+    }
+
+    function updateNavInfo() {
+      document.getElementById('section-current').textContent = currentSectionIndex + 1;
+      document.getElementById('section-total').textContent = sections.length || 1;
+      document.getElementById('prev-btn').disabled = currentSectionIndex === 0;
+      document.getElementById('next-btn').disabled = currentSectionIndex >= sections.length - 1;
+
+      // Show AMEN button only on last section
+      const isLastSection = currentSectionIndex >= sections.length - 1;
+      const amenBtn = document.getElementById('amen-btn');
+      if (amenBtn) amenBtn.style.display = isLastSection ? 'flex' : 'none';
+    }
+
+    // AMEN button - log song as performed
+    async function logAmen() {
+      if (!currentSongId) return;
+
+      const btn = document.getElementById('amen-btn');
+      if (!btn) return;
+      btn.disabled = true;
+
+      try {
+        await fetch(`/api/songs/${currentSongId}/amen`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ setlistId: currentSetlist?.id })
+        });
+
+        // Visual feedback
+        btn.classList.add('done');
+        btn.innerHTML = '<span>✓</span><span>AMEN</span>';
+        showNotification('Liedje gelogd!');
+      } catch (e) {
+        console.error('Amen error:', e);
+        btn.disabled = false;
+      }
+    }
+
+    // Reset AMEN button when song changes
+    function resetAmenButton() {
+      const btn = document.getElementById('amen-btn');
+      if (!btn) return;
+      btn.classList.remove('done');
+      btn.disabled = false;
+      btn.innerHTML = '<span>🙏</span><span>AMEN</span>';
+    }
+
+    // Notification
+    function showNotification(text) {
+      const notification = document.getElementById('notification');
+      notification.textContent = text;
+      notification.classList.add('show');
+
+      if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+
+      setTimeout(() => notification.classList.remove('show'), 3000);
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      connectWebSocket();
+      loadSetlists();
+      showHeader(); // Show header on load
+
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('view') === 'zanger') {
+        setView('zanger');
+      }
+    });
+
+    // Show header on mouse move to top
+    document.addEventListener('mousemove', (e) => {
+      if (e.clientY < 80) {
+        showHeader();
+      }
+    });
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ') {
+        e.preventDefault();
+        nextSection();
+      } else if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        prevSection();
+      }
+    });
+
+    // Touch swipe
+    let touchStartX = 0;
+    document.addEventListener('touchstart', (e) => {
+      touchStartX = e.touches[0].clientX;
+    });
+
+    document.addEventListener('touchend', (e) => {
+      const touchEndX = e.changedTouches[0].clientX;
+      const diff = touchStartX - touchEndX;
+      if (Math.abs(diff) > 50) {
+        if (diff > 0) nextSection();
+        else prevSection();
+      }
+    });
+
+    // =====================
+    // Quick Access Drawer
+    // =====================
+    let quickAccessOpen = false;
+    let allSongs = [];
+    let recentSongs = [];
+    let currentTab = 'all';
+
+    // Open Quick Access drawer
+    function openQuickAccess() {
+      quickAccessOpen = true;
+      document.getElementById('quick-access-overlay').classList.add('open');
+      document.getElementById('quick-access-drawer').classList.add('open');
+      document.getElementById('quick-access-search').value = '';
+      document.getElementById('quick-access-search').focus();
+
+      // Load songs if not loaded yet
+      if (allSongs.length === 0) {
+        loadAllSongs();
+      } else {
+        renderSongsList();
+      }
+    }
+
+    // Close Quick Access drawer
+    function closeQuickAccess() {
+      quickAccessOpen = false;
+      document.getElementById('quick-access-overlay').classList.remove('open');
+      document.getElementById('quick-access-drawer').classList.remove('open');
+    }
+
+    // Load all songs
+    async function loadAllSongs() {
+      try {
+        const [songsRes, recentRes] = await Promise.all([
+          fetch('/api/songs'),
+          fetch('/api/songs/recent/performed?limit=20')
+        ]);
+        allSongs = await songsRes.json();
+        recentSongs = await recentRes.json();
+        renderSongsList();
+      } catch (e) {
+        console.error('Failed to load songs:', e);
+        document.getElementById('songs-list').innerHTML =
+          '<div class="quick-access-empty">Fout bij laden liedjes</div>';
+      }
+    }
+
+    // Switch tabs
+    function switchQuickAccessTab(tab) {
+      currentTab = tab;
+      document.querySelectorAll('.quick-access-tab').forEach(t => {
+        t.classList.toggle('active', t.dataset.tab === tab);
+      });
+      document.getElementById('quick-access-search').value = '';
+      renderSongsList();
+    }
+
+    // Search/filter songs (client-side)
+    function searchSongs(query) {
+      renderSongsList(query);
+    }
+
+    // Render songs list based on current tab and search query
+    function renderSongsList(query = '') {
+      const container = document.getElementById('songs-list');
+      let songs = currentTab === 'recent' ? recentSongs : allSongs;
+
+      // Filter by search query
+      if (query && query.length >= 1) {
+        const q = query.toLowerCase();
+        songs = songs.filter(s => s.title.toLowerCase().includes(q));
+
+        // Sort: starts with query first
+        songs.sort((a, b) => {
+          const aStarts = a.title.toLowerCase().startsWith(q);
+          const bStarts = b.title.toLowerCase().startsWith(q);
+          if (aStarts && !bStarts) return -1;
+          if (!aStarts && bStarts) return 1;
+          return a.title.localeCompare(b.title);
+        });
+      }
+
+      if (songs.length === 0) {
+        container.innerHTML = query
+          ? '<div class="quick-access-empty">Geen liedjes gevonden</div>'
+          : '<div class="quick-access-empty">Geen liedjes beschikbaar</div>';
+        return;
+      }
+
+      container.innerHTML = songs.map(song => `
+        <div class="quick-access-item" onclick="selectQuickAccessSong('${song.id}', '${song.title.replace(/'/g, "\\'")}')">
+          <span class="quick-access-item-icon">🎵</span>
+          <div class="quick-access-item-info">
+            <div class="quick-access-item-title">${song.title}</div>
+            <div class="quick-access-item-meta">
+              ${song.key ? `<span>Toon: ${song.key}</span>` : ''}
+              ${song.tempo ? `<span>${song.tempo} BPM</span>` : ''}
+              ${song.lastPerformed ? `<span>${formatRelativeDate(song.lastPerformed)}</span>` : ''}
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Select song from Quick Access (load it outside setlist context)
+    async function selectQuickAccessSong(songId, songTitle) {
+      closeQuickAccess();
+
+      // Load the full song
+      try {
+        const res = await fetch(`/api/songs/${songId}`);
+        const song = await res.json();
+
+        currentSongId = songId;
+        currentSong = song;
+        resetAmenButton();
+
+        // Update header center with key/tempo
+        document.getElementById('header-center').style.display = 'flex';
+        document.getElementById('header-song-key').textContent = song.key || '-';
+        document.getElementById('header-song-tempo').textContent = song.tempo ? `${song.tempo} BPM` : '-';
+
+        // Parse and render
+        parseSong(song);
+        renderCurrentView();
+        document.getElementById('nav-buttons').style.display = 'flex';
+        document.getElementById('waiting').style.display = 'none';
+
+        // Broadcast to other screens
+        sendSelectSong(songId, songTitle);
+
+        // Show notification
+        showNotification(`♪ ${songTitle}`);
+
+        // Start auto-hide timer
+        showHeader();
+
+        // Update song chips to show none active (since not from setlist)
+        document.querySelectorAll('.song-chip').forEach(chip => {
+          chip.classList.remove('active');
+        });
+      } catch (e) {
+        console.error('Failed to load song:', e);
+        showNotification('Fout bij laden liedje');
+      }
+    }
+
+    // Format relative date
+    function formatRelativeDate(dateStr) {
+      const date = new Date(dateStr);
+      const now = new Date();
+      const diffMs = now - date;
+      const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+      if (diffDays === 0) return 'Vandaag';
+      if (diffDays === 1) return 'Gisteren';
+      if (diffDays < 7) return `${diffDays} dagen geleden`;
+      if (diffDays < 30) return `${Math.floor(diffDays / 7)} weken geleden`;
+      return date.toLocaleDateString('nl-NL');
+    }
+
+    // Add Ctrl+K keyboard shortcut
+    document.addEventListener('keydown', (e) => {
+      // Ctrl+K or Cmd+K to open Quick Access
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        if (quickAccessOpen) {
+          closeQuickAccess();
+        } else {
+          openQuickAccess();
+        }
+        return;
+      }
+
+      // Escape to close Quick Access
+      if (e.key === 'Escape' && quickAccessOpen) {
+        closeQuickAccess();
+        return;
+      }
+
+      // Escape to close Monitor Panel
+      if (e.key === 'Escape' && monitorPanelOpen) {
+        toggleMonitorPanel();
+        return;
+      }
+    });
+
+    // =====================
+    // Monitor Mix Panel
+    // =====================
+    let monitorPanelOpen = false;
+    const MONITOR_AUX = 3; // AUX 3 for singer monitors
+    const VOCAL_CHANNELS = [2, 3, 4];
+    const INSTRUMENT_CHANNELS = [5, 6, 7, 8, 9, 10, 11, 12];
+
+    function toggleMonitorPanel() {
+      monitorPanelOpen = !monitorPanelOpen;
+      document.getElementById('monitor-panel').classList.toggle('open', monitorPanelOpen);
+      document.getElementById('monitor-btn').classList.toggle('active', monitorPanelOpen);
+    }
+
+    function sliderToDb(value) {
+      if (value <= 0) return '-∞';
+      if (value >= 100) return '+10';
+      if (value < 75) {
+        const db = Math.round(-40 + (value / 75) * 40);
+        return db + ' dB';
+      } else {
+        const db = Math.round((value - 75) / 25 * 10);
+        return '+' + db + ' dB';
+      }
+    }
+
+    function updateMonitorSlider(type, value) {
+      document.getElementById(type + '-value').textContent = sliderToDb(value);
+    }
+
+    async function sendMonitorLevel(type) {
+      const slider = document.getElementById(type + '-slider');
+      const level = parseInt(slider.value) / 100;
+      const channels = type === 'vocals' ? VOCAL_CHANNELS : INSTRUMENT_CHANNELS;
+
+      for (const ch of channels) {
+        try {
+          await fetch(`/api/mixer/channel/${ch}/aux/${MONITOR_AUX}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ level })
+          });
+        } catch (e) {
+          console.error('Monitor level error:', e);
+        }
+      }
+    }
+
+    function applyMonitorPreset(preset) {
+      let vocalsVal, instrumentsVal;
+
+      switch (preset) {
+        case 'vocals':
+          vocalsVal = 90;
+          instrumentsVal = 60;
+          break;
+        case 'instruments':
+          vocalsVal = 60;
+          instrumentsVal = 90;
+          break;
+        default: // balanced
+          vocalsVal = 75;
+          instrumentsVal = 75;
+      }
+
+      document.getElementById('vocals-slider').value = vocalsVal;
+      document.getElementById('instruments-slider').value = instrumentsVal;
+      updateMonitorSlider('vocals', vocalsVal);
+      updateMonitorSlider('instruments', instrumentsVal);
+      sendMonitorLevel('vocals');
+      sendMonitorLevel('instruments');
+    }
+
+    // Initialize monitor sliders
+    updateMonitorSlider('vocals', 75);
+    updateMonitorSlider('instruments', 75);
+
+  </script>
+</body>
+</html>

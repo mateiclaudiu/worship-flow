@@ -1,0 +1,2363 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mixer Control - Worship Flow</title>
+  <style>
+    :root {
+      --bg-primary: #0a0a0f;
+      --bg-secondary: #12121a;
+      --bg-tertiary: #1a1a24;
+      --bg-card: #16161e;
+      --bg-surface: #1e1e28;
+      --text-primary: #ffffff;
+      --text-secondary: #a0a0a0;
+      --text-muted: #606060;
+      --border: #2a2a35;
+      --border-light: #3a3a45;
+      --accent-gold: #d4af37;
+      --accent-purple: #9b59b6;
+      --accent-green: #27ae60;
+      --accent-red: #e74c3c;
+      --accent-blue: #3498db;
+      --accent-orange: #f39c12;
+      /* Functional colors */
+      --color-gain: #e74c3c;
+      --color-mix: #f39c12;
+      --color-aux: #3498db;
+      --color-active: #27ae60;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+    }
+
+    .header {
+      background: var(--bg-secondary);
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: var(--bg-tertiary);
+      border-radius: 20px;
+      font-size: 0.85rem;
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--accent-red);
+    }
+
+    .status-dot.connected {
+      background: var(--accent-green);
+    }
+
+    .btn {
+      padding: 0.6rem 1.2rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: var(--accent-gold);
+      color: #000;
+    }
+
+    .btn-secondary {
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+    }
+
+    .btn-danger {
+      background: var(--accent-red);
+      color: white;
+    }
+
+    .btn:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+    }
+
+    .main {
+      padding: 2rem;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .config-panel {
+      background: var(--bg-card);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      border: 1px solid var(--border);
+    }
+
+    .config-panel h2 {
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+      color: var(--accent-gold);
+    }
+
+    .config-row {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      align-items: flex-end;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .form-group label {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+
+    .form-group input, .form-group select {
+      padding: 0.6rem;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text-primary);
+      font-size: 0.9rem;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--accent-gold);
+    }
+
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .checkbox-group input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+    }
+
+    /* Channel Strip */
+    .channels-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 1rem;
+    }
+
+    .channel-strip {
+      background: var(--bg-card);
+      border-radius: 12px;
+      padding: 1rem;
+      border: 1px solid var(--border);
+      text-align: center;
+      transition: all 0.2s;
+    }
+
+    .channel-strip.active {
+      border-color: var(--accent-purple);
+      box-shadow: 0 0 10px rgba(155, 89, 182, 0.3);
+    }
+
+    .channel-strip.clipping {
+      border-color: var(--accent-red);
+      box-shadow: 0 0 10px rgba(231, 76, 60, 0.5);
+    }
+
+    .channel-strip.health-too_low {
+      border-color: var(--accent-red);
+      animation: pulse-warning 1s infinite;
+    }
+
+    .channel-strip.health-low {
+      border-color: var(--accent-orange);
+    }
+
+    .channel-strip.health-high {
+      border-color: var(--accent-orange);
+    }
+
+    .channel-strip.health-optimal {
+      border-color: var(--accent-green);
+    }
+
+    .channel-strip.locked {
+      opacity: 0.7;
+    }
+
+    @keyframes pulse-warning {
+      0%, 100% { box-shadow: 0 0 5px rgba(231, 76, 60, 0.3); }
+      50% { box-shadow: 0 0 15px rgba(231, 76, 60, 0.6); }
+    }
+
+    /* Health indicator dot */
+    .health-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin: 0 auto 0.25rem;
+      transition: background 0.3s;
+    }
+
+    .health-dot.too_low { background: var(--accent-red); animation: blink 0.5s infinite; }
+    .health-dot.low { background: var(--accent-orange); }
+    .health-dot.optimal { background: var(--accent-green); }
+    .health-dot.high { background: var(--accent-orange); }
+    .health-dot.clipping { background: var(--accent-red); animation: blink 0.2s infinite; }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    /* Health message tooltip */
+    .health-message {
+      font-size: 0.55rem;
+      padding: 2px 4px;
+      border-radius: 3px;
+      margin-bottom: 0.25rem;
+      text-align: center;
+      min-height: 16px;
+      line-height: 1.2;
+    }
+
+    .health-message.too_low { background: rgba(231, 76, 60, 0.3); color: var(--accent-red); }
+    .health-message.low { background: rgba(243, 156, 18, 0.3); color: var(--accent-orange); }
+    .health-message.optimal { background: rgba(39, 174, 96, 0.2); color: var(--accent-green); }
+    .health-message.high { background: rgba(243, 156, 18, 0.3); color: var(--accent-orange); }
+    .health-message.clipping { background: rgba(231, 76, 60, 0.3); color: var(--accent-red); }
+
+    /* Average level bar */
+    .avg-level {
+      font-size: 0.6rem;
+      color: var(--text-muted);
+      margin-bottom: 0.25rem;
+    }
+
+    .channel-name {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.25rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .channel-number {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    .channel-type {
+      font-size: 0.65rem;
+      color: var(--accent-purple);
+      margin-bottom: 0.25rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .channel-settings {
+      font-size: 0.6rem;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .channel-settings span {
+      background: var(--bg-tertiary);
+      padding: 2px 4px;
+      border-radius: 3px;
+    }
+
+    .channel-settings .threshold-val {
+      color: var(--accent-orange);
+    }
+
+    .channel-settings .gain-range {
+      color: var(--accent-blue);
+    }
+
+    .meter-container {
+      height: 120px;
+      width: 18px;
+      background: var(--bg-primary);
+      border-radius: 3px;
+      margin: 0 auto;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .meter-fill {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(to top, var(--accent-green), var(--accent-orange) 70%, var(--accent-red));
+      transition: height 0.05s;
+    }
+
+    .meter-threshold {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--accent-red);
+    }
+
+    .meter-target {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--accent-green);
+      opacity: 0.8;
+    }
+
+    .meter-peak {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--accent-gold);
+      transition: bottom 0.1s;
+    }
+
+    .gain-display {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--accent-red);
+      margin-bottom: 0.2rem;
+    }
+
+    /* Volume Fader */
+    .fader-container {
+      height: 120px;
+      width: 22px;
+      margin: 0 auto;
+      position: relative;
+      background: var(--bg-primary);
+      border-radius: 3px;
+      padding: 3px;
+    }
+
+    .fader-track {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      background: linear-gradient(to top,
+        var(--bg-tertiary) 0%,
+        var(--bg-tertiary) 75%,
+        var(--accent-orange) 75%,
+        var(--accent-red) 100%);
+      border-radius: 2px;
+    }
+
+    .fader-fill {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--accent-blue);
+      border-radius: 2px;
+      pointer-events: none;
+    }
+
+    .fader-thumb {
+      position: absolute;
+      left: -3px;
+      right: -3px;
+      height: 12px;
+      background: linear-gradient(to bottom, #fff, #ccc);
+      border-radius: 2px;
+      cursor: grab;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+      transform: translateY(50%);
+    }
+
+    .fader-thumb:active {
+      cursor: grabbing;
+      background: linear-gradient(to bottom, #eee, #bbb);
+    }
+
+    .fader-value {
+      font-size: 0.75rem;
+      color: var(--accent-blue);
+      font-weight: 600;
+      cursor: pointer;
+      padding: 2px 4px;
+      border-radius: 3px;
+      transition: background 0.2s;
+    }
+
+    .fader-value:hover {
+      background: var(--bg-tertiary);
+    }
+
+    .fader-label {
+      font-size: 0.55rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    /* Fine tune buttons */
+    .fine-tune {
+      display: flex;
+      justify-content: center;
+      gap: 2px;
+      margin-top: 2px;
+    }
+
+    .fine-btn {
+      width: 22px;
+      height: 18px;
+      border: none;
+      border-radius: 3px;
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+      font-size: 0.7rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.1s;
+      display: block;
+      margin: 2px auto;
+    }
+
+    .fine-btn:hover {
+      background: var(--border);
+    }
+
+    .fine-btn:active {
+      background: var(--accent-blue);
+      color: #fff;
+    }
+
+    /* Value input modal */
+    .value-input-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+    }
+
+    .value-input-overlay.active {
+      display: flex;
+    }
+
+    .value-input-box {
+      background: var(--bg-card);
+      padding: 1.5rem;
+      border-radius: 12px;
+      text-align: center;
+    }
+
+    .value-input-box input {
+      width: 80px;
+      padding: 0.5rem;
+      font-size: 1.5rem;
+      text-align: center;
+      background: var(--bg-primary);
+      border: 2px solid var(--accent-blue);
+      border-radius: 6px;
+      color: var(--text-primary);
+    }
+
+    .value-input-box input:focus {
+      outline: none;
+    }
+
+    .value-input-box label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: var(--text-secondary);
+    }
+
+    /* Mute button */
+    .mute-btn {
+      width: 100%;
+      padding: 0.3rem;
+      margin-top: 0.3rem;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.7rem;
+      font-weight: 600;
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+      transition: all 0.2s;
+    }
+
+    .mute-btn:hover {
+      background: var(--border);
+    }
+
+    .mute-btn.muted {
+      background: var(--accent-red);
+      color: white;
+    }
+
+    .channel-controls {
+      display: flex;
+      gap: 0.3rem;
+      justify-content: center;
+      margin-top: 0.5rem;
+    }
+
+    .channel-btn {
+      width: 28px;
+      height: 28px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+    }
+
+    .channel-btn:hover {
+      background: var(--border);
+    }
+
+    .channel-btn.active {
+      background: var(--accent-purple);
+    }
+
+    .channel-btn.muted {
+      background: var(--accent-red);
+    }
+
+    /* Auto-gain indicator */
+    .auto-indicator {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--text-muted);
+      display: inline-block;
+      margin-left: 4px;
+    }
+
+    .auto-indicator.active {
+      background: var(--accent-purple);
+      animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    /* Settings Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal {
+      background: var(--bg-card);
+      border-radius: 16px;
+      padding: 2rem;
+      max-width: 500px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    .modal h2 {
+      margin-bottom: 1.5rem;
+    }
+
+    .modal .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 1rem;
+      justify-content: flex-end;
+      margin-top: 1.5rem;
+    }
+
+    /* Add channel button */
+    .add-channel-btn {
+      width: 100%;
+      height: 100%;
+      min-height: 200px;
+      background: var(--bg-card);
+      border: 2px dashed var(--border);
+      border-radius: 12px;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 2rem;
+      transition: all 0.2s;
+    }
+
+    .add-channel-btn:hover {
+      border-color: var(--accent-gold);
+      color: var(--accent-gold);
+    }
+
+    /* Scene Panel */
+    .scene-panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .scene-panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .scene-panel-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* Scene buttons */
+    .scene-buttons {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .scene-btn {
+      flex: 1;
+      padding: 1rem;
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      background: var(--bg-tertiary);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+
+    .scene-btn:hover {
+      border-color: var(--border-light);
+      background: var(--bg-surface);
+      color: var(--text-secondary);
+    }
+
+    .scene-btn.active {
+      border-color: var(--color-active);
+      background: linear-gradient(180deg, var(--bg-surface), var(--bg-tertiary));
+      color: var(--text-primary);
+      box-shadow: 0 0 12px rgba(39, 174, 96, 0.3);
+    }
+
+    .scene-btn-icon {
+      font-size: 1.5rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .scene-btn-name {
+      font-size: 0.9rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    .scene-btn-desc {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      line-height: 1.3;
+    }
+
+    .scene-btn.active .scene-btn-desc {
+      color: var(--text-secondary);
+    }
+
+    .scene-btn-zaal {
+      font-size: 0.6rem;
+      margin-top: 0.35rem;
+      padding: 2px 6px;
+      border-radius: 3px;
+      display: inline-block;
+    }
+
+    .scene-btn-zaal.uit {
+      background: rgba(85, 85, 85, 0.3);
+      color: var(--text-muted);
+    }
+
+    .scene-btn-zaal.aan {
+      background: rgba(52, 152, 219, 0.2);
+      color: var(--color-aux);
+    }
+
+    .scene-btn.active .scene-btn-zaal.aan {
+      background: rgba(52, 152, 219, 0.3);
+    }
+
+    /* Zaal Status Indicator */
+    .zaal-status {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.75rem 1rem;
+      background: var(--bg-primary);
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+
+    .zaal-status-icon {
+      font-size: 1.25rem;
+    }
+
+    .zaal-status-info {
+      flex: 1;
+    }
+
+    .zaal-status-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .zaal-status-bar {
+      height: 6px;
+      background: var(--bg-tertiary);
+      border-radius: 3px;
+      margin-top: 0.35rem;
+      overflow: hidden;
+    }
+
+    .zaal-status-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--color-aux);
+      border-radius: 3px;
+      transition: width 0.3s ease;
+    }
+
+    .zaal-status.active .zaal-status-fill {
+      width: 100%;
+    }
+
+    .zaal-status-state {
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 0.25rem 0.75rem;
+      border-radius: 4px;
+      text-transform: uppercase;
+    }
+
+    .zaal-status-state.uit {
+      background: var(--bg-tertiary);
+      color: var(--text-muted);
+    }
+
+    .zaal-status-state.aan {
+      background: rgba(52, 152, 219, 0.2);
+      color: var(--color-aux);
+    }
+
+    /* Quick actions */
+    .quick-actions {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .section-title {
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+      color: var(--text-secondary);
+    }
+
+    /* Alert/notification */
+    .alert {
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .alert-warning {
+      background: rgba(243, 156, 18, 0.2);
+      border: 1px solid var(--accent-orange);
+      color: var(--accent-orange);
+    }
+
+    .alert-info {
+      background: rgba(52, 152, 219, 0.2);
+      border: 1px solid var(--accent-blue);
+      color: var(--accent-blue);
+    }
+
+    /* ===================== */
+    /* Touch-First Design    */
+    /* Min 44x44px targets   */
+    /* ===================== */
+
+    /* ================================ */
+    /* TOUCH DEVICES - Compact & Usable */
+    /* No scrolling, fits on screen     */
+    /* ================================ */
+    @media (pointer: coarse) {
+      .main {
+        padding: 0.5rem;
+      }
+
+      /* Compact header */
+      .header {
+        padding: 0.4rem 0.75rem;
+      }
+
+      .header h1 {
+        font-size: 1rem;
+      }
+
+      .status-badge {
+        padding: 0.3rem 0.6rem;
+        font-size: 0.75rem;
+      }
+
+      /* Compact scene panel */
+      .scene-panel {
+        padding: 0.5rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .scene-panel-header {
+        display: none; /* Hide title, save space */
+      }
+
+      .scene-buttons {
+        gap: 0.4rem;
+        margin-bottom: 0.4rem;
+      }
+
+      .scene-btn {
+        padding: 0.6rem 0.4rem;
+        min-height: auto;
+      }
+
+      .scene-btn-icon {
+        font-size: 1.2rem;
+        margin-bottom: 0;
+      }
+
+      .scene-btn-name {
+        font-size: 0.7rem;
+      }
+
+      .scene-btn-desc,
+      .scene-btn-zaal {
+        display: none; /* Hide for space */
+      }
+
+      .zaal-status {
+        padding: 0.4rem 0.6rem;
+        gap: 0.4rem;
+      }
+
+      .zaal-status-icon {
+        font-size: 0.9rem;
+      }
+
+      .zaal-status-label {
+        font-size: 0.6rem;
+      }
+
+      .zaal-status-bar {
+        height: 4px;
+      }
+
+      .zaal-status-state {
+        font-size: 0.65rem;
+        padding: 0.15rem 0.4rem;
+      }
+
+      /* Hide quick actions - scenes do the job */
+      .quick-actions {
+        display: none;
+      }
+
+      .section-title {
+        font-size: 0.8rem;
+        margin-bottom: 0.4rem;
+      }
+
+      /* COMPACT CHANNEL STRIPS - fit 6 on screen */
+      .channels-grid {
+        grid-template-columns: repeat(auto-fill, minmax(95px, 1fr));
+        gap: 0.4rem;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .channel-strip {
+        padding: 0.4rem;
+      }
+
+      .channel-name {
+        font-size: 0.65rem;
+        margin-bottom: 0.1rem;
+      }
+
+      .channel-number {
+        font-size: 0.9rem;
+        margin-bottom: 0.1rem;
+      }
+
+      .channel-type {
+        display: none; /* Hide for space */
+      }
+
+      /* Health - just dot, no message */
+      .health-message {
+        display: none;
+      }
+
+      .health-dot {
+        width: 8px;
+        height: 8px;
+        margin-bottom: 0.2rem;
+      }
+
+      /* FADER AREA - Shorter but touchable */
+      .fader-container {
+        height: 90px;
+        width: 36px;
+        padding: 2px;
+      }
+
+      .fader-thumb {
+        height: 22px;
+        left: -5px;
+        right: -5px;
+        border-radius: 3px;
+      }
+
+      .meter-container {
+        height: 90px;
+        width: 18px;
+      }
+
+      .fader-label {
+        font-size: 0.45rem;
+      }
+
+      /* +/- buttons - still touchable */
+      .fine-btn {
+        width: 36px;
+        height: 28px;
+        font-size: 1rem;
+        font-weight: 700;
+        margin: 1px auto;
+        border-radius: 3px;
+      }
+
+      /* Value display - tap to edit */
+      .fader-value {
+        font-size: 0.7rem;
+        padding: 3px;
+        margin: 2px 0;
+      }
+
+      /* Hide gain display */
+      .gain-display {
+        display: none;
+      }
+
+      /* MUTE - most important, keep visible */
+      .mute-btn {
+        padding: 8px 4px;
+        font-size: 0.75rem;
+        margin-top: 3px;
+        min-height: 32px;
+      }
+
+      /* Channel controls - compact row */
+      .channel-controls {
+        gap: 3px;
+        margin-top: 3px;
+      }
+
+      .channel-btn {
+        width: 28px;
+        height: 28px;
+        font-size: 0.75rem;
+        border-radius: 3px;
+      }
+
+      /* Header buttons */
+      .btn {
+        padding: 8px 12px;
+        font-size: 0.8rem;
+        min-height: 36px;
+      }
+
+      /* Add channel button */
+      .add-channel-btn {
+        min-height: 150px;
+        font-size: 1.5rem;
+      }
+
+      /* Alert compact */
+      .alert {
+        padding: 0.5rem;
+        font-size: 0.75rem;
+        margin-bottom: 0.5rem;
+      }
+    }
+
+    /* iPad Landscape - 10 columns, USABLE faders + CONTROLS */
+    /* Lowered to 900px to catch all iPads */
+    @media (pointer: coarse) and (min-width: 900px) and (orientation: landscape) {
+      .main {
+        padding: 0.25rem;
+        max-width: 100%;
+      }
+
+      .channels-grid {
+        grid-template-columns: repeat(10, 1fr);
+        gap: 2px;
+      }
+
+      .channel-strip {
+        padding: 0.15rem;
+      }
+
+      /* Short name visible */
+      .channel-name {
+        font-size: 0.5rem;
+        margin-bottom: 0;
+        max-width: 100%;
+      }
+
+      .channel-number {
+        font-size: 0.8rem;
+        font-weight: 800;
+        margin-bottom: 0;
+      }
+
+      /* Compact +/- buttons - KEEP VISIBLE */
+      .fine-btn {
+        width: 28px;
+        height: 20px;
+        font-size: 0.9rem;
+        margin: 1px auto;
+      }
+
+      /* LONGER FADERS - 100px (slightly shorter for controls) */
+      .fader-container {
+        height: 100px;
+        width: 34px;
+      }
+
+      .fader-thumb {
+        height: 22px;
+        left: -3px;
+        right: -3px;
+      }
+
+      .meter-container {
+        height: 100px;
+        width: 14px;
+      }
+
+      .fader-label {
+        display: none;
+      }
+
+      .fader-value {
+        font-size: 0.6rem;
+        padding: 1px;
+      }
+
+      .mute-btn {
+        padding: 4px 2px;
+        font-size: 0.65rem;
+        min-height: 26px;
+        margin-top: 2px;
+      }
+
+      /* Channel controls - KEEP VISIBLE, compact */
+      .channel-controls {
+        gap: 2px;
+        margin-top: 2px;
+      }
+
+      .channel-btn {
+        width: 22px;
+        height: 22px;
+        font-size: 0.65rem;
+        border-radius: 3px;
+      }
+
+      .health-dot {
+        width: 6px;
+        height: 6px;
+        margin-bottom: 0.1rem;
+      }
+
+      /* Compact scene panel - horizontal */
+      .scene-panel {
+        padding: 0.25rem;
+        margin-bottom: 0.25rem;
+      }
+
+      .scene-buttons {
+        gap: 0.2rem;
+        margin-bottom: 0.2rem;
+      }
+
+      .scene-btn {
+        padding: 0.35rem 0.15rem;
+      }
+
+      .scene-btn-icon {
+        font-size: 1rem;
+        margin-bottom: 0;
+      }
+
+      .scene-btn-name {
+        font-size: 0.55rem;
+      }
+
+      /* Hide zaal status bar - save space */
+      .zaal-status {
+        display: none;
+      }
+
+      /* Minimal header */
+      .header {
+        padding: 0.2rem 0.5rem;
+      }
+
+      .header h1 {
+        font-size: 0.85rem;
+      }
+
+      .status-badge {
+        padding: 0.2rem 0.4rem;
+        font-size: 0.65rem;
+      }
+
+      .btn {
+        padding: 0.3rem 0.6rem;
+        font-size: 0.7rem;
+        min-height: 28px;
+      }
+
+      /* Hide section title */
+      .section-title {
+        display: none;
+      }
+
+      .alert {
+        padding: 0.3rem;
+        font-size: 0.65rem;
+        margin-bottom: 0.2rem;
+      }
+
+      /* Hide add button on touch */
+      .add-channel-btn {
+        display: none;
+      }
+    }
+
+    /* iPad Portrait - 4 columns */
+    @media (pointer: coarse) and (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
+      .channels-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+
+      .scene-buttons {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+
+    /* Phone - 3 columns */
+    @media (pointer: coarse) and (max-width: 600px) {
+      .channels-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .fader-container {
+        height: 70px;
+        width: 30px;
+      }
+
+      .meter-container {
+        height: 70px;
+        width: 14px;
+      }
+
+      .fine-btn {
+        width: 30px;
+        height: 24px;
+        font-size: 0.9rem;
+      }
+
+      .channel-btn {
+        width: 24px;
+        height: 24px;
+        font-size: 0.65rem;
+      }
+
+      .mute-btn {
+        min-height: 28px;
+        font-size: 0.65rem;
+      }
+
+      .header {
+        flex-wrap: wrap;
+        gap: 0.3rem;
+        padding: 0.3rem 0.5rem;
+      }
+
+      .header h1 {
+        font-size: 0.9rem;
+        width: 100%;
+      }
+
+      .header-right {
+        width: 100%;
+        justify-content: space-between;
+      }
+    }
+
+    /* Settings Modal */
+    .settings-btn {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .settings-btn:hover {
+      border-color: var(--accent-blue);
+    }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      z-index: 200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .modal {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      width: 90%;
+      max-width: 600px;
+      max-height: 80vh;
+      overflow: auto;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .modal-header h2 {
+      font-size: 1.1rem;
+      margin: 0;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.5rem;
+      cursor: pointer;
+      padding: 0.25rem;
+    }
+
+    .modal-close:hover {
+      color: var(--text);
+    }
+
+    .modal-body {
+      padding: 1rem;
+    }
+
+    .modal-section {
+      margin-bottom: 1.5rem;
+    }
+
+    .modal-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .modal-section h3 {
+      font-size: 0.9rem;
+      margin-bottom: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .modal-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: flex-end;
+    }
+
+    .config-panel.compact {
+      padding: 0;
+      background: none;
+      border: none;
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <h1>🎛 Mixer Control</h1>
+    <div class="header-right">
+      <div class="status-badge">
+        <span class="status-dot" id="status-dot"></span>
+        <span id="status-text">Niet verbonden</span>
+      </div>
+      <button class="btn btn-secondary" onclick="openSettings()">⚙️ Settings</button>
+      <a href="/dirigent" class="btn btn-secondary">← Terug</a>
+    </div>
+  </header>
+
+  <main class="main">
+    <div id="not-connected-alert" class="alert alert-warning" style="display: none;">
+      ⚠️ Mixer niet verbonden. Configureer het IP-adres in Settings en klik op Opslaan.
+    </div>
+
+    <!-- Scene Panel -->
+    <div class="scene-panel">
+      <div class="scene-panel-header">
+        <span class="scene-panel-title">Scenes</span>
+      </div>
+
+      <div class="scene-buttons">
+        <button class="scene-btn" id="scene-worship" onclick="activateScene('worship')">
+          <div class="scene-btn-icon">🎤</div>
+          <div class="scene-btn-name">WORSHIP</div>
+          <div class="scene-btn-desc">Muziek aan</div>
+          <div class="scene-btn-zaal uit">Zaal: UIT</div>
+        </button>
+        <button class="scene-btn" id="scene-speech" onclick="activateScene('speech')">
+          <div class="scene-btn-icon">🎙️</div>
+          <div class="scene-btn-name">SPRAAK</div>
+          <div class="scene-btn-desc">Preek aan</div>
+          <div class="scene-btn-zaal aan">Zaal: AAN</div>
+        </button>
+        <button class="scene-btn" id="scene-prayer" onclick="activateScene('prayer')">
+          <div class="scene-btn-icon">🙏</div>
+          <div class="scene-btn-name">GEBED</div>
+          <div class="scene-btn-desc">Zang spraak</div>
+          <div class="scene-btn-zaal aan">Zaal: AAN</div>
+        </button>
+        <button class="scene-btn" id="scene-neutral" onclick="activateScene('neutral')">
+          <div class="scene-btn-icon">⚖️</div>
+          <div class="scene-btn-name">NEUTRAAL</div>
+          <div class="scene-btn-desc">Handmatig</div>
+        </button>
+      </div>
+
+      <div class="zaal-status" id="zaal-status">
+        <div class="zaal-status-icon">📢</div>
+        <div class="zaal-status-info">
+          <div class="zaal-status-label">Zaal Speakers</div>
+          <div class="zaal-status-bar">
+            <div class="zaal-status-fill" id="zaal-status-fill"></div>
+          </div>
+        </div>
+        <div class="zaal-status-state uit" id="zaal-status-state">UIT</div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+      <button class="btn btn-secondary" onclick="resetAllGains(-24)">🔄 Reset Gains (-24dB)</button>
+      <button class="btn btn-secondary" onclick="resetAllGains(-12)">🔄 Reset Gains (-12dB)</button>
+      <button class="btn btn-danger" onclick="muteAll()">🔇 Mute Alles</button>
+    </div>
+
+    <!-- Channel Strips -->
+    <h3 class="section-title">Kanalen met Auto-Gain</h3>
+    <div class="channels-grid" id="channels-grid">
+      <!-- Channels will be rendered here -->
+      <button class="add-channel-btn" onclick="openAddChannel()">+</button>
+    </div>
+  </main>
+
+  <!-- Value Input Overlay -->
+  <div class="value-input-overlay" id="value-input-overlay" onclick="closeValueInput(event)">
+    <div class="value-input-box" onclick="event.stopPropagation()">
+      <label id="value-input-label">Volume (dB)</label>
+      <input type="number" id="value-input" min="-60" max="10" step="1" onkeydown="handleValueInputKey(event)">
+    </div>
+  </div>
+
+  <!-- Settings Modal -->
+  <div class="modal-overlay" id="settings-modal" onclick="closeSettings(event)">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h2>⚙️ Settings</h2>
+        <button class="modal-close" onclick="closeSettings()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-section">
+          <h3>Mixer Verbinding</h3>
+          <div class="config-row">
+            <div class="form-group">
+              <label>Mixer IP</label>
+              <input type="text" id="mixer-ip" placeholder="192.168.1.50" style="width: 150px;">
+            </div>
+            <div class="form-group">
+              <label>Show Naam</label>
+              <input type="text" id="mixer-show" placeholder="Show" style="width: 150px;">
+            </div>
+            <div class="form-group">
+              <label>&nbsp;</label>
+              <div class="checkbox-group">
+                <input type="checkbox" id="mixer-enabled">
+                <label for="mixer-enabled">Ingeschakeld</label>
+              </div>
+            </div>
+          </div>
+          <button class="btn btn-primary" style="margin-top: 1rem;" onclick="saveConfig()">Opslaan & Verbinden</button>
+        </div>
+
+        <div class="modal-section">
+          <h3>Auto-Gain Limiter</h3>
+          <div class="config-row">
+            <div class="form-group">
+              <label>Threshold</label>
+              <select id="autogain-threshold" style="width: 100px;">
+                <option value="0.95">-0.5dB</option>
+                <option value="0.9">-1dB</option>
+                <option value="0.85">-2dB</option>
+                <option value="0.8">-3dB</option>
+                <option value="0.7">-6dB</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Min Gain</label>
+              <input type="number" id="autogain-min" value="-40" style="width: 80px;">
+            </div>
+          </div>
+          <div class="config-row" style="margin-top: 0.5rem;">
+            <div class="checkbox-group">
+              <input type="checkbox" id="autogain-enabled">
+              <label for="autogain-enabled">Auto-Gain Actief</label>
+            </div>
+            <div class="checkbox-group">
+              <input type="checkbox" id="auto-recovery" checked>
+              <label for="auto-recovery">Auto-verhogen bij zwak signaal</label>
+            </div>
+          </div>
+          <button class="btn btn-secondary" style="margin-top: 1rem;" onclick="saveAutoGain(); closeSettings();">Toepassen</button>
+        </div>
+
+        <div class="modal-section">
+          <h3>Legenda</h3>
+          <div style="font-size: 0.85rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+            <span style="color: var(--accent-red);">● Te laag</span>
+            <span style="color: var(--accent-orange);">● Zwak/Heet</span>
+            <span style="color: var(--accent-green);">● Optimaal</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Channel Modal -->
+  <div class="modal-overlay" id="add-channel-modal">
+    <div class="modal">
+      <h2>Kanaal Toevoegen</h2>
+      <div class="form-group">
+        <label>Kanaal Nummer (1-24)</label>
+        <input type="number" id="new-channel-num" min="1" max="24" value="1">
+      </div>
+      <div class="form-group">
+        <label>Naam</label>
+        <input type="text" id="new-channel-name" placeholder="Zang Lisa">
+      </div>
+      <div class="form-group">
+        <label>Type (past threshold automatisch aan)</label>
+        <select id="new-channel-type" onchange="updateTypeDescription()">
+          <option value="vocal">🎤 Zang</option>
+          <option value="speech">🎙 Spraak/Presentatie</option>
+          <option value="choir">👥 Koor</option>
+          <option value="keyboard">🎹 Keyboard/Keys</option>
+          <option value="acoustic_guitar">🎸 Akoestische Gitaar</option>
+          <option value="electric_guitar">⚡ Elektrische Gitaar</option>
+          <option value="bass">🎸 Bas</option>
+          <option value="drums_kick">🥁 Kick Drum</option>
+          <option value="drums_snare">🥁 Snare</option>
+          <option value="drums_overhead">🥁 Overhead/Cymbals</option>
+          <option value="drums_tom">🥁 Toms</option>
+          <option value="backing_track">💿 Backing Track</option>
+        </select>
+        <small id="type-description" style="color: var(--text-muted); display: block; margin-top: 4px;">Dynamische zang, snel reageren op pieken</small>
+      </div>
+      <div class="checkbox-group">
+        <input type="checkbox" id="new-channel-autogain" checked>
+        <label for="new-channel-autogain">Auto-Gain inschakelen</label>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeAddChannel()">Annuleren</button>
+        <button class="btn btn-primary" onclick="addChannel()">Toevoegen</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let config = {};
+    let channels = [];
+    let ws = null;
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      loadConfig();
+      loadAutoGain();
+      loadAutoRecovery();
+      connectWebSocket();
+      // Set default scene to neutral
+      activateScene('neutral');
+    });
+
+    // WebSocket
+    function connectWebSocket() {
+      const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+      ws = new WebSocket(`${protocol}//${location.host}?type=mixer`);
+
+      ws.onopen = () => console.log('WebSocket connected');
+
+      ws.onmessage = (event) => {
+        const msg = JSON.parse(event.data);
+        handleMessage(msg);
+      };
+
+      ws.onclose = () => {
+        console.log('WebSocket disconnected, reconnecting...');
+        setTimeout(connectWebSocket, 3000);
+      };
+    }
+
+    function handleMessage(msg) {
+      if (msg.type === 'meterLevels') {
+        updateMeters(msg.data);
+      } else if (msg.type === 'mixerStatus') {
+        updateConnectionStatus(msg.data.connected);
+      } else if (msg.type === 'autoGainAdjust') {
+        flashChannel(msg.data.channel);
+      }
+    }
+
+    // API calls
+    async function loadConfig() {
+      const res = await fetch('/api/mixer/config');
+      config = await res.json();
+
+      document.getElementById('mixer-ip').value = config.ip || '';
+      document.getElementById('mixer-show').value = config.showName || '';
+      document.getElementById('mixer-enabled').checked = config.enabled;
+
+      updateConnectionStatus(config.connected);
+    }
+
+    async function loadAutoGain() {
+      const res = await fetch('/api/mixer/autogain');
+      const data = await res.json();
+
+      document.getElementById('autogain-enabled').checked = data.enabled;
+      document.getElementById('autogain-threshold').value = data.threshold || 0.85;
+      document.getElementById('autogain-min').value = data.minGain || -40;
+
+      channels = data.channels || [];
+      renderChannels();
+    }
+
+    async function saveConfig() {
+      const data = {
+        ip: document.getElementById('mixer-ip').value,
+        showName: document.getElementById('mixer-show').value,
+        enabled: document.getElementById('mixer-enabled').checked
+      };
+
+      await fetch('/api/mixer/config', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+
+      // Reload after a delay to allow connection
+      setTimeout(loadConfig, 2000);
+    }
+
+    async function saveAutoGain() {
+      const data = {
+        enabled: document.getElementById('autogain-enabled').checked,
+        threshold: parseFloat(document.getElementById('autogain-threshold').value),
+        minGain: parseInt(document.getElementById('autogain-min').value)
+      };
+
+      await fetch('/api/mixer/autogain', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+    }
+
+    // Presets for type descriptions and labels
+    const presetDescriptions = {
+      vocal: 'Dynamische zang, snel reageren op pieken',
+      speech: 'Spreker, minder dynamisch dan zang',
+      choir: 'Groepszang, kan snel aanzwellen',
+      keyboard: 'Arranger/synth, stabiel line signaal',
+      acoustic_guitar: 'Dynamisch, scherpe aanslag pieken',
+      electric_guitar: 'Via amp of DI, redelijk consistent',
+      bass: 'DI signaal, let op slap pieken',
+      drums_kick: 'Extreme transients, maximale headroom',
+      drums_snare: 'Scherpe rimshots opvangen',
+      drums_overhead: 'Cymbals kunnen hard pieken',
+      drums_tom: 'Vergelijkbaar met kick',
+      backing_track: 'Gemasterde audio, nauwelijks aanpassing nodig'
+    };
+
+    const typeLabels = {
+      vocal: '🎤 Zang',
+      speech: '🎙 Spraak',
+      choir: '👥 Koor',
+      keyboard: '🎹 Keys',
+      acoustic_guitar: '🎸 Akoes.',
+      electric_guitar: '⚡ E-Git',
+      bass: '🎸 Bas',
+      drums_kick: '🥁 Kick',
+      drums_snare: '🥁 Snare',
+      drums_overhead: '🥁 OH',
+      drums_tom: '🥁 Toms',
+      backing_track: '💿 Track'
+    };
+
+    // Convert threshold (0-1) to dB display
+    function thresholdToDb(threshold) {
+      if (threshold >= 0.95) return '-0.5dB';
+      if (threshold >= 0.9) return '-1dB';
+      if (threshold >= 0.85) return '-2dB';
+      if (threshold >= 0.8) return '-3dB';
+      if (threshold >= 0.75) return '-4dB';
+      if (threshold >= 0.7) return '-6dB';
+      if (threshold >= 0.65) return '-8dB';
+      return Math.round((Math.log10(threshold) * 20)) + 'dB';
+    }
+
+    function updateTypeDescription() {
+      const type = document.getElementById('new-channel-type').value;
+      document.getElementById('type-description').textContent = presetDescriptions[type] || '';
+    }
+
+    async function addChannel() {
+      const num = parseInt(document.getElementById('new-channel-num').value);
+      const name = document.getElementById('new-channel-name').value || `CH ${num}`;
+      const type = document.getElementById('new-channel-type').value;
+      const autoGainEnabled = document.getElementById('new-channel-autogain').checked;
+
+      const data = {
+        name,
+        type,
+        autoGainEnabled
+      };
+
+      await fetch(`/api/mixer/autogain/channel/${num}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+
+      closeAddChannel();
+      loadAutoGain();
+    }
+
+    async function removeChannel(num) {
+      if (!confirm('Kanaal verwijderen?')) return;
+
+      await fetch(`/api/mixer/autogain/channel/${num}`, {
+        method: 'DELETE'
+      });
+
+      loadAutoGain();
+    }
+
+    async function toggleChannelAutoGain(num) {
+      // Find current channel state
+      const channel = channels.find(c => c.number === num);
+      if (!channel) return;
+
+      const newState = !channel.autoGainEnabled;
+
+      await fetch(`/api/mixer/autogain/channel/${num}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: channel.name,
+          autoGainEnabled: newState,
+          threshold: channel.threshold
+        })
+      });
+
+      // Update local state immediately for responsive UI
+      channel.autoGainEnabled = newState;
+      renderChannels();
+
+      // Reload to sync with server
+      loadAutoGain();
+    }
+
+    async function setChannelGain(num, gain) {
+      await fetch(`/api/mixer/channel/${num}/gain`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ gain })
+      });
+    }
+
+    async function resetAllGains(gain) {
+      await fetch('/api/mixer/reset-gains', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ gain })
+      });
+    }
+
+    async function muteAll() {
+      for (const ch of channels) {
+        await fetch(`/api/mixer/channel/${ch.number}/mute`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ muted: true })
+        });
+      }
+    }
+
+    // UI
+    function updateConnectionStatus(connected) {
+      const dot = document.getElementById('status-dot');
+      const text = document.getElementById('status-text');
+      const alert = document.getElementById('not-connected-alert');
+
+      if (connected) {
+        dot.classList.add('connected');
+        text.textContent = 'Verbonden';
+        alert.style.display = 'none';
+      } else {
+        dot.classList.remove('connected');
+        text.textContent = 'Niet verbonden';
+        alert.style.display = 'flex';
+      }
+    }
+
+    function renderChannels() {
+      const grid = document.getElementById('channels-grid');
+      const addBtn = grid.querySelector('.add-channel-btn');
+
+      // Remove existing channel strips
+      grid.querySelectorAll('.channel-strip').forEach(el => el.remove());
+
+      // Add channel strips before the add button
+      channels.forEach(ch => {
+        const strip = document.createElement('div');
+        strip.className = 'channel-strip';
+        strip.id = `channel-${ch.number}`;
+
+        const typeLabel = typeLabels[ch.type] || ch.type || '';
+        const threshold = ch.threshold || 0.85;
+        const thresholdDb = thresholdToDb(threshold);
+        const minGain = ch.minGain ?? -40;
+        const maxGain = ch.maxGain ?? 0;
+
+        strip.innerHTML = `
+          <div class="channel-name">${ch.name || 'CH ' + ch.number}</div>
+          <div class="channel-number">${ch.number}</div>
+          <div class="channel-type">${typeLabel}</div>
+          <div class="health-dot optimal" id="health-dot-${ch.number}" title="Gain status"></div>
+          <div class="health-message optimal" id="health-msg-${ch.number}">-</div>
+          <div style="display: flex; gap: 6px; justify-content: center; margin-bottom: 0.3rem;">
+            <div>
+              <div class="fader-label">In</div>
+              <div style="height: 22px;"></div>
+              <div class="meter-container">
+                <div class="meter-fill" id="meter-${ch.number}" style="height: 0%"></div>
+                <div class="meter-target" style="bottom: 12.5%;" title="-18dB target"></div>
+                <div class="meter-threshold" style="bottom: ${threshold * 100}%"></div>
+                <div class="meter-peak" id="peak-${ch.number}" style="bottom: 0%"></div>
+              </div>
+              <div style="height: 22px;"></div>
+            </div>
+            <div>
+              <div class="fader-label">Vol</div>
+              <button class="fine-btn" onclick="adjustFader(${ch.number}, 1)">+</button>
+              <div class="fader-container" id="fader-container-${ch.number}">
+                <div class="fader-track">
+                  <div class="fader-fill" id="fader-fill-${ch.number}" style="height: 75%"></div>
+                  <div class="fader-thumb" id="fader-thumb-${ch.number}" style="bottom: 75%"></div>
+                </div>
+              </div>
+              <button class="fine-btn" onclick="adjustFader(${ch.number}, -1)">−</button>
+            </div>
+          </div>
+          <div class="fader-value" id="fader-value-${ch.number}" onclick="openValueInput(${ch.number})" title="Klik om waarde in te voeren">0 dB</div>
+          <div class="gain-display">G: <span id="gain-${ch.number}">0</span> dB</div>
+          <button class="mute-btn" id="mute-btn-${ch.number}" onclick="toggleMute(${ch.number})">MUTE</button>
+          <div class="channel-controls">
+            <button class="channel-btn ${ch.autoGainEnabled ? 'active' : ''}" onclick="toggleChannelAutoGain(${ch.number})" title="Auto-Gain aan/uit">A</button>
+            <button class="channel-btn" id="lock-${ch.number}" onclick="toggleLock(${ch.number})" title="Lock gain">🔓</button>
+            <button class="channel-btn" onclick="removeChannel(${ch.number})" title="Verwijderen">×</button>
+          </div>
+        `;
+
+        // Setup fader drag
+        setupFader(ch.number);
+        grid.insertBefore(strip, addBtn);
+      });
+    }
+
+    function updateMeters(levels) {
+      levels.forEach(ch => {
+        const meter = document.getElementById(`meter-${ch.channel}`);
+        const peak = document.getElementById(`peak-${ch.channel}`);
+        const gain = document.getElementById(`gain-${ch.channel}`);
+        const strip = document.getElementById(`channel-${ch.channel}`);
+        const healthDot = document.getElementById(`health-dot-${ch.channel}`);
+        const healthMsg = document.getElementById(`health-msg-${ch.channel}`);
+        const avgLevel = document.getElementById(`avg-${ch.channel}`);
+        const lockBtn = document.getElementById(`lock-${ch.channel}`);
+
+        if (meter) {
+          meter.style.height = `${ch.level * 100}%`;
+        }
+        if (peak) {
+          peak.style.bottom = `${ch.peak * 100}%`;
+        }
+        if (gain) {
+          gain.textContent = `${ch.gain} dB`;
+        }
+        if (avgLevel) {
+          avgLevel.textContent = `Avg: ${(ch.averageLevel * 100).toFixed(0)}%`;
+        }
+        if (strip) {
+          // Remove all health classes
+          strip.classList.remove('clipping', 'health-too_low', 'health-low', 'health-optimal', 'health-high', 'locked');
+
+          // Add appropriate health class
+          if (ch.health) {
+            strip.classList.add(`health-${ch.health}`);
+          }
+          if (ch.isReducing) {
+            strip.classList.add('clipping');
+          }
+          if (ch.gainLocked) {
+            strip.classList.add('locked');
+          }
+        }
+        if (healthDot) {
+          healthDot.className = `health-dot ${ch.health || 'optimal'}`;
+        }
+        if (healthMsg) {
+          healthMsg.className = `health-message ${ch.health || 'optimal'}`;
+          healthMsg.textContent = ch.healthMessage || '-';
+        }
+        if (lockBtn) {
+          lockBtn.textContent = ch.gainLocked ? '🔒' : '🔓';
+          lockBtn.classList.toggle('active', ch.gainLocked);
+        }
+      });
+    }
+
+    // Lock/unlock functions
+    const channelLocks = {};
+
+    async function toggleLock(num) {
+      const currentLock = channelLocks[num] || false;
+      const newLock = !currentLock;
+
+      await fetch(`/api/mixer/channel/${num}/lock`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ locked: newLock })
+      });
+
+      channelLocks[num] = newLock;
+    }
+
+    // Auto-recovery toggle
+    async function loadAutoRecovery() {
+      const res = await fetch('/api/mixer/autogain/recovery');
+      const data = await res.json();
+      document.getElementById('auto-recovery').checked = data.enabled;
+    }
+
+    async function saveAutoRecovery() {
+      const enabled = document.getElementById('auto-recovery').checked;
+      await fetch('/api/mixer/autogain/recovery', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ enabled })
+      });
+    }
+
+    // Add event listener for auto-recovery toggle
+    document.getElementById('auto-recovery')?.addEventListener('change', saveAutoRecovery);
+
+    function flashChannel(channelNum) {
+      const strip = document.getElementById(`channel-${channelNum}`);
+      if (strip) {
+        strip.classList.add('active');
+        setTimeout(() => strip.classList.remove('active'), 200);
+      }
+    }
+
+    function openAddChannel() {
+      document.getElementById('add-channel-modal').classList.add('active');
+    }
+
+    function closeAddChannel() {
+      document.getElementById('add-channel-modal').classList.remove('active');
+      document.getElementById('new-channel-num').value = channels.length + 1;
+      document.getElementById('new-channel-name').value = '';
+    }
+
+    // Track current fader values for fine-tune
+    const currentFaderLevels = {};
+
+    // Fader dragging
+    function setupFader(channelNum) {
+      // Need to wait for DOM to render
+      setTimeout(() => {
+        const container = document.getElementById(`fader-container-${channelNum}`);
+        const thumb = document.getElementById(`fader-thumb-${channelNum}`);
+        if (!container || !thumb) return;
+
+        let isDragging = false;
+        let lastTap = 0;
+
+        const updateFaderPosition = (e) => {
+          if (!isDragging) return;
+
+          const rect = container.getBoundingClientRect();
+          const y = e.clientY || (e.touches && e.touches[0].clientY);
+          let percent = 1 - ((y - rect.top) / rect.height);
+          percent = Math.max(0, Math.min(1, percent));
+
+          // Update visual
+          document.getElementById(`fader-fill-${channelNum}`).style.height = `${percent * 100}%`;
+          document.getElementById(`fader-thumb-${channelNum}`).style.bottom = `${percent * 100}%`;
+
+          // Convert to dB (-60 to +10)
+          const db = faderToDb(percent);
+          document.getElementById(`fader-value-${channelNum}`).textContent = `${db > 0 ? '+' : ''}${db} dB`;
+
+          currentFaderLevels[channelNum] = percent;
+        };
+
+        const stopDragging = async (e) => {
+          if (!isDragging) return;
+          isDragging = false;
+
+          const rect = container.getBoundingClientRect();
+          const y = e.clientY || (e.changedTouches && e.changedTouches[0].clientY);
+          let percent = 1 - ((y - rect.top) / rect.height);
+          percent = Math.max(0, Math.min(1, percent));
+
+          currentFaderLevels[channelNum] = percent;
+          await setChannelFader(channelNum, percent);
+        };
+
+        // Double-tap to reset to 0dB
+        thumb.addEventListener('dblclick', async () => {
+          const zeroDbPercent = dbToFader(0);
+          currentFaderLevels[channelNum] = zeroDbPercent;
+          updateFaderVisual(channelNum, zeroDbPercent);
+          await setChannelFader(channelNum, zeroDbPercent);
+        });
+
+        thumb.addEventListener('mousedown', (e) => {
+          isDragging = true;
+          e.preventDefault();
+        });
+        thumb.addEventListener('touchstart', (e) => {
+          // Double-tap detection for touch
+          const now = Date.now();
+          if (now - lastTap < 300) {
+            // Double tap - reset to 0dB
+            const zeroDbPercent = dbToFader(0);
+            currentFaderLevels[channelNum] = zeroDbPercent;
+            updateFaderVisual(channelNum, zeroDbPercent);
+            setChannelFader(channelNum, zeroDbPercent);
+          } else {
+            isDragging = true;
+          }
+          lastTap = now;
+        });
+
+        document.addEventListener('mousemove', updateFaderPosition);
+        document.addEventListener('touchmove', updateFaderPosition);
+        document.addEventListener('mouseup', stopDragging);
+        document.addEventListener('touchend', stopDragging);
+      }, 100);
+    }
+
+    // Update fader visual
+    function updateFaderVisual(channelNum, percent) {
+      const fill = document.getElementById(`fader-fill-${channelNum}`);
+      const thumb = document.getElementById(`fader-thumb-${channelNum}`);
+      const value = document.getElementById(`fader-value-${channelNum}`);
+
+      if (fill) fill.style.height = `${percent * 100}%`;
+      if (thumb) thumb.style.bottom = `${percent * 100}%`;
+      if (value) {
+        const db = faderToDb(percent);
+        value.textContent = `${db > 0 ? '+' : ''}${db} dB`;
+      }
+    }
+
+    // Fine-tune adjustment (+/- 1dB)
+    async function adjustFader(channelNum, deltadB) {
+      const currentPercent = currentFaderLevels[channelNum] || 0.75;
+      const currentDb = faderToDb(currentPercent);
+      const newDb = Math.max(-60, Math.min(10, currentDb + deltadB));
+      const newPercent = dbToFader(newDb);
+
+      currentFaderLevels[channelNum] = newPercent;
+      updateFaderVisual(channelNum, newPercent);
+      await setChannelFader(channelNum, newPercent);
+    }
+
+    // Value input
+    let valueInputChannel = null;
+
+    function openValueInput(channelNum) {
+      valueInputChannel = channelNum;
+      const currentPercent = currentFaderLevels[channelNum] || 0.75;
+      const currentDb = faderToDb(currentPercent);
+
+      document.getElementById('value-input-label').textContent = `CH ${channelNum} Volume (dB)`;
+      document.getElementById('value-input').value = currentDb;
+      document.getElementById('value-input-overlay').classList.add('active');
+      document.getElementById('value-input').focus();
+      document.getElementById('value-input').select();
+    }
+
+    function closeValueInput(event) {
+      if (event && event.target.id !== 'value-input-overlay') return;
+      document.getElementById('value-input-overlay').classList.remove('active');
+      valueInputChannel = null;
+    }
+
+    async function handleValueInputKey(event) {
+      if (event.key === 'Enter') {
+        const db = parseInt(document.getElementById('value-input').value) || 0;
+        const clampedDb = Math.max(-60, Math.min(10, db));
+        const percent = dbToFader(clampedDb);
+
+        if (valueInputChannel) {
+          currentFaderLevels[valueInputChannel] = percent;
+          updateFaderVisual(valueInputChannel, percent);
+          await setChannelFader(valueInputChannel, percent);
+        }
+
+        document.getElementById('value-input-overlay').classList.remove('active');
+        valueInputChannel = null;
+      } else if (event.key === 'Escape') {
+        document.getElementById('value-input-overlay').classList.remove('active');
+        valueInputChannel = null;
+      }
+    }
+
+    // Convert fader position (0-1) to dB (-60 to +10)
+    function faderToDb(percent) {
+      if (percent <= 0) return -60;
+      if (percent >= 1) return 10;
+      // Logarithmic scale: 0.75 = 0dB
+      if (percent < 0.75) {
+        return Math.round(-60 + (percent / 0.75) * 60);
+      } else {
+        return Math.round((percent - 0.75) / 0.25 * 10);
+      }
+    }
+
+    // Convert dB to fader position (0-1)
+    function dbToFader(db) {
+      if (db <= -60) return 0;
+      if (db >= 10) return 1;
+      if (db <= 0) {
+        return (db + 60) / 60 * 0.75;
+      } else {
+        return 0.75 + (db / 10) * 0.25;
+      }
+    }
+
+    // Set fader level via API
+    async function setChannelFader(channelNum, level) {
+      await fetch(`/api/mixer/channel/${channelNum}/fader`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ level })
+      });
+    }
+
+    // Toggle mute
+    async function toggleMute(channelNum) {
+      const btn = document.getElementById(`mute-btn-${channelNum}`);
+      const isMuted = btn.classList.contains('muted');
+
+      await fetch(`/api/mixer/channel/${channelNum}/mute`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ muted: !isMuted })
+      });
+
+      btn.classList.toggle('muted');
+    }
+
+    // Scene definitions with channel groups and Zaal (AUX 1) status
+    const SCENES = {
+      worship: {
+        name: 'WORSHIP',
+        mute: [1],                              // Preek mic uit
+        unmute: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],  // Zang + Muziek aan
+        zaalActive: false                       // Zaal speakers uit
+      },
+      speech: {
+        name: 'SPRAAK',
+        mute: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],    // Zang + Muziek uit
+        unmute: [1],                            // Preek mic aan
+        zaalActive: true                        // Zaal speakers aan
+      },
+      prayer: {
+        name: 'GEBED',
+        mute: [1, 5, 6, 7, 8, 9, 10, 11, 12],   // Preek + Muziek uit
+        unmute: [2, 3, 4],                      // Zang mics aan (voor spraak/gebed)
+        zaalActive: true                        // Zaal speakers aan
+      },
+      neutral: {
+        name: 'NEUTRAAL',
+        mute: [],
+        unmute: [],
+        zaalActive: null                        // Geen automatische controle
+      }
+    };
+
+    let currentScene = 'neutral';
+
+    // Update Zaal status indicator
+    function updateZaalStatus(active) {
+      const statusEl = document.getElementById('zaal-status');
+      const stateEl = document.getElementById('zaal-status-state');
+
+      if (active === null) {
+        // Neutral mode - show current state but dimmed
+        statusEl.classList.remove('active');
+        stateEl.className = 'zaal-status-state uit';
+        stateEl.textContent = '—';
+      } else if (active) {
+        statusEl.classList.add('active');
+        stateEl.className = 'zaal-status-state aan';
+        stateEl.textContent = 'AAN';
+      } else {
+        statusEl.classList.remove('active');
+        stateEl.className = 'zaal-status-state uit';
+        stateEl.textContent = 'UIT';
+      }
+    }
+
+    // Activate scene (idempotent - same result no matter how many times pressed)
+    async function activateScene(scene) {
+      const sceneConfig = SCENES[scene];
+      if (!sceneConfig) return;
+
+      currentScene = scene;
+
+      // Update UI - scene buttons
+      document.querySelectorAll('.scene-btn').forEach(btn => btn.classList.remove('active'));
+      document.getElementById(`scene-${scene}`).classList.add('active');
+
+      // Update Zaal status indicator
+      updateZaalStatus(sceneConfig.zaalActive);
+
+      // Skip mute changes for neutral mode
+      if (scene === 'neutral') {
+        console.log('Scene: NEUTRAL - handmatige controle');
+        return;
+      }
+
+      // Apply mute/unmute changes
+      const mutePromises = [];
+
+      sceneConfig.mute.forEach(ch => {
+        mutePromises.push(setChannelMute(ch, true));
+      });
+
+      sceneConfig.unmute.forEach(ch => {
+        mutePromises.push(setChannelMute(ch, false));
+      });
+
+      await Promise.all(mutePromises);
+      console.log(`Scene: ${sceneConfig.name} - ${sceneConfig.mute.length} gemute, ${sceneConfig.unmute.length} actief, Zaal: ${sceneConfig.zaalActive ? 'AAN' : 'UIT'}`);
+    }
+
+    // Set mute state (not toggle!)
+    async function setChannelMute(channelNum, muted) {
+      await fetch(`/api/mixer/channel/${channelNum}/mute`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ muted })
+      });
+    }
+
+    // Settings modal
+    function openSettings() {
+      document.getElementById('settings-modal').classList.add('open');
+    }
+
+    function closeSettings(event) {
+      // If called from overlay click, only close if clicking the overlay itself
+      if (event && event.target.id !== 'settings-modal') return;
+      document.getElementById('settings-modal').classList.remove('open');
+    }
+
+    // Update updateMeters to include fader and mute
+    const originalUpdateMeters = updateMeters;
+    updateMeters = function(levels) {
+      levels.forEach(ch => {
+        // Update fader position (if not dragging)
+        const faderFill = document.getElementById(`fader-fill-${ch.channel}`);
+        const faderThumb = document.getElementById(`fader-thumb-${ch.channel}`);
+        const faderValue = document.getElementById(`fader-value-${ch.channel}`);
+        const muteBtn = document.getElementById(`mute-btn-${ch.channel}`);
+
+        if (faderFill && ch.faderLevel !== undefined) {
+          // Only update visual if not currently dragging
+          if (!currentFaderLevels[ch.channel] || Math.abs(currentFaderLevels[ch.channel] - ch.faderLevel) > 0.02) {
+            currentFaderLevels[ch.channel] = ch.faderLevel;
+          }
+          const percent = ch.faderLevel * 100;
+          faderFill.style.height = `${percent}%`;
+          faderThumb.style.bottom = `${percent}%`;
+          const db = faderToDb(ch.faderLevel);
+          faderValue.textContent = `${db > 0 ? '+' : ''}${db} dB`;
+        }
+
+        if (muteBtn) {
+          muteBtn.classList.toggle('muted', ch.muted);
+        }
+
+        // Call original function for other updates
+        const meter = document.getElementById(`meter-${ch.channel}`);
+        const peak = document.getElementById(`peak-${ch.channel}`);
+        const gain = document.getElementById(`gain-${ch.channel}`);
+        const strip = document.getElementById(`channel-${ch.channel}`);
+        const healthDot = document.getElementById(`health-dot-${ch.channel}`);
+        const healthMsg = document.getElementById(`health-msg-${ch.channel}`);
+        const lockBtn = document.getElementById(`lock-${ch.channel}`);
+
+        if (meter) meter.style.height = `${ch.level * 100}%`;
+        if (peak) peak.style.bottom = `${ch.peak * 100}%`;
+        if (gain) gain.textContent = ch.gain;
+
+        if (strip) {
+          strip.classList.remove('clipping', 'health-too_low', 'health-low', 'health-optimal', 'health-high', 'locked');
+          if (ch.health) strip.classList.add(`health-${ch.health}`);
+          if (ch.isReducing) strip.classList.add('clipping');
+          if (ch.gainLocked) strip.classList.add('locked');
+        }
+
+        if (healthDot) healthDot.className = `health-dot ${ch.health || 'optimal'}`;
+        if (healthMsg) {
+          healthMsg.className = `health-message ${ch.health || 'optimal'}`;
+          healthMsg.textContent = ch.healthMessage || '';
+        }
+        if (lockBtn) {
+          lockBtn.textContent = ch.gainLocked ? '🔒' : '🔓';
+          lockBtn.classList.toggle('active', ch.gainLocked);
+        }
+      });
+    };
+  </script>
+</body>
+</html>

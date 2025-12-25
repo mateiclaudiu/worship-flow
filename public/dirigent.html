@@ -1,0 +1,4025 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dirigent Console • Worship Flow</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg-deep: #0a0a0f;
+      --bg-card: #12121a;
+      --bg-elevated: #1a1a24;
+      --bg-input: #0d0d12;
+      --accent-gold: #d4a853;
+      --accent-gold-dim: #8b7355;
+      --accent-green: #4ade80;
+      --accent-red: #f87171;
+      --accent-blue: #60a5fa;
+      --text-primary: #f5f5f0;
+      --text-secondary: #a0a0a0;
+      --text-muted: #606060;
+      --border: #2a2a35;
+      --border-light: #3a3a45;
+    }
+
+    body {
+      font-family: 'Source Sans 3', sans-serif;
+      background: var(--bg-deep);
+      color: var(--text-primary);
+      min-height: 100vh;
+    }
+
+    /* Header */
+    .header {
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      padding: 0.5rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.25rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .header-selects {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .header select {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      padding: 0.4rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-family: inherit;
+      max-width: 180px;
+    }
+
+    .header select:focus {
+      outline: none;
+      border-color: var(--accent-gold-dim);
+    }
+
+    .header-divider {
+      width: 1px;
+      height: 24px;
+      background: var(--border);
+    }
+
+    .song-info-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.85rem;
+    }
+
+    .song-info-header .label {
+      color: var(--text-muted);
+    }
+
+    .song-info-header .value {
+      color: var(--accent-gold);
+      font-weight: 600;
+    }
+
+    .header-nav {
+      display: flex;
+      gap: 0.25rem;
+      margin-left: auto;
+    }
+
+    .header-nav button {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-secondary);
+      padding: 0.4rem 0.75rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+    }
+
+    .header-nav button:hover {
+      background: var(--bg-elevated);
+      color: var(--text-primary);
+    }
+
+    .header-nav button.active {
+      background: var(--accent-gold);
+      color: var(--bg-deep);
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .icon-btn {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      transition: all 0.2s;
+    }
+
+    .icon-btn:hover {
+      border-color: var(--accent-gold-dim);
+      color: var(--text-primary);
+    }
+
+    .connection-status {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+
+    .connection-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-red);
+    }
+
+    .connection-dot.connected {
+      background: var(--accent-green);
+    }
+
+    .mixer-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--text-muted);
+      display: none;
+    }
+
+    .mixer-dot.enabled {
+      display: block;
+      background: var(--accent-red);
+    }
+
+    .mixer-dot.connected {
+      background: var(--accent-purple);
+    }
+
+    .mixer-status-box {
+      background: var(--bg-tertiary);
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin: 16px 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .mixer-status-box .status-icon {
+      font-size: 1.2rem;
+      color: var(--accent-red);
+    }
+
+    .mixer-status-box.connected .status-icon {
+      color: var(--accent-purple);
+    }
+
+    /* Main Layout */
+    .main-container {
+      display: flex;
+      height: calc(100vh - 60px);
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 320px;
+      background: var(--bg-card);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .sidebar-header {
+      padding: 1rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .sidebar-header h2 {
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .sidebar-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0.5rem;
+    }
+
+    /* Song List */
+    .song-item {
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.15s;
+      margin-bottom: 0.25rem;
+    }
+
+    .song-item:hover {
+      background: var(--bg-elevated);
+    }
+
+    .song-item.active {
+      background: var(--accent-gold);
+      color: var(--bg-deep);
+    }
+
+    .song-item .title {
+      font-weight: 500;
+      margin-bottom: 0.25rem;
+    }
+
+    .song-item .meta {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .song-item.active .meta {
+      color: var(--bg-elevated);
+    }
+
+    /* Content Area */
+    .content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Views */
+    .view {
+      display: none;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .view.active {
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Songs Management View */
+    .songs-view {
+      padding: 2rem;
+      overflow-y: auto;
+    }
+
+    .songs-toolbar {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .songs-toolbar .search-input {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .sort-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .sort-group label {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    .sort-group select {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      padding: 0.5rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+    }
+
+    .view-toggle {
+      display: flex;
+      background: var(--bg-elevated);
+      border-radius: 6px;
+      padding: 2px;
+      border: 1px solid var(--border);
+    }
+
+    .view-toggle button {
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      padding: 0.4rem 0.6rem;
+      cursor: pointer;
+      border-radius: 4px;
+      font-size: 1rem;
+    }
+
+    .view-toggle button.active {
+      background: var(--accent-gold);
+      color: var(--bg-deep);
+    }
+
+    .songs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1rem;
+    }
+
+    .songs-grid.list-view {
+      grid-template-columns: 1fr;
+      gap: 0;
+    }
+
+    .songs-grid.list-view .song-card {
+      border-radius: 0;
+      border-bottom: none;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.75rem 1rem;
+    }
+
+    .songs-grid.list-view .song-card:first-child {
+      border-radius: 10px 10px 0 0;
+    }
+
+    .songs-grid.list-view .song-card:last-child {
+      border-radius: 0 0 10px 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .songs-grid.list-view .song-card:only-child {
+      border-radius: 10px;
+    }
+
+    .songs-grid.list-view .song-card h3 {
+      flex: 1;
+      margin: 0;
+      font-size: 1rem;
+    }
+
+    .songs-grid.list-view .song-card .tags {
+      margin: 0;
+      flex-shrink: 0;
+    }
+
+    .songs-grid.list-view .song-card:hover {
+      transform: none;
+      background: var(--bg-elevated);
+    }
+
+    .song-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.25rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .song-card:hover {
+      border-color: var(--accent-gold-dim);
+      transform: translateY(-2px);
+    }
+
+    .song-card h3 {
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .song-card .tags {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-top: 0.75rem;
+    }
+
+    .tag {
+      background: var(--bg-elevated);
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    .tag.category { color: var(--accent-gold); }
+    .tag.style { color: var(--accent-blue); }
+    .tag.key { color: var(--accent-green); }
+    .tag.tempo { color: #a78bfa; }
+
+    /* Stats View */
+    .stats-view {
+      padding: 2rem;
+      overflow-y: auto;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .stats-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+    }
+
+    .stats-card h3 {
+      margin-bottom: 1rem;
+      color: var(--accent-gold);
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .stats-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .stats-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.75rem;
+      background: var(--bg-elevated);
+      border-radius: 8px;
+    }
+
+    .stats-item .rank {
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-card);
+      border-radius: 50%;
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: var(--accent-gold);
+    }
+
+    .stats-item .info {
+      flex: 1;
+    }
+
+    .stats-item .title {
+      font-weight: 500;
+    }
+
+    .stats-item .meta {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+
+    .stats-item .count {
+      font-weight: 600;
+      color: var(--accent-gold);
+      font-size: 1.1rem;
+    }
+
+    /* Live View */
+    .live-view {
+      display: grid;
+      grid-template-columns: 1fr 350px;
+      grid-template-rows: 1fr auto;
+      height: 100%;
+    }
+
+    .live-main {
+      padding: 2rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .current-song-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+    }
+
+    .current-song-info h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .current-song-meta {
+      display: flex;
+      gap: 1.5rem;
+      color: var(--text-secondary);
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .meta-label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .meta-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.1rem;
+      color: var(--accent-gold);
+    }
+
+    /* Lyrics Display */
+    .lyrics-container {
+      flex: 1;
+      background: var(--bg-card);
+      border-radius: 12px;
+      padding: 2rem;
+      overflow-y: auto;
+    }
+
+    .lyrics-section {
+      margin-bottom: 2rem;
+    }
+
+    .section-label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      color: var(--accent-gold);
+      margin-bottom: 0.75rem;
+      letter-spacing: 0.1em;
+    }
+
+    .lyrics-text {
+      font-size: 1.4rem;
+      line-height: 2;
+      white-space: pre-wrap;
+    }
+
+    .lyrics-text .accent {
+      font-weight: 600;
+      color: var(--accent-gold);
+    }
+
+    .section-active {
+      background: var(--bg-elevated);
+      border-radius: 8px;
+      padding: 1rem;
+      margin: -1rem;
+    }
+
+    /* Structure Navigator */
+    .structure-nav {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.5rem;
+    }
+
+    .structure-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.15s;
+    }
+
+    .structure-btn:hover {
+      border-color: var(--accent-gold-dim);
+      color: var(--text-primary);
+    }
+
+    .structure-btn.active {
+      background: var(--accent-gold);
+      border-color: var(--accent-gold);
+      color: var(--bg-deep);
+    }
+
+    /* Cue Panel */
+    .cue-panel {
+      background: var(--bg-card);
+      border-left: 1px solid var(--border);
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .cue-section h3 {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+      letter-spacing: 0.05em;
+    }
+
+    .cue-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.5rem;
+    }
+
+    .cue-btn {
+      background: var(--bg-elevated);
+      border: 2px solid var(--border);
+      color: var(--text-primary);
+      padding: 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 500;
+      transition: all 0.1s;
+    }
+
+    .cue-btn:hover {
+      border-color: var(--accent-gold);
+      transform: scale(1.02);
+    }
+
+    .cue-btn:active {
+      transform: scale(0.98);
+    }
+
+    .cue-btn.primary {
+      background: var(--accent-gold);
+      border-color: var(--accent-gold);
+      color: var(--bg-deep);
+      grid-column: span 2;
+      font-size: 1.5rem;
+      padding: 1.25rem;
+    }
+
+    .cue-btn.danger {
+      border-color: var(--accent-red);
+      color: var(--accent-red);
+    }
+
+    /* Feedback Panel */
+    .feedback-panel {
+      background: var(--bg-card);
+      border-top: 1px solid var(--border);
+      padding: 1.5rem 2rem;
+      grid-column: span 2;
+    }
+
+    .feedback-row {
+      display: flex;
+      gap: 2rem;
+      align-items: center;
+    }
+
+    .feedback-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .feedback-group label {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      min-width: 60px;
+    }
+
+    .feedback-btns {
+      display: flex;
+      gap: 0.25rem;
+    }
+
+    .feedback-btn {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      padding: 0.4rem 0.75rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.15s;
+    }
+
+    .feedback-btn:hover {
+      border-color: var(--accent-gold-dim);
+      color: var(--text-primary);
+    }
+
+    .feedback-btn.selected {
+      background: var(--accent-gold);
+      border-color: var(--accent-gold);
+      color: var(--bg-deep);
+    }
+
+    .feedback-btn.negative.selected {
+      background: var(--accent-red);
+      border-color: var(--accent-red);
+    }
+
+    .feedback-btn.positive.selected {
+      background: var(--accent-green);
+      border-color: var(--accent-green);
+    }
+
+    .feedback-notes {
+      flex: 1;
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .feedback-notes input {
+      flex: 1;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      font-size: 0.9rem;
+    }
+
+    .feedback-notes input:focus {
+      outline: none;
+      border-color: var(--accent-gold-dim);
+    }
+
+    .save-btn {
+      background: var(--accent-gold);
+      border: none;
+      color: var(--bg-deep);
+      padding: 0.5rem 1.5rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    /* Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      width: 90%;
+      max-width: 700px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal.fullscreen {
+      max-width: 1400px;
+      width: 95%;
+      height: 90vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Collapsible Metadata */
+    .metadata-details {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 0.75rem;
+    }
+
+    .metadata-summary {
+      padding: 0.75rem 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 500;
+      user-select: none;
+    }
+
+    .metadata-summary:hover {
+      background: var(--bg-card);
+    }
+
+    .metadata-toggle {
+      transition: transform 0.2s;
+      font-size: 0.75rem;
+    }
+
+    .metadata-details[open] .metadata-toggle {
+      transform: rotate(90deg);
+    }
+
+    .metadata-title-preview {
+      color: var(--accent-gold);
+      margin-left: auto;
+      font-weight: 600;
+    }
+
+    .metadata-content {
+      padding: 1rem;
+      border-top: 1px solid var(--border);
+    }
+
+    /* Sticky Toolbar */
+    .editor-toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.35rem 0.75rem;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+    }
+
+    .toolbar-group {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .toolbar-label {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-right: 0.15rem;
+    }
+
+    .toolbar-divider {
+      width: 1px;
+      height: 18px;
+      background: var(--border);
+      margin: 0 0.35rem;
+    }
+
+    .toolbar-btn {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.15s;
+        margin-right: 10px;
+    }
+
+    .toolbar-btn:hover {
+      border-color: var(--accent-gold-dim);
+      background: var(--bg-input);
+    }
+
+    .toolbar-btn.refrein {
+      background: var(--accent-gold);
+      color: var(--bg-deep);
+      border-color: var(--accent-gold);
+    }
+
+    .toolbar-btn.gold {
+      background: var(--accent-gold);
+      color: var(--bg-deep);
+      border-color: var(--accent-gold);
+    }
+
+    .toolbar-btn.blue {
+      background: var(--accent-blue);
+      color: var(--bg-deep);
+      border-color: var(--accent-blue);
+    }
+
+    .toolbar-btn.purple {
+      background: #9333ea;
+      color: white;
+      border-color: #9333ea;
+    }
+
+    .toolbar-btn.accent {
+      background: #f97316;
+      color: white;
+      border-color: #f97316;
+    }
+
+    /* Repeat Popup */
+    .repeat-popup {
+      display: none;
+      position: absolute;
+      top: 100%;
+      right: 0;
+      margin-top: 0.5rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+      z-index: 100;
+      min-width: 280px;
+    }
+
+    .repeat-popup.active {
+      display: block;
+    }
+
+    .repeat-popup-header {
+      padding: 0.75rem 1rem;
+      font-weight: 600;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.9rem;
+    }
+
+    .repeat-popup-body {
+      padding: 0.75rem 1rem;
+    }
+
+    .repeat-option {
+      margin-bottom: 0.5rem;
+    }
+
+    .repeat-option label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+
+    .repeat-option input[type="radio"] {
+      margin: 0;
+    }
+
+    .repeat-option input[type="number"] {
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      padding: 0.2rem 0.4rem;
+      border-radius: 4px;
+      font-size: 0.85rem;
+    }
+
+    .repeat-count {
+      margin-top: 1rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+    }
+
+    .count-btn {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.8rem;
+    }
+
+    .count-btn.active {
+      background: #9333ea;
+      border-color: #9333ea;
+      color: white;
+    }
+
+    .repeat-popup-footer {
+      padding: 0.75rem 1rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 0.5rem;
+      justify-content: flex-end;
+    }
+
+    .btn-cancel {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      padding: 0.4rem 0.75rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+
+    .btn-add {
+      background: #9333ea;
+      border: none;
+      color: white;
+      padding: 0.4rem 0.75rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+
+    /* Sections Panel */
+    .sections-panel {
+      background: var(--bg-elevated);
+      border-radius: 8px;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .sections-panel h4 {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+      margin-bottom: 0.75rem;
+    }
+
+    .sections-panel .marked-sections {
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .modal.fullscreen .modal-body {
+      flex: 1;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .modal.fullscreen .modal-body form {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .modal-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .modal-header h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    .modal-body {
+      padding: 1.5rem;
+    }
+
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.5rem;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      padding: 0.75rem 1rem;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      font-family: inherit;
+    }
+
+    .form-group textarea {
+      min-height: 200px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: var(--accent-gold-dim);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 1rem;
+      justify-content: flex-end;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--border);
+      margin-top: auto;
+      flex-shrink: 0;
+    }
+
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-secondary {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+    }
+
+    .btn-primary {
+      background: var(--accent-gold);
+      border: 1px solid var(--accent-gold);
+      color: var(--bg-deep);
+      font-weight: 500;
+    }
+
+    .btn-danger {
+      background: transparent;
+      border: 1px solid var(--accent-red);
+      color: var(--accent-red);
+    }
+
+    /* Setlist View */
+    .setlist-view {
+      padding: 2rem;
+      overflow-y: auto;
+    }
+
+    .setlist-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .setlist-list {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .setlist-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.25rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .setlist-card:hover {
+      border-color: var(--accent-gold-dim);
+    }
+
+    .setlist-card h3 {
+      font-size: 1.1rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .setlist-card .date {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    .setlist-card .song-count {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    .setlist-card .setlist-info {
+      flex: 1;
+      cursor: pointer;
+    }
+
+    .pin-btn {
+      background: transparent;
+      border: none;
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 0.25rem;
+      margin-right: 0.75rem;
+      opacity: 0.4;
+      transition: all 0.15s;
+    }
+
+    .pin-btn:hover {
+      opacity: 1;
+      transform: scale(1.2);
+    }
+
+    .pin-btn.pinned {
+      opacity: 1;
+    }
+
+    .status-badge {
+      padding: 0.35rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+
+    .status-badge.voorbereiding { background: var(--bg-elevated); color: var(--text-secondary); }
+    .status-badge.oefening { background: rgba(96, 165, 250, 0.2); color: var(--accent-blue); }
+    .status-badge.live { background: rgba(212, 168, 83, 0.2); color: var(--accent-gold); }
+    .status-badge.afgerond { background: rgba(74, 222, 128, 0.2); color: var(--accent-green); }
+
+    /* Setlist Editor */
+    .setlist-editor {
+      display: grid;
+      grid-template-columns: 1fr 350px;
+      gap: 2rem;
+    }
+
+    .setlist-songs {
+      background: var(--bg-card);
+      border-radius: 10px;
+      padding: 1rem;
+      min-height: 400px;
+    }
+
+    .setlist-songs h3 {
+      padding: 0.75rem;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      text-transform: uppercase;
+    }
+
+    .setlist-song-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.75rem;
+      background: var(--bg-elevated);
+      border: 2px solid transparent;
+      border-radius: 6px;
+      margin-bottom: 0.5rem;
+      cursor: grab;
+      transition: all 0.15s;
+    }
+
+    .setlist-song-item:active {
+      cursor: grabbing;
+    }
+
+    .setlist-song-item.drag-over {
+      border-color: var(--accent-gold);
+      background: var(--bg-card);
+      transform: scale(1.02);
+    }
+
+    .drag-handle {
+      color: var(--text-muted);
+      cursor: grab;
+    }
+
+    .setlist-song-item .number {
+      width: 24px;
+      height: 24px;
+      background: var(--bg-deep);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .setlist-song-item .info {
+      flex: 1;
+    }
+
+    .setlist-song-item .title {
+      font-weight: 500;
+    }
+
+    .setlist-song-item .meta {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .setlist-song-item .remove-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 0.25rem;
+    }
+
+    .setlist-song-item .remove-btn:hover {
+      color: var(--accent-red);
+    }
+
+    .available-songs {
+      background: var(--bg-card);
+      border-radius: 10px;
+      padding: 1rem;
+    }
+
+    .search-input {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      padding: 0.75rem 1rem;
+      border-radius: 6px;
+      margin-bottom: 1rem;
+    }
+
+    .available-song-item {
+      padding: 0.75rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .available-song-item:hover {
+      background: var(--bg-elevated);
+    }
+
+    .available-song-item .title {
+      font-weight: 500;
+    }
+
+    .available-song-item .meta {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    /* Song navigation */
+    .song-nav {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .nav-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.15s;
+    }
+
+    .nav-btn:hover:not(:disabled) {
+      border-color: var(--accent-gold-dim);
+      color: var(--text-primary);
+    }
+
+    .nav-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .song-position {
+      background: var(--bg-elevated);
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: var(--text-muted);
+    }
+
+    .empty-state h3 {
+      margin-bottom: 0.5rem;
+      color: var(--text-secondary);
+    }
+
+    /* History display */
+    .history-list {
+      margin-top: 1rem;
+    }
+
+    .history-item {
+      padding: 0.75rem;
+      background: var(--bg-elevated);
+      border-radius: 6px;
+      margin-bottom: 0.5rem;
+      font-size: 0.85rem;
+    }
+
+    .history-item .date {
+      color: var(--text-muted);
+    }
+
+    .history-item .feedback {
+      display: flex;
+      gap: 1rem;
+      margin-top: 0.25rem;
+    }
+
+    .history-item .feedback span {
+      color: var(--text-secondary);
+    }
+
+    .history-item .feedback .good { color: var(--accent-green); }
+    .history-item .feedback .bad { color: var(--accent-red); }
+
+    /* Keyboard shortcuts hint */
+    .shortcuts-hint {
+      position: fixed;
+      bottom: 1rem;
+      right: 1rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .shortcuts-hint kbd {
+      background: var(--bg-elevated);
+      padding: 0.15rem 0.4rem;
+      border-radius: 3px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+    }
+
+    /* Section Editor */
+    .section-editor {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      min-height: 0;
+      overflow-y: auto;
+      padding-right: 0.5rem;
+    }
+
+    .section-block {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+      position: relative;
+    }
+
+    .section-block.refrein {
+      border-left: 3px solid var(--accent-gold);
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .section-type-select {
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      min-width: 140px;
+    }
+
+    .section-type-select:focus {
+      outline: none;
+      border-color: var(--accent-gold-dim);
+    }
+
+    .section-remove {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 0.25rem 0.5rem;
+      margin-left: auto;
+      border-radius: 4px;
+      transition: all 0.15s;
+    }
+
+    .section-remove:hover {
+      background: var(--accent-red);
+      color: white;
+    }
+
+    .section-textarea {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      padding: 0.75rem 1rem;
+      border-radius: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.9rem;
+      line-height: 1.6;
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .section-textarea:focus {
+      outline: none;
+      border-color: var(--accent-gold-dim);
+    }
+
+    .section-textarea::placeholder {
+      color: var(--text-muted);
+    }
+
+    .section-options {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-top: 0.75rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .section-options label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      cursor: pointer;
+    }
+
+    .section-options input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--accent-gold);
+    }
+
+    .add-section-btn {
+      background: var(--bg-card);
+      border: 2px dashed var(--border);
+      color: var(--text-secondary);
+      padding: 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .add-section-btn:hover {
+      border-color: var(--accent-gold-dim);
+      color: var(--accent-gold);
+      background: var(--bg-elevated);
+    }
+
+    .refrein-reference {
+      background: var(--bg-input);
+      border: 1px solid var(--accent-gold-dim);
+      border-radius: 6px;
+      padding: 1rem;
+      color: var(--text-secondary);
+      font-style: italic;
+      text-align: center;
+    }
+
+    .song-meta-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    @media (max-width: 768px) {
+      .song-meta-row {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    /* Editor Mode Toggle */
+    .editor-mode-toggle {
+      display: flex;
+      gap: 0;
+      margin-bottom: 1.5rem;
+      background: var(--bg-input);
+      border-radius: 8px;
+      padding: 4px;
+      width: fit-content;
+    }
+
+    .editor-mode-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      padding: 0.6rem 1.25rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+
+    .editor-mode-btn:hover {
+      color: var(--text-primary);
+    }
+
+    .editor-mode-btn.active {
+      background: var(--accent-gold);
+      color: var(--bg-deep);
+      font-weight: 500;
+    }
+
+    /* Paste & Mark Editor */
+    .paste-editor {
+      display: none;
+      flex-direction: column;
+      gap: 1rem;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .paste-editor.active {
+      display: flex;
+    }
+
+    .section-editor-wrapper {
+      display: none;
+      flex-direction: column;
+      gap: 1rem;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .section-editor-wrapper.active {
+      display: flex;
+    }
+
+    .paste-container {
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 1rem;
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .paste-textarea-wrapper {
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .paste-textarea {
+      flex: 1;
+      width: 100%;
+      min-height: 0;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      padding: 1rem;
+      border-radius: 8px;
+      font-family: 'Source Sans 3', sans-serif;
+      font-size: 1rem;
+      line-height: 1.8;
+      resize: none;
+      overflow-y: auto;
+    }
+
+    .paste-textarea:focus {
+      outline: none;
+      border-color: var(--accent-gold-dim);
+    }
+
+    .paste-textarea::placeholder {
+      color: var(--text-muted);
+    }
+
+    .marked-sections {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .marked-section-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .marked-section-item.refrein {
+      border-left: 3px solid var(--accent-gold);
+    }
+
+    .marked-section-item .type {
+      color: var(--accent-gold);
+      font-weight: 500;
+    }
+
+    .marked-section-item .preview {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      max-width: 120px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .marked-section-item .remove {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 0.25rem;
+    }
+
+    .marked-section-item .remove:hover {
+      color: var(--accent-red);
+    }
+
+    .paste-help {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      padding: 0.75rem;
+      background: var(--bg-card);
+      border-radius: 6px;
+      line-height: 1.5;
+    }
+
+    .paste-help strong {
+      color: var(--text-secondary);
+    }
+
+    .refrein-marker {
+      background: linear-gradient(90deg, var(--accent-gold-dim), var(--accent-gold));
+      color: var(--bg-deep);
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      display: inline-block;
+      margin: 0.25rem 0;
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <h1>🎹 Dirigent</h1>
+    <div class="header-nav">
+      <button onclick="showView('songs')" id="btn-songs">Liedjes</button>
+      <button onclick="showView('setlists')" id="btn-setlists">Setlists</button>
+      <button onclick="showView('stats')" id="btn-stats">Stats</button>
+    </div>
+    <div class="header-right">
+      <a href="/mixer" class="icon-btn" title="Mixer Dashboard" style="text-decoration: none;">🎛</a>
+      <button class="icon-btn" onclick="toggleFullscreen()" title="Volledig scherm">⛶</button>
+      <div class="connection-status">
+        <span class="connection-dot" id="connection-dot"></span>
+        <span class="mixer-dot" id="mixer-dot" title="Mixer status"></span>
+      </div>
+    </div>
+  </header>
+
+  <div class="main-container">
+    <!-- Sidebar (visible in live mode) -->
+    <aside class="sidebar" id="sidebar" style="display: none;">
+      <div class="sidebar-header">
+        <h2>Setlist</h2>
+        <span id="sidebar-setlist-name"></span>
+      </div>
+      <div class="sidebar-content" id="setlist-sidebar-songs">
+        <!-- Songs will be populated here -->
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="content">
+      <!-- Songs View -->
+      <div class="view" id="view-songs">
+        <div class="songs-view">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <h2>Liedjes</h2>
+            <button class="btn btn-primary" onclick="openSongModal()">+ Nieuw Lied</button>
+          </div>
+          <div class="songs-toolbar">
+            <input type="text" class="search-input" placeholder="Zoek op titel, categorie, stijl..." id="song-search" oninput="filterSongs()">
+            <div class="sort-group">
+              <label>Sorteer:</label>
+              <select id="song-sort" onchange="filterSongs()">
+                <option value="title">Naam A-Z</option>
+                <option value="title-desc">Naam Z-A</option>
+                <option value="category">Categorie</option>
+                <option value="style">Stijl</option>
+                <option value="recent">Recent</option>
+              </select>
+            </div>
+            <div class="view-toggle">
+              <button class="active" onclick="setSongsView('grid')" title="Grid">▦</button>
+              <button onclick="setSongsView('list')" title="Lijst">☰</button>
+            </div>
+          </div>
+          <div class="songs-grid" id="songs-grid">
+            <!-- Songs will be populated here -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Setlists View -->
+      <div class="view" id="view-setlists">
+        <div class="setlist-view">
+          <div class="setlist-header">
+            <h2>Setlists</h2>
+            <button class="btn btn-primary" onclick="openSetlistModal()">+ Nieuwe Setlist</button>
+          </div>
+          <div class="setlist-list" id="setlist-list">
+            <!-- Setlists will be populated here -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Setlist Editor View -->
+      <div class="view" id="view-setlist-editor">
+        <div class="setlist-view">
+          <div class="setlist-header">
+            <div>
+              <button class="btn btn-secondary" onclick="showView('setlists')">← Terug</button>
+              <h2 style="display: inline; margin-left: 1rem;" id="editor-setlist-name"></h2>
+            </div>
+            <div style="display: flex; gap: 0.5rem;">
+              <select id="editor-status" onchange="updateSetlistStatus()">
+                <option value="voorbereiding">Voorbereiding</option>
+                <option value="oefening">Oefening</option>
+                <option value="live">Live</option>
+                <option value="afgerond">Afgerond</option>
+              </select>
+              <button class="btn btn-primary" onclick="startLiveWithSetlist()">▶ Start Live</button>
+            </div>
+          </div>
+          <div class="setlist-editor">
+            <div class="setlist-songs" id="editor-setlist-songs">
+              <h3>Liedjes in setlist</h3>
+              <!-- Draggable songs will be here -->
+            </div>
+            <div class="available-songs">
+              <h3 style="margin-bottom: 1rem; color: var(--text-secondary);">Beschikbare Liedjes</h3>
+              <input type="text" class="search-input" placeholder="Zoek..." id="editor-song-search" oninput="filterAvailableSongs()">
+              <div id="available-songs-list">
+                <!-- Available songs will be here -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats View -->
+      <div class="view" id="view-stats">
+        <div class="stats-view">
+          <h2>Statistieken</h2>
+          <p style="color: var(--text-secondary); margin-bottom: 2rem;">Liedjes die je hebt gezongen (via AMEN button)</p>
+
+          <div class="stats-grid">
+            <div class="stats-card">
+              <h3>Top Liedjes</h3>
+              <div class="stats-list" id="stats-top-songs">
+                <p class="empty-state">Laden...</p>
+              </div>
+            </div>
+            <div class="stats-card">
+              <h3>Recent Gezongen</h3>
+              <div class="stats-list" id="stats-recent">
+                <p class="empty-state">Laden...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live View -->
+      <div class="view" id="view-live">
+        <div class="live-view">
+          <div class="live-main">
+            <div class="song-nav">
+              <button class="nav-btn" id="prev-song-btn" onclick="prevSong()">← Vorig</button>
+              <span class="song-position" id="song-position">0/0</span>
+              <button class="nav-btn" id="next-song-btn" onclick="nextSong()">Volgend →</button>
+            </div>
+
+            <div class="current-song-header">
+              <div class="current-song-info">
+                <h2 id="current-song-title">Geen lied geselecteerd</h2>
+                <div class="current-song-meta">
+                  <div class="meta-item">
+                    <span class="meta-label">Toon</span>
+                    <span class="meta-value" id="current-song-key">-</span>
+                  </div>
+                  <div class="meta-item">
+                    <span class="meta-label">Tempo</span>
+                    <span class="meta-value" id="current-song-tempo">-</span>
+                  </div>
+                  <div class="meta-item">
+                    <span class="meta-label">Stijl</span>
+                    <span class="meta-value" id="current-song-style">-</span>
+                  </div>
+                </div>
+              </div>
+              <a href="#" id="karaoke-link" target="_blank" style="display: none;" class="btn btn-secondary">🎵 Karaoke</a>
+            </div>
+
+            <div class="structure-nav" id="structure-nav">
+              <!-- Section buttons will be here -->
+            </div>
+
+            <div class="lyrics-container" id="lyrics-container">
+              <div class="empty-state">
+                <h3>Geen lied geladen</h3>
+                <p>Selecteer een setlist en start live mode</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="cue-panel">
+            <div class="cue-section">
+              <h3>Live Cues</h3>
+              <div class="cue-grid">
+                <button class="cue-btn primary" onclick="sendCue('1-2-3!')">1 - 2 - 3 !</button>
+                <button class="cue-btn" onclick="sendCue('INTRO')">Intro</button>
+                <button class="cue-btn" onclick="sendCue('VERS')">Vers</button>
+                <button class="cue-btn" onclick="sendCue('REFREIN')">Refrein</button>
+                <button class="cue-btn" onclick="sendCue('BRIDGE')">Bridge</button>
+                <button class="cue-btn" onclick="sendCue('PAUZE')">⏸ Pauze</button>
+                <button class="cue-btn" onclick="sendCue('BIS')">🔄 Bis</button>
+                <button class="cue-btn" onclick="sendCue('🎵 INSTRUMENTAAL')">🎵 Instrum.</button>
+                <button class="cue-btn" onclick="sendCue('OUTRO')">Outro</button>
+                <button class="cue-btn danger" onclick="sendCue('EINDE')">⬛ Einde</button>
+              </div>
+            </div>
+
+            <div class="cue-section">
+              <h3>Navigatie</h3>
+              <div class="cue-grid">
+                <button class="cue-btn" onclick="prevSection()">← Vorige sectie</button>
+                <button class="cue-btn" onclick="nextSection()">Volgende sectie →</button>
+              </div>
+            </div>
+
+            <div class="cue-section">
+              <h3>Lied Historiek</h3>
+              <div class="history-list" id="song-history">
+                <!-- History will be populated here -->
+              </div>
+            </div>
+          </div>
+
+          <div class="feedback-panel">
+            <div class="feedback-row">
+              <div class="feedback-group">
+                <label>Tempo:</label>
+                <div class="feedback-btns">
+                  <button class="feedback-btn negative" data-feedback="tempo" data-value="te traag" onclick="selectFeedback(this)">Te traag</button>
+                  <button class="feedback-btn" data-feedback="tempo" data-value="goed" onclick="selectFeedback(this)">Goed</button>
+                  <button class="feedback-btn negative" data-feedback="tempo" data-value="te snel" onclick="selectFeedback(this)">Te snel</button>
+                </div>
+              </div>
+              <div class="feedback-group">
+                <label>Toon:</label>
+                <div class="feedback-btns">
+                  <button class="feedback-btn negative" data-feedback="key" data-value="te laag" onclick="selectFeedback(this)">Te laag</button>
+                  <button class="feedback-btn" data-feedback="key" data-value="goed" onclick="selectFeedback(this)">Goed</button>
+                  <button class="feedback-btn negative" data-feedback="key" data-value="te hoog" onclick="selectFeedback(this)">Te hoog</button>
+                </div>
+              </div>
+              <div class="feedback-notes">
+                <input type="text" placeholder="Notities..." id="feedback-notes">
+                <button class="save-btn" onclick="saveFeedback()">Opslaan</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Song Modal -->
+  <div class="modal-overlay" id="song-modal">
+    <div class="modal fullscreen">
+      <div class="modal-header">
+        <h2 id="song-modal-title">Nieuw Lied</h2>
+        <button class="modal-close" onclick="closeSongModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <form id="song-form" onsubmit="saveSong(event)">
+          <input type="hidden" id="song-id">
+
+          <!-- Collapsible metadata -->
+          <details class="metadata-details">
+            <summary class="metadata-summary">
+              <span class="metadata-toggle">▶</span>
+              <span>Metadata</span>
+              <span class="metadata-title-preview" id="metadata-title-preview"></span>
+            </summary>
+            <div class="metadata-content">
+              <div class="song-meta-row">
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label>Titel *</label>
+                  <input type="text" id="song-title" required oninput="updateTitlePreview()">
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label>Toonhoogte</label>
+                  <input type="text" id="song-key" placeholder="G, Am, D">
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label>Tempo</label>
+                  <input type="text" id="song-tempo" placeholder="72 BPM">
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label>Categorie</label>
+                  <select id="song-category">
+                    <option value="">-- Selecteer --</option>
+                  </select>
+                </div>
+              </div>
+              <div class="song-meta-row">
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label>Stijl</label>
+                  <select id="song-style">
+                    <option value="">-- Selecteer --</option>
+                  </select>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label>Karaoke Link</label>
+                  <input type="url" id="song-karaoke" placeholder="https://...">
+                </div>
+              </div>
+              <div class="song-meta-row">
+                <div class="form-group" style="margin-bottom: 0; flex: 1;">
+                  <label>Mixer Scene (UI24)</label>
+                  <input type="text" id="song-mixer-scene" placeholder="Snapshot naam...">
+                </div>
+              </div>
+            </div>
+          </details>
+
+          <!-- Sticky Toolbar -->
+          <div class="editor-toolbar">
+            <div class="toolbar-group">
+              <span class="toolbar-label">Markeer:</span>
+              <button type="button" class="toolbar-btn" onclick="markSelection('vers')">Vers</button>
+              <button type="button" class="toolbar-btn refrein" onclick="markSelection('refrein')">Refrein</button>
+              <button type="button" class="toolbar-btn" onclick="markSelection('bridge')">Bridge</button>
+              <button type="button" class="toolbar-btn" onclick="markSelection('intro')">Intro</button>
+              <button type="button" class="toolbar-btn" onclick="markSelection('outro')">Outro</button>
+              <button type="button" class="toolbar-btn accent" onclick="wrapWithAccent()">✦ Accent</button>
+            </div>
+            <div class="toolbar-divider"></div>
+            <div class="toolbar-group">
+              <span class="toolbar-label">Invoegen:</span>
+              <button type="button" class="toolbar-btn gold" onclick="insertRefreinMarker()">↻ Refrein</button>
+              <button type="button" class="toolbar-btn blue" onclick="insertInstrumentaalMarker()">🎹 Instr.</button>
+            </div>
+            <div class="toolbar-divider"></div>
+            <div class="toolbar-group" style="position: relative;">
+              <span class="toolbar-label">Einde:</span>
+              <button type="button" class="toolbar-btn purple" onclick="showRepeatPopup()">⟳ Herhaling...</button>
+
+              <!-- Repeat Popup -->
+              <div class="repeat-popup" id="repeat-popup">
+                <div class="repeat-popup-header">Herhaling toevoegen</div>
+                <div class="repeat-popup-body">
+                  <div class="repeat-option">
+                    <label><input type="radio" name="repeat-type" value="selection" checked> Selectie (uit editor)</label>
+                  </div>
+                  <div class="repeat-option">
+                    <label><input type="radio" name="repeat-type" value="lines"> Laatste <input type="number" id="repeat-lines" value="2" min="1" max="10" style="width: 40px;"> zinnen</label>
+                  </div>
+                  <div class="repeat-option">
+                    <label><input type="radio" name="repeat-type" value="refrein"> Refrein</label>
+                  </div>
+                  <div class="repeat-option">
+                    <label><input type="radio" name="repeat-type" value="refrein-plus"> Refrein + laatste zinnen</label>
+                  </div>
+                  <div class="repeat-count">
+                    <span>Aantal keer:</span>
+                    <button type="button" class="count-btn" onclick="setRepeatCount(2)">2x</button>
+                    <button type="button" class="count-btn active" onclick="setRepeatCount(3)">3x</button>
+                    <button type="button" class="count-btn" onclick="setRepeatCount(4)">4x</button>
+                    <input type="number" id="repeat-count" value="3" min="2" max="10" style="width: 40px;">
+                  </div>
+                </div>
+                <div class="repeat-popup-footer">
+                  <button type="button" class="btn-cancel" onclick="hideRepeatPopup()">Annuleren</button>
+                  <button type="button" class="btn-add" onclick="insertRepeat()">Toevoegen</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Editor Mode Toggle -->
+          <div class="editor-mode-toggle">
+            <button type="button" class="editor-mode-btn active" id="mode-paste-btn" onclick="setEditorMode('paste')">
+              📋 Plakken & Markeren
+            </button>
+            <button type="button" class="editor-mode-btn" id="mode-blocks-btn" onclick="setEditorMode('blocks')">
+              📦 Blok Editor
+            </button>
+          </div>
+
+          <!-- Paste & Mark Editor -->
+          <div class="paste-editor active" id="paste-editor">
+            <div class="paste-container">
+              <div class="paste-textarea-wrapper">
+                <textarea
+                  class="paste-textarea"
+                  id="paste-textarea"
+                  placeholder="Plak hier de songtekst...
+
+Bijvoorbeeld:
+Amazing grace, how sweet the sound
+That saved a wretch like me
+I once was lost, but now am found
+Was blind but now I see
+
+'Twas grace that taught my heart to fear
+And grace my fears relieved..."
+                ></textarea>
+              </div>
+              <div class="sections-panel">
+                <h4>Gemarkeerde secties</h4>
+                <div class="marked-sections" id="marked-sections">
+                  <p style="color: var(--text-muted); font-size: 0.85rem;">Nog geen secties gemarkeerd</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Block Section Editor -->
+          <div class="section-editor-wrapper" id="section-editor-wrapper">
+            <div class="section-editor" id="section-editor">
+              <!-- Sections will be rendered here -->
+            </div>
+
+            <button type="button" class="add-section-btn" onclick="addSection()">
+              + Sectie toevoegen
+            </button>
+          </div>
+
+          <input type="hidden" id="song-structure">
+          <input type="hidden" id="song-lyrics">
+
+          <div class="form-actions">
+            <button type="button" class="btn btn-danger" id="delete-song-btn" onclick="deleteSong()" style="display: none;">Verwijderen</button>
+            <button type="button" class="btn btn-secondary" onclick="closeSongModal()">Annuleren</button>
+            <button type="submit" class="btn btn-primary">Opslaan</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Setlist Modal -->
+  <div class="modal-overlay" id="setlist-modal">
+    <div class="modal" style="max-width: 500px;">
+      <div class="modal-header">
+        <h2>Nieuwe Setlist</h2>
+        <button class="modal-close" onclick="closeSetlistModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <form id="setlist-form" onsubmit="saveSetlist(event)">
+          <input type="hidden" id="setlist-id">
+          <div class="form-group">
+            <label>Naam *</label>
+            <input type="text" id="setlist-name" required placeholder="Zondag 29 december">
+          </div>
+          <div class="form-group">
+            <label>Datum</label>
+            <input type="date" id="setlist-date">
+          </div>
+          <div class="form-group">
+            <label>Notities</label>
+            <textarea id="setlist-notes" style="min-height: 100px;" placeholder="Bijv. Doopsel van Emma"></textarea>
+          </div>
+          <div class="form-actions">
+            <button type="button" class="btn btn-secondary" onclick="closeSetlistModal()">Annuleren</button>
+            <button type="submit" class="btn btn-primary">Aanmaken</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mixer Settings Modal -->
+  <div class="modal-overlay" id="mixer-modal">
+    <div class="modal" style="max-width: 450px;">
+      <div class="modal-header">
+        <h2>🎛 Mixer Instellingen</h2>
+        <button class="modal-close" onclick="closeMixerSettings()">×</button>
+      </div>
+      <div class="modal-body">
+        <form id="mixer-form" onsubmit="saveMixerSettings(event)">
+          <div class="form-group">
+            <label>
+              <input type="checkbox" id="mixer-enabled" style="width: auto; margin-right: 8px;">
+              Soundcraft UI24 integratie inschakelen
+            </label>
+          </div>
+          <div class="form-group">
+            <label>Mixer IP Adres</label>
+            <input type="text" id="mixer-ip" placeholder="192.168.1.100">
+            <small style="color: var(--text-muted); display: block; margin-top: 4px;">Het IP-adres van je Soundcraft UI24 mixer</small>
+          </div>
+          <div class="form-group">
+            <label>Show Naam</label>
+            <input type="text" id="mixer-show" placeholder="Show">
+            <small style="color: var(--text-muted); display: block; margin-top: 4px;">De naam van de show waarin je snapshots staan</small>
+          </div>
+          <div class="mixer-status-box" id="mixer-status-box">
+            <span class="status-icon" id="mixer-status-icon">●</span>
+            <span id="mixer-status-text">Niet verbonden</span>
+          </div>
+          <div class="form-actions">
+            <button type="button" class="btn btn-secondary" onclick="closeMixerSettings()">Sluiten</button>
+            <button type="submit" class="btn btn-primary">Opslaan</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="shortcuts-hint" id="shortcuts-hint" style="display: none;">
+    <kbd>←</kbd> <kbd>→</kbd> Secties &nbsp;|&nbsp;
+    <kbd>Space</kbd> Pauze &nbsp;|&nbsp;
+    <kbd>1</kbd> Tel in &nbsp;|&nbsp;
+    <kbd>N</kbd> Volgend lied
+  </div>
+
+  <script>
+    // State
+    let songs = [];
+    let setlists = [];
+    let categories = [];
+    let currentSetlist = null;
+    let currentSongIndex = 0;
+    let currentSectionIndex = 0;
+    let currentView = 'songs';
+    let editingSetlistId = null;
+
+    // Feedback state
+    let feedbackTempo = null;
+    let feedbackKey = null;
+    let songsViewMode = 'grid'; // 'grid' or 'list'
+
+    // Section editor state
+    let songSections = [];
+    let editorMode = 'paste'; // 'paste' or 'blocks'
+    let markedSections = []; // {type, startIndex, endIndex, text}
+    const REFREIN_MARKER = '[[REFREIN_HIER]]';
+    const INSTRUMENTAAL_MARKER = '[[INSTRUMENTAAL_HIER]]';
+    const LAATSTE_ZINNEN_MARKER = '[[LAATSTE 2 ZINNEN 3x]]';
+    const REFREIN_PLUS_MARKER = '[[REFREIN + LAATSTE 2x]]';
+
+    const sectionTypes = [
+      { value: 'intro', label: 'Intro' },
+      { value: 'vers', label: 'Vers', numbered: true },
+      { value: 'refrein', label: 'Refrein' },
+      { value: 'bridge', label: 'Bridge' },
+      { value: 'prechorus', label: 'Pre-chorus' },
+      { value: 'chorus', label: 'Chorus' },
+      { value: 'outro', label: 'Outro' },
+      { value: 'instrumentaal', label: 'Instrumentaal' },
+      { value: 'anders', label: 'Anders' }
+    ];
+
+    // WebSocket
+    let ws;
+    let reconnectInterval;
+
+    function connectWebSocket() {
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      ws = new WebSocket(`${protocol}//${window.location.host}?type=dirigent`);
+
+      ws.onopen = () => {
+        document.getElementById('connection-dot').classList.add('connected');
+        document.getElementById('connection-text').textContent = 'Verbonden';
+        clearInterval(reconnectInterval);
+      };
+
+      ws.onclose = () => {
+        document.getElementById('connection-dot').classList.remove('connected');
+        document.getElementById('connection-text').textContent = 'Verbinding verbroken';
+        reconnectInterval = setInterval(connectWebSocket, 3000);
+      };
+
+      ws.onmessage = (event) => {
+        const msg = JSON.parse(event.data);
+        handleWSMessage(msg);
+      };
+    }
+
+    function handleWSMessage(msg) {
+      if (msg.type === 'mixerStatus') {
+        updateMixerStatus(msg.data.connected);
+      } else if (msg.type === 'mixerSceneLoaded') {
+        console.log('Mixer scene loaded:', msg.data.scene);
+      }
+    }
+
+    function sendWSMessage(type, data) {
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ type, data }));
+      }
+    }
+
+    // API Functions
+    async function loadSongs() {
+      const res = await fetch('/api/songs');
+      songs = await res.json();
+      renderSongs();
+    }
+
+    async function loadSetlists() {
+      const res = await fetch('/api/setlists');
+      setlists = await res.json();
+      renderSetlists();
+    }
+
+    async function loadCategories() {
+      const res = await fetch('/api/categories');
+      categories = await res.json();
+      populateCategorySelects();
+    }
+
+    function populateCategorySelects() {
+      const catSelect = document.getElementById('song-category');
+      const styleSelect = document.getElementById('song-style');
+
+      const cats = categories.filter(c => c.type === 'category');
+      const styles = categories.filter(c => c.type === 'style');
+
+      cats.forEach(c => {
+        catSelect.innerHTML += `<option value="${c.name}">${c.name}</option>`;
+      });
+
+      styles.forEach(s => {
+        styleSelect.innerHTML += `<option value="${s.name}">${s.name}</option>`;
+      });
+    }
+
+    // Section Editor Functions
+    function renderSectionEditor() {
+      const container = document.getElementById('section-editor');
+
+      if (songSections.length === 0) {
+        container.innerHTML = '<p style="color: var(--text-muted); text-align: center; padding: 2rem;">Voeg een sectie toe om te beginnen</p>';
+        return;
+      }
+
+      container.innerHTML = songSections.map((section, index) => {
+        const isRefreinRef = section.type === 'refrein-ref';
+        const isRefrein = section.type === 'refrein';
+
+        if (isRefreinRef) {
+          return `
+            <div class="section-block refrein" data-index="${index}">
+              <div class="section-header">
+                <span style="color: var(--accent-gold); font-weight: 500;">↻ Refrein (herhaling)</span>
+                <button type="button" class="section-remove" onclick="removeSection(${index})">×</button>
+              </div>
+              <div class="refrein-reference">Het refrein wordt hier herhaald</div>
+            </div>
+          `;
+        }
+
+        const versCount = songSections.slice(0, index).filter(s => s.type === 'vers').length + 1;
+
+        return `
+          <div class="section-block ${isRefrein ? 'refrein' : ''}" data-index="${index}">
+            <div class="section-header">
+              <select class="section-type-select" onchange="updateSectionType(${index}, this.value)">
+                ${sectionTypes.map(t => {
+                  let label = t.label;
+                  if (t.value === 'vers' && section.type === 'vers') {
+                    label = `Vers ${versCount}`;
+                  }
+                  return `<option value="${t.value}" ${section.type === t.value ? 'selected' : ''}>${label}</option>`;
+                }).join('')}
+              </select>
+              <button type="button" class="section-remove" onclick="removeSection(${index})">×</button>
+            </div>
+            <textarea
+              class="section-textarea"
+              placeholder="Voer de tekst in..."
+              onchange="updateSectionText(${index}, this.value)"
+              oninput="updateSectionText(${index}, this.value)"
+            >${section.text || ''}</textarea>
+            ${section.type !== 'refrein' && section.type !== 'intro' && section.type !== 'outro' && section.type !== 'instrumentaal' ? `
+              <div class="section-options">
+                <label>
+                  <input type="checkbox" ${section.refreinAfter ? 'checked' : ''} onchange="toggleRefreinAfter(${index}, this.checked)">
+                  Refrein na deze sectie
+                </label>
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }).join('');
+    }
+
+    function addSection(type = 'vers') {
+      songSections.push({
+        type: type,
+        text: '',
+        refreinAfter: false
+      });
+      renderSectionEditor();
+
+      // Focus op de nieuwe textarea
+      setTimeout(() => {
+        const textareas = document.querySelectorAll('.section-textarea');
+        if (textareas.length > 0) {
+          textareas[textareas.length - 1].focus();
+        }
+      }, 50);
+    }
+
+    function removeSection(index) {
+      songSections.splice(index, 1);
+      renderSectionEditor();
+    }
+
+    function updateSectionType(index, type) {
+      songSections[index].type = type;
+      // Reset refreinAfter voor bepaalde types
+      if (type === 'refrein' || type === 'intro' || type === 'outro' || type === 'instrumentaal') {
+        songSections[index].refreinAfter = false;
+      }
+      renderSectionEditor();
+    }
+
+    function updateSectionText(index, text) {
+      songSections[index].text = text;
+    }
+
+    function toggleRefreinAfter(index, checked) {
+      songSections[index].refreinAfter = checked;
+    }
+
+    function sectionsToLyrics() {
+      // Bouw de lyrics en structure op basis van secties
+      let lyrics = [];
+      let structure = [];
+      let versCounter = 0;
+      let refreinText = null;
+
+      // Vind eerst het refrein
+      const refreinSection = songSections.find(s => s.type === 'refrein');
+      if (refreinSection) {
+        refreinText = refreinSection.text;
+      }
+
+      songSections.forEach((section, index) => {
+        let label = '';
+        let text = section.text;
+
+        switch (section.type) {
+          case 'vers':
+            versCounter++;
+            label = `Vers ${versCounter}`;
+            break;
+          case 'refrein':
+            label = 'Refrein';
+            break;
+          case 'refrein-ref':
+            label = 'Refrein';
+            text = refreinText || '';
+            break;
+          case 'bridge':
+            label = 'Bridge';
+            break;
+          case 'prechorus':
+            label = 'Pre-chorus';
+            break;
+          case 'chorus':
+            label = 'Chorus';
+            break;
+          case 'intro':
+            label = 'Intro';
+            break;
+          case 'outro':
+            label = 'Outro';
+            break;
+          case 'instrumentaal':
+            label = 'Instrumentaal';
+            break;
+          default:
+            label = section.type;
+        }
+
+        if (text && text.trim()) {
+          lyrics.push(`${label}:\n${text.trim()}`);
+          structure.push(label);
+        }
+
+        // Voeg refrein toe als refreinAfter is aangevinkt
+        if (section.refreinAfter && refreinText) {
+          lyrics.push(`Refrein:\n${refreinText.trim()}`);
+          structure.push('Refrein');
+        }
+      });
+
+      return {
+        lyrics: lyrics.join('\n\n---\n\n'),
+        structure: structure.join(',')
+      };
+    }
+
+    function lyricsToSections(lyrics, structure) {
+      songSections = [];
+
+      if (!lyrics || !lyrics.trim()) {
+        // Begin met een lege vers sectie
+        songSections.push({ type: 'vers', text: '', refreinAfter: false });
+        return;
+      }
+
+      // Split op ---
+      const parts = lyrics.split('---').map(p => p.trim()).filter(Boolean);
+
+      parts.forEach(part => {
+        // Probeer het label te detecteren
+        const labelMatch = part.match(/^(Vers\s*\d*|Refrein|Bridge|Pre-chorus|Chorus|Intro|Outro|Instrumentaal)\s*:?\s*/i);
+
+        let type = 'vers';
+        let text = part;
+
+        if (labelMatch) {
+          const label = labelMatch[1].toLowerCase();
+          text = part.substring(labelMatch[0].length).trim();
+
+          if (label.startsWith('vers')) {
+            type = 'vers';
+          } else if (label === 'refrein') {
+            type = 'refrein';
+          } else if (label === 'bridge') {
+            type = 'bridge';
+          } else if (label === 'pre-chorus') {
+            type = 'prechorus';
+          } else if (label === 'chorus') {
+            type = 'chorus';
+          } else if (label === 'intro') {
+            type = 'intro';
+          } else if (label === 'outro') {
+            type = 'outro';
+          } else if (label === 'instrumentaal') {
+            type = 'instrumentaal';
+          }
+        }
+
+        songSections.push({
+          type: type,
+          text: text,
+          refreinAfter: false
+        });
+      });
+
+      // Als er geen secties zijn, voeg een lege vers toe
+      if (songSections.length === 0) {
+        songSections.push({ type: 'vers', text: '', refreinAfter: false });
+      }
+    }
+
+    // Paste & Mark Editor Functions
+    function setEditorMode(mode) {
+      editorMode = mode;
+
+      // Toggle buttons
+      document.getElementById('mode-paste-btn').classList.toggle('active', mode === 'paste');
+      document.getElementById('mode-blocks-btn').classList.toggle('active', mode === 'blocks');
+
+      // Toggle editors
+      document.getElementById('paste-editor').classList.toggle('active', mode === 'paste');
+      document.getElementById('section-editor-wrapper').classList.toggle('active', mode === 'blocks');
+
+      // Sync data between modes when switching
+      if (mode === 'blocks') {
+        // Convert paste content to block sections
+        convertPasteToSections();
+        renderSectionEditor();
+      } else {
+        // Convert block sections to paste content
+        convertSectionsToPaste();
+        renderMarkedSections();
+      }
+    }
+
+    function markSelection(type) {
+      const textarea = document.getElementById('paste-textarea');
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+
+      if (start === end) {
+        alert('Selecteer eerst een stuk tekst om te markeren');
+        return;
+      }
+
+      const text = textarea.value.substring(start, end).trim();
+
+      // Check for overlap with existing marks
+      const hasOverlap = markedSections.some(section =>
+        (start < section.endIndex && end > section.startIndex)
+      );
+
+      if (hasOverlap) {
+        alert('Deze selectie overlapt met een bestaande markering');
+        return;
+      }
+
+      markedSections.push({
+        type,
+        startIndex: start,
+        endIndex: end,
+        text
+      });
+
+      // Sort by position
+      markedSections.sort((a, b) => a.startIndex - b.startIndex);
+
+      renderMarkedSections();
+      highlightMarkedText();
+    }
+
+    function removeMarkedSection(index) {
+      markedSections.splice(index, 1);
+      renderMarkedSections();
+      highlightMarkedText();
+    }
+
+    function insertRefreinMarker() {
+      const textarea = document.getElementById('paste-textarea');
+      const pos = textarea.selectionStart;
+      const text = textarea.value;
+
+      // Insert marker at cursor position
+      const newText = text.substring(0, pos) + '\n' + REFREIN_MARKER + '\n' + text.substring(pos);
+      textarea.value = newText;
+
+      // Update indices of marked sections after insertion
+      const insertLength = REFREIN_MARKER.length + 2; // +2 for newlines
+      markedSections.forEach(section => {
+        if (section.startIndex >= pos) {
+          section.startIndex += insertLength;
+          section.endIndex += insertLength;
+        }
+      });
+
+      renderMarkedSections();
+    }
+
+    function insertInstrumentaalMarker() {
+      const textarea = document.getElementById('paste-textarea');
+      const pos = textarea.selectionStart;
+      const text = textarea.value;
+
+      // Insert marker at cursor position
+      const newText = text.substring(0, pos) + '\n' + INSTRUMENTAAL_MARKER + '\n' + text.substring(pos);
+      textarea.value = newText;
+
+      // Update indices of marked sections after insertion
+      const insertLength = INSTRUMENTAAL_MARKER.length + 2; // +2 for newlines
+      markedSections.forEach(section => {
+        if (section.startIndex >= pos) {
+          section.startIndex += insertLength;
+          section.endIndex += insertLength;
+        }
+      });
+
+      renderMarkedSections();
+    }
+
+    function wrapWithAccent() {
+      const textarea = document.getElementById('paste-textarea');
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const text = textarea.value;
+      const selectedText = text.substring(start, end);
+
+      if (!selectedText) {
+        alert('Selecteer eerst tekst om te accentueren');
+        return;
+      }
+
+      // Wrap selection with **
+      const newText = text.substring(0, start) + '**' + selectedText + '**' + text.substring(end);
+      textarea.value = newText;
+
+      // Update marked sections indices
+      const addedLength = 4; // ** at start and end
+      markedSections.forEach(section => {
+        if (section.startIndex >= end) {
+          section.startIndex += addedLength;
+          section.endIndex += addedLength;
+        } else if (section.startIndex >= start) {
+          section.endIndex += addedLength;
+        }
+      });
+
+      // Keep cursor after wrapped text
+      textarea.selectionStart = textarea.selectionEnd = end + 4;
+      textarea.focus();
+    }
+
+    // Repeat popup functions
+    function showRepeatPopup() {
+      document.getElementById('repeat-popup').classList.add('active');
+    }
+
+    function hideRepeatPopup() {
+      document.getElementById('repeat-popup').classList.remove('active');
+    }
+
+    function setRepeatCount(count) {
+      document.getElementById('repeat-count').value = count;
+      document.querySelectorAll('.count-btn').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+    }
+
+    function insertRepeat() {
+      const textarea = document.getElementById('paste-textarea');
+      const repeatType = document.querySelector('input[name="repeat-type"]:checked').value;
+      const repeatCount = document.getElementById('repeat-count').value;
+      const pos = textarea.selectionStart;
+      const selEnd = textarea.selectionEnd;
+      const text = textarea.value;
+
+      let marker = '';
+
+      switch (repeatType) {
+        case 'selection':
+          const selectedText = text.substring(pos, selEnd).trim();
+          if (!selectedText) {
+            alert('Selecteer eerst tekst in de editor');
+            return;
+          }
+          marker = `[[HERHAAL: "${selectedText}", ${repeatCount}x]]`;
+          break;
+        case 'lines':
+          const numLines = document.getElementById('repeat-lines').value;
+          marker = `[[HERHAAL: laatste ${numLines} zinnen, ${repeatCount}x]]`;
+          break;
+        case 'refrein':
+          marker = `[[HERHAAL: refrein, ${repeatCount}x]]`;
+          break;
+        case 'refrein-plus':
+          marker = `[[HERHAAL: refrein + laatste, ${repeatCount}x]]`;
+          break;
+      }
+
+      // Insert at cursor (or after selection)
+      const insertPos = selEnd || pos;
+      const newText = text.substring(0, insertPos) + '\n' + marker + '\n' + text.substring(insertPos);
+      textarea.value = newText;
+
+      // Update marked sections indices
+      const insertLength = marker.length + 2;
+      markedSections.forEach(section => {
+        if (section.startIndex >= insertPos) {
+          section.startIndex += insertLength;
+          section.endIndex += insertLength;
+        }
+      });
+
+      hideRepeatPopup();
+      renderMarkedSections();
+    }
+
+    // Close popup when clicking outside
+    document.addEventListener('click', (e) => {
+      const popup = document.getElementById('repeat-popup');
+      if (popup && popup.classList.contains('active')) {
+        if (!e.target.closest('.repeat-popup') && !e.target.closest('.toolbar-btn.purple')) {
+          hideRepeatPopup();
+        }
+      }
+    });
+
+    function renderMarkedSections() {
+      const container = document.getElementById('marked-sections');
+
+      if (markedSections.length === 0) {
+        container.innerHTML = '<p style="color: var(--text-muted); font-size: 0.85rem;">Nog geen secties gemarkeerd</p>';
+        return;
+      }
+
+      let versCounter = 0;
+      container.innerHTML = markedSections.map((section, index) => {
+        let label = section.type.charAt(0).toUpperCase() + section.type.slice(1);
+        if (section.type === 'vers') {
+          versCounter++;
+          label = `Vers ${versCounter}`;
+        }
+
+        const preview = section.text.substring(0, 25) + (section.text.length > 25 ? '...' : '');
+
+        return `
+          <div class="marked-section-item ${section.type === 'refrein' ? 'refrein' : ''}">
+            <span class="type">${label}</span>
+            <span class="preview">${preview}</span>
+            <button type="button" class="remove" onclick="removeMarkedSection(${index})">×</button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function highlightMarkedText() {
+      // Visual feedback - we could add a preview with highlights
+      // For now, just update the marked sections list
+    }
+
+    function convertPasteToSections() {
+      const textarea = document.getElementById('paste-textarea');
+      const text = textarea.value;
+
+      songSections = [];
+
+      if (!text.trim() && markedSections.length === 0) {
+        songSections.push({ type: 'vers', text: '', refreinAfter: false });
+        return;
+      }
+
+      // If we have marked sections, use those
+      if (markedSections.length > 0) {
+        let refreinText = null;
+
+        // Find refrein first - get CURRENT text from textarea
+        const refreinSection = markedSections.find(s => s.type === 'refrein');
+        if (refreinSection) {
+          refreinText = text.substring(refreinSection.startIndex, refreinSection.endIndex);
+        }
+
+        // Build sections from marks
+        let lastEnd = 0;
+        markedSections.forEach((mark, index) => {
+          // Check if there's a refrein or instrumentaal marker between last section and this one
+          const betweenText = text.substring(lastEnd, mark.startIndex);
+
+          // Check for instrumentaal marker
+          if (betweenText.includes(INSTRUMENTAAL_MARKER)) {
+            songSections.push({
+              type: 'instrumentaal',
+              text: '🎹 Instrumentaal',
+              refreinAfter: false
+            });
+          }
+
+          // Check for refrein marker
+          if (betweenText.includes(REFREIN_MARKER) && refreinText) {
+            // Add the previous section with refreinAfter flag
+            if (songSections.length > 0 && songSections[songSections.length - 1].type !== 'instrumentaal') {
+              songSections[songSections.length - 1].refreinAfter = true;
+            } else {
+              // Add refrein as separate section if after instrumentaal
+              songSections.push({
+                type: 'refrein',
+                text: refreinText,
+                refreinAfter: false
+              });
+            }
+          }
+
+          // Get CURRENT text from textarea (not cached text) to preserve edits like **accents**
+          const currentText = text.substring(mark.startIndex, mark.endIndex);
+
+          songSections.push({
+            type: mark.type,
+            text: currentText,
+            refreinAfter: false
+          });
+
+          lastEnd = mark.endIndex;
+        });
+
+        // Check for markers after last section
+        const afterText = text.substring(lastEnd);
+        if (afterText.includes(INSTRUMENTAAL_MARKER)) {
+          songSections.push({
+            type: 'instrumentaal',
+            text: '🎹 Instrumentaal',
+            refreinAfter: false
+          });
+        }
+        if (afterText.includes(REFREIN_MARKER) && refreinText && songSections.length > 0) {
+          songSections[songSections.length - 1].refreinAfter = true;
+        }
+      } else {
+        // No marks - try to auto-detect or put everything as one vers
+        // Check for markers in raw text
+        let workingText = text;
+
+        // Split on both markers
+        const parts = workingText
+          .split(new RegExp(`(${REFREIN_MARKER}|${INSTRUMENTAAL_MARKER})`, 'g'))
+          .map(p => p.trim())
+          .filter(Boolean);
+
+        if (parts.length === 1 && !parts[0].includes('[[')) {
+          // No markers, treat as single section
+          songSections.push({ type: 'vers', text: text.trim(), refreinAfter: false });
+        } else {
+          parts.forEach((part, i) => {
+            if (part === REFREIN_MARKER) {
+              // Mark previous section to have refrein after
+              if (songSections.length > 0) {
+                songSections[songSections.length - 1].refreinAfter = true;
+              }
+            } else if (part === INSTRUMENTAAL_MARKER) {
+              songSections.push({
+                type: 'instrumentaal',
+                text: '🎹 Instrumentaal',
+                refreinAfter: false
+              });
+            } else if (part.trim()) {
+              songSections.push({
+                type: 'vers',
+                text: part.trim(),
+                refreinAfter: false
+              });
+            }
+          });
+        }
+      }
+    }
+
+    function convertSectionsToPaste() {
+      // Convert block sections back to paste format
+      const textarea = document.getElementById('paste-textarea');
+      markedSections = [];
+
+      let fullText = '';
+      let currentIndex = 0;
+      let refreinText = null;
+
+      // Find refrein text first
+      const refreinSection = songSections.find(s => s.type === 'refrein');
+      if (refreinSection) {
+        refreinText = refreinSection.text;
+      }
+
+      songSections.forEach((section, i) => {
+        // Handle instrumentaal sections as markers
+        if (section.type === 'instrumentaal') {
+          fullText += INSTRUMENTAAL_MARKER + '\n\n';
+          currentIndex = fullText.length;
+          return;
+        }
+
+        if (section.text && section.text.trim()) {
+          const sectionText = section.text.trim();
+
+          // Add to marked sections
+          markedSections.push({
+            type: section.type,
+            startIndex: currentIndex,
+            endIndex: currentIndex + sectionText.length,
+            text: sectionText
+          });
+
+          fullText += sectionText;
+          currentIndex = fullText.length;
+
+          // Add refrein marker if needed
+          if (section.refreinAfter && refreinText) {
+            fullText += '\n\n' + REFREIN_MARKER + '\n\n';
+            currentIndex = fullText.length;
+          } else if (i < songSections.length - 1) {
+            fullText += '\n\n';
+            currentIndex = fullText.length;
+          }
+        }
+      });
+
+      textarea.value = fullText;
+    }
+
+    function pasteEditorToLyrics() {
+      // Convert paste editor content to lyrics format for saving
+      convertPasteToSections();
+      return sectionsToLyrics();
+    }
+
+    // Render Functions
+    function renderSongs() {
+      const grid = document.getElementById('songs-grid');
+      const search = document.getElementById('song-search').value.toLowerCase();
+      const sortBy = document.getElementById('song-sort').value;
+
+      // Filter
+      let filtered = songs.filter(s =>
+        s.title.toLowerCase().includes(search) ||
+        (s.category && s.category.toLowerCase().includes(search)) ||
+        (s.style && s.style.toLowerCase().includes(search))
+      );
+
+      // Sort
+      filtered.sort((a, b) => {
+        switch (sortBy) {
+          case 'title':
+            return a.title.localeCompare(b.title);
+          case 'title-desc':
+            return b.title.localeCompare(a.title);
+          case 'category':
+            return (a.category || 'zzz').localeCompare(b.category || 'zzz');
+          case 'style':
+            return (a.style || 'zzz').localeCompare(b.style || 'zzz');
+          case 'recent':
+            return new Date(b.updatedAt || b.createdAt || 0) - new Date(a.updatedAt || a.createdAt || 0);
+          default:
+            return 0;
+        }
+      });
+
+      // Apply view mode
+      grid.className = 'songs-grid' + (songsViewMode === 'list' ? ' list-view' : '');
+
+      if (filtered.length === 0) {
+        grid.innerHTML = '<div class="empty-state"><h3>Geen liedjes gevonden</h3><p>Voeg een nieuw lied toe om te beginnen</p></div>';
+        return;
+      }
+
+      grid.innerHTML = filtered.map(song => `
+        <div class="song-card" onclick="openSongModal('${song.id}')">
+          <h3>${song.title}</h3>
+          <div class="tags">
+            ${song.key ? `<span class="tag key">${song.key}</span>` : ''}
+            ${song.tempo ? `<span class="tag tempo">${song.tempo} BPM</span>` : ''}
+            ${song.category ? `<span class="tag category">${song.category}</span>` : ''}
+            ${song.style ? `<span class="tag style">${song.style}</span>` : ''}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function setSongsView(mode) {
+      songsViewMode = mode;
+      document.querySelectorAll('.view-toggle button').forEach(btn => {
+        btn.classList.toggle('active', btn.textContent.includes(mode === 'grid' ? '▦' : '☰'));
+      });
+      renderSongs();
+    }
+
+    function renderSetlists() {
+      const list = document.getElementById('setlist-list');
+
+      if (setlists.length === 0) {
+        list.innerHTML = '<div class="empty-state"><h3>Geen setlists</h3><p>Maak een nieuwe setlist aan</p></div>';
+        return;
+      }
+
+      list.innerHTML = setlists.map(sl => `
+        <div class="setlist-card">
+          <button class="pin-btn ${sl.pinned ? 'pinned' : ''}" onclick="event.stopPropagation(); togglePin('${sl.id}')" title="${sl.pinned ? 'Losmaken' : 'Vastmaken'}">
+            ${sl.pinned ? '📌' : '📍'}
+          </button>
+          <div class="setlist-info" onclick="openSetlistEditor('${sl.id}')">
+            <h3>${sl.pinned ? '📌 ' : ''}${sl.name}</h3>
+            <span class="date">${sl.date || 'Geen datum'}</span>
+          </div>
+          <span class="status-badge ${sl.status}">${sl.status}</span>
+        </div>
+      `).join('');
+    }
+
+    async function togglePin(setlistId) {
+      await fetch(`/api/setlists/${setlistId}/pin`, { method: 'PUT' });
+      await loadSetlists();
+    }
+
+    // View Management
+    function showView(view) {
+      currentView = view;
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      document.querySelectorAll('.header-nav button').forEach(b => b.classList.remove('active'));
+
+      if (view === 'setlist-editor') {
+        document.getElementById('view-setlist-editor').classList.add('active');
+        document.getElementById('btn-setlists').classList.add('active');
+      } else {
+        document.getElementById(`view-${view}`).classList.add('active');
+        document.getElementById(`btn-${view}`).classList.add('active');
+      }
+
+      // Show/hide sidebar
+      document.getElementById('sidebar').style.display = view === 'live' ? 'flex' : 'none';
+
+      // Show shortcuts in live view
+      document.getElementById('shortcuts-hint').style.display = view === 'live' ? 'block' : 'none';
+
+      // Load stats when showing stats view
+      if (view === 'stats') {
+        loadStats();
+      }
+    }
+
+    function filterSongs() {
+      renderSongs();
+    }
+
+    // Stats
+    async function loadStats() {
+      try {
+        const res = await fetch('/api/stats/songs');
+        const stats = await res.json();
+
+        const topSongsContainer = document.getElementById('stats-top-songs');
+        const recentContainer = document.getElementById('stats-recent');
+
+        if (stats.length === 0) {
+          topSongsContainer.innerHTML = '<p class="empty-state">Nog geen liedjes gezongen. Gebruik de AMEN knop aan het einde van een liedje om het te loggen.</p>';
+          recentContainer.innerHTML = '<p class="empty-state">Nog geen data</p>';
+          return;
+        }
+
+        // Top songs (sorted by count)
+        const topSongs = [...stats].slice(0, 10);
+        topSongsContainer.innerHTML = topSongs.map((song, i) => `
+          <div class="stats-item">
+            <div class="rank">${i + 1}</div>
+            <div class="info">
+              <div class="title">${song.title}</div>
+              <div class="meta">Laatst: ${song.lastPerformed ? formatDate(song.lastPerformed) : '-'}</div>
+            </div>
+            <div class="count">${song.count}x</div>
+          </div>
+        `).join('');
+
+        // Recent songs (sorted by last performed)
+        const recentSongs = [...stats]
+          .filter(s => s.lastPerformed)
+          .sort((a, b) => new Date(b.lastPerformed) - new Date(a.lastPerformed))
+          .slice(0, 10);
+
+        if (recentSongs.length === 0) {
+          recentContainer.innerHTML = '<p class="empty-state">Nog geen data</p>';
+        } else {
+          recentContainer.innerHTML = recentSongs.map(song => `
+            <div class="stats-item">
+              <div class="info">
+                <div class="title">${song.title}</div>
+                <div class="meta">${formatDate(song.lastPerformed)}</div>
+              </div>
+              <div class="count">${song.count}x</div>
+            </div>
+          `).join('');
+        }
+      } catch (e) {
+        console.error('Error loading stats:', e);
+      }
+    }
+
+    function formatDate(dateStr) {
+      const date = new Date(dateStr);
+      const now = new Date();
+      const diff = now - date;
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+      if (days === 0) return 'Vandaag';
+      if (days === 1) return 'Gisteren';
+      if (days < 7) return `${days} dagen geleden`;
+
+      return date.toLocaleDateString('nl-NL', { day: 'numeric', month: 'short', year: 'numeric' });
+    }
+
+    // Header controls
+    let headerSelectedSetlist = null;
+
+    function populateHeaderSetlists() {
+      const select = document.getElementById('header-setlist');
+      select.innerHTML = '<option value="">-- Setlist --</option>' +
+        setlists.map(sl => `<option value="${sl.id}">${sl.pinned ? '📌 ' : ''}${sl.name}</option>`).join('');
+    }
+
+    async function onHeaderSetlistChange() {
+      const setlistId = document.getElementById('header-setlist').value;
+      const songSelect = document.getElementById('header-song');
+
+      if (!setlistId) {
+        songSelect.innerHTML = '<option value="">-- Liedje --</option>';
+        headerSelectedSetlist = null;
+        document.getElementById('song-info-header').style.display = 'none';
+        return;
+      }
+
+      const res = await fetch(`/api/setlists/${setlistId}`);
+      headerSelectedSetlist = await res.json();
+
+      songSelect.innerHTML = '<option value="">-- Liedje --</option>' +
+        (headerSelectedSetlist.songs || []).map(s => `<option value="${s.id}">${s.title}</option>`).join('');
+    }
+
+    function onHeaderSongChange() {
+      const songId = document.getElementById('header-song').value;
+      const infoEl = document.getElementById('song-info-header');
+
+      if (!songId || !headerSelectedSetlist) {
+        infoEl.style.display = 'none';
+        return;
+      }
+
+      const song = headerSelectedSetlist.songs.find(s => s.id === songId);
+      if (song) {
+        document.getElementById('header-key').textContent = song.key || '-';
+        document.getElementById('header-tempo').textContent = song.tempo ? `${song.tempo} BPM` : '-';
+        infoEl.style.display = 'flex';
+      }
+    }
+
+    // Fullscreen
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => {
+          console.log('Fullscreen error:', err);
+        });
+      } else {
+        document.exitFullscreen();
+      }
+    }
+
+    // Song Modal
+    async function openSongModal(id = null) {
+      const modal = document.getElementById('song-modal');
+      const form = document.getElementById('song-form');
+      const title = document.getElementById('song-modal-title');
+      const deleteBtn = document.getElementById('delete-song-btn');
+
+      form.reset();
+      document.getElementById('song-id').value = '';
+      songSections = [];
+      markedSections = [];
+      document.getElementById('paste-textarea').value = '';
+
+      // Reset to paste mode for new songs
+      editorMode = 'paste';
+      document.getElementById('mode-paste-btn').classList.add('active');
+      document.getElementById('mode-blocks-btn').classList.remove('active');
+      document.getElementById('paste-editor').classList.add('active');
+      document.getElementById('section-editor-wrapper').classList.remove('active');
+
+      if (id) {
+        const res = await fetch(`/api/songs/${id}`);
+        const song = await res.json();
+
+        document.getElementById('song-id').value = song.id;
+        document.getElementById('song-title').value = song.title;
+        document.getElementById('song-key').value = song.key || '';
+        document.getElementById('song-tempo').value = song.tempo || '';
+        document.getElementById('song-karaoke').value = song.karaoke_link || '';
+        document.getElementById('song-category').value = song.category || '';
+        document.getElementById('song-style').value = song.style || '';
+        document.getElementById('song-mixer-scene').value = song.mixerScene || '';
+        updateTitlePreview();
+
+        // Parse existing lyrics into sections
+        lyricsToSections(song.lyrics, song.structure);
+
+        // Also populate paste editor
+        convertSectionsToPaste();
+        renderMarkedSections();
+
+        title.textContent = 'Lied Bewerken';
+        deleteBtn.style.display = 'block';
+      } else {
+        // Start met lege state
+        songSections = [{ type: 'vers', text: '', refreinAfter: false }];
+        title.textContent = 'Nieuw Lied';
+        deleteBtn.style.display = 'none';
+        updateTitlePreview();
+      }
+
+      renderSectionEditor();
+      modal.classList.add('active');
+    }
+
+    function closeSongModal() {
+      document.getElementById('song-modal').classList.remove('active');
+    }
+
+    function updateTitlePreview() {
+      const title = document.getElementById('song-title').value;
+      document.getElementById('metadata-title-preview').textContent = title ? `— ${title}` : '';
+    }
+
+    async function saveSong(event) {
+      event.preventDefault();
+
+      // Convert to lyrics and structure based on current editor mode
+      let lyrics, structure;
+      if (editorMode === 'paste') {
+        convertPasteToSections();
+      }
+      ({ lyrics, structure } = sectionsToLyrics());
+
+      const id = document.getElementById('song-id').value;
+      const data = {
+        title: document.getElementById('song-title').value,
+        key: document.getElementById('song-key').value,
+        tempo: document.getElementById('song-tempo').value,
+        karaoke_link: document.getElementById('song-karaoke').value,
+        category: document.getElementById('song-category').value,
+        style: document.getElementById('song-style').value,
+        mixerScene: document.getElementById('song-mixer-scene').value,
+        structure: structure,
+        lyrics: lyrics
+      };
+
+      if (id) {
+        await fetch(`/api/songs/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+      } else {
+        await fetch('/api/songs', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+      }
+
+      closeSongModal();
+      loadSongs();
+    }
+
+    async function deleteSong() {
+      const id = document.getElementById('song-id').value;
+      if (confirm('Weet je zeker dat je dit lied wilt verwijderen?')) {
+        await fetch(`/api/songs/${id}`, { method: 'DELETE' });
+        closeSongModal();
+        loadSongs();
+      }
+    }
+
+    // Setlist Modal
+    function openSetlistModal() {
+      document.getElementById('setlist-form').reset();
+      document.getElementById('setlist-id').value = '';
+      document.getElementById('setlist-modal').classList.add('active');
+    }
+
+    function closeSetlistModal() {
+      document.getElementById('setlist-modal').classList.remove('active');
+    }
+
+    // Mixer Settings
+    let mixerConfig = { ip: '', showName: '', enabled: false };
+
+    async function loadMixerConfig() {
+      try {
+        const res = await fetch('/api/mixer/config');
+        mixerConfig = await res.json();
+        updateMixerStatus(mixerConfig.connected);
+      } catch (e) {
+        console.error('Failed to load mixer config:', e);
+      }
+    }
+
+    function updateMixerStatus(connected) {
+      const dot = document.getElementById('mixer-dot');
+      const statusBox = document.getElementById('mixer-status-box');
+      const statusIcon = document.getElementById('mixer-status-icon');
+      const statusText = document.getElementById('mixer-status-text');
+
+      if (mixerConfig.enabled) {
+        dot.classList.add('enabled');
+        if (connected) {
+          dot.classList.add('connected');
+          statusBox.classList.add('connected');
+          statusText.textContent = `Verbonden met ${mixerConfig.ip}`;
+        } else {
+          dot.classList.remove('connected');
+          statusBox.classList.remove('connected');
+          statusText.textContent = mixerConfig.ip ? 'Niet verbonden' : 'IP adres niet ingesteld';
+        }
+      } else {
+        dot.classList.remove('enabled', 'connected');
+        statusBox.classList.remove('connected');
+        statusText.textContent = 'Mixer integratie uitgeschakeld';
+      }
+    }
+
+    async function openMixerSettings() {
+      await loadMixerConfig();
+      document.getElementById('mixer-enabled').checked = mixerConfig.enabled;
+      document.getElementById('mixer-ip').value = mixerConfig.ip || '';
+      document.getElementById('mixer-show').value = mixerConfig.showName || '';
+      document.getElementById('mixer-modal').classList.add('active');
+    }
+
+    function closeMixerSettings() {
+      document.getElementById('mixer-modal').classList.remove('active');
+    }
+
+    async function saveMixerSettings(event) {
+      event.preventDefault();
+
+      const data = {
+        enabled: document.getElementById('mixer-enabled').checked,
+        ip: document.getElementById('mixer-ip').value,
+        showName: document.getElementById('mixer-show').value
+      };
+
+      try {
+        const res = await fetch('/api/mixer/config', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        const result = await res.json();
+        mixerConfig = { ...result.config, connected: false };
+        updateMixerStatus(false);
+        // Wait a bit for connection to establish
+        setTimeout(loadMixerConfig, 2000);
+      } catch (e) {
+        console.error('Failed to save mixer config:', e);
+      }
+    }
+
+    async function saveSetlist(event) {
+      event.preventDefault();
+
+      const data = {
+        name: document.getElementById('setlist-name').value,
+        date: document.getElementById('setlist-date').value,
+        notes: document.getElementById('setlist-notes').value
+      };
+
+      const res = await fetch('/api/setlists', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+
+      const { id } = await res.json();
+      closeSetlistModal();
+      loadSetlists();
+      openSetlistEditor(id);
+    }
+
+    // Setlist Editor
+    async function openSetlistEditor(id) {
+      editingSetlistId = id;
+      const res = await fetch(`/api/setlists/${id}`);
+      const setlist = await res.json();
+
+      document.getElementById('editor-setlist-name').textContent = setlist.name;
+      document.getElementById('editor-status').value = setlist.status;
+
+      renderSetlistSongs(setlist.songs || []);
+      renderAvailableSongs(setlist.songs || []);
+
+      showView('setlist-editor');
+    }
+
+    function renderSetlistSongs(setlistSongs) {
+      const container = document.getElementById('editor-setlist-songs');
+
+      if (setlistSongs.length === 0) {
+        container.innerHTML = '<h3>Liedjes in setlist</h3><div class="empty-state" style="padding: 2rem;"><p>Sleep liedjes hierheen</p></div>';
+        return;
+      }
+
+      container.innerHTML = '<h3>Liedjes in setlist</h3>' + setlistSongs.map((song, i) => `
+        <div class="setlist-song-item" draggable="true" data-id="${song.id}" data-position="${i}">
+          <span class="drag-handle">⋮⋮</span>
+          <span class="number">${i + 1}</span>
+          <div class="info">
+            <div class="title">${song.title}</div>
+            <div class="meta">${song.key || '-'} • ${song.style || '-'}</div>
+          </div>
+          <button class="remove-btn" onclick="removeSongFromSetlist('${song.id}')">×</button>
+        </div>
+      `).join('');
+
+      // Add drag-and-drop handlers
+      initDragAndDrop();
+    }
+
+    let draggedItem = null;
+
+    function initDragAndDrop() {
+      const items = document.querySelectorAll('.setlist-song-item');
+
+      items.forEach(item => {
+        item.addEventListener('dragstart', (e) => {
+          draggedItem = item;
+          item.style.opacity = '0.5';
+          e.dataTransfer.effectAllowed = 'move';
+        });
+
+        item.addEventListener('dragend', () => {
+          item.style.opacity = '1';
+          draggedItem = null;
+          document.querySelectorAll('.setlist-song-item').forEach(i => i.classList.remove('drag-over'));
+        });
+
+        item.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = 'move';
+        });
+
+        item.addEventListener('dragenter', (e) => {
+          e.preventDefault();
+          if (item !== draggedItem) {
+            item.classList.add('drag-over');
+          }
+        });
+
+        item.addEventListener('dragleave', () => {
+          item.classList.remove('drag-over');
+        });
+
+        item.addEventListener('drop', async (e) => {
+          e.preventDefault();
+          item.classList.remove('drag-over');
+
+          if (draggedItem && item !== draggedItem) {
+            const container = document.getElementById('editor-setlist-songs');
+            const allItems = [...container.querySelectorAll('.setlist-song-item')];
+            const fromIndex = allItems.indexOf(draggedItem);
+            const toIndex = allItems.indexOf(item);
+
+            // Reorder in DOM
+            if (fromIndex < toIndex) {
+              item.parentNode.insertBefore(draggedItem, item.nextSibling);
+            } else {
+              item.parentNode.insertBefore(draggedItem, item);
+            }
+
+            // Save new order
+            await saveSetlistOrder();
+          }
+        });
+      });
+    }
+
+    async function saveSetlistOrder() {
+      const container = document.getElementById('editor-setlist-songs');
+      const items = container.querySelectorAll('.setlist-song-item');
+      const songs = [...items].map((item, i) => ({
+        songId: item.dataset.id,
+        position: i
+      }));
+
+      await fetch(`/api/setlists/${editingSetlistId}/songs/reorder`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ songs })
+      });
+
+      // Refresh to update numbers
+      const res = await fetch(`/api/setlists/${editingSetlistId}`);
+      const setlist = await res.json();
+      renderSetlistSongs(setlist.songs || []);
+    }
+
+    function renderAvailableSongs(setlistSongs) {
+      const container = document.getElementById('available-songs-list');
+      const search = document.getElementById('editor-song-search')?.value?.toLowerCase() || '';
+      const setlistSongIds = setlistSongs.map(s => s.id);
+
+      const available = songs.filter(s =>
+        !setlistSongIds.includes(s.id) &&
+        (s.title.toLowerCase().includes(search) ||
+         (s.category && s.category.toLowerCase().includes(search)))
+      );
+
+      container.innerHTML = available.map(song => `
+        <div class="available-song-item" onclick="addSongToSetlist('${song.id}')">
+          <div class="title">${song.title}</div>
+          <div class="meta">${song.key || '-'} • ${song.category || '-'}</div>
+        </div>
+      `).join('');
+    }
+
+    async function filterAvailableSongs() {
+      const res = await fetch(`/api/setlists/${editingSetlistId}`);
+      const setlist = await res.json();
+      renderAvailableSongs(setlist.songs || []);
+    }
+
+    async function addSongToSetlist(songId) {
+      const res = await fetch(`/api/setlists/${editingSetlistId}`);
+      const setlist = await res.json();
+      const position = (setlist.songs || []).length;
+
+      await fetch(`/api/setlists/${editingSetlistId}/songs`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ songId, position })
+      });
+
+      openSetlistEditor(editingSetlistId);
+    }
+
+    async function removeSongFromSetlist(songId) {
+      await fetch(`/api/setlists/${editingSetlistId}/songs/${songId}`, {
+        method: 'DELETE'
+      });
+      openSetlistEditor(editingSetlistId);
+    }
+
+    async function updateSetlistStatus() {
+      const status = document.getElementById('editor-status').value;
+      const res = await fetch(`/api/setlists/${editingSetlistId}`);
+      const setlist = await res.json();
+
+      await fetch(`/api/setlists/${editingSetlistId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...setlist, status })
+      });
+    }
+
+    async function startLiveWithSetlist() {
+      const res = await fetch(`/api/setlists/${editingSetlistId}`);
+      currentSetlist = await res.json();
+
+      if (!currentSetlist.songs || currentSetlist.songs.length === 0) {
+        alert('Voeg eerst liedjes toe aan de setlist');
+        return;
+      }
+
+      currentSongIndex = 0;
+      currentSectionIndex = 0;
+
+      // Update sidebar
+      document.getElementById('sidebar-setlist-name').textContent = currentSetlist.name;
+      renderSidebarSongs();
+
+      // Send state to singers
+      sendWSMessage('setState', {
+        setlistId: currentSetlist.id,
+        currentSongIndex,
+        currentSectionIndex
+      });
+
+      showView('live');
+      loadCurrentSong();
+    }
+
+    function renderSidebarSongs() {
+      const container = document.getElementById('setlist-sidebar-songs');
+      container.innerHTML = currentSetlist.songs.map((song, i) => `
+        <div class="song-item ${i === currentSongIndex ? 'active' : ''}" onclick="goToSong(${i})">
+          <div class="title">${i + 1}. ${song.title}</div>
+          <div class="meta">
+            <span>${song.key || '-'}</span>
+            <span>${song.style || '-'}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function goToSong(index) {
+      currentSongIndex = index;
+      currentSectionIndex = 0;
+      loadCurrentSong();
+      renderSidebarSongs();
+
+      sendWSMessage('navigate', { songIndex: currentSongIndex, sectionIndex: 0 });
+    }
+
+    async function loadCurrentSong() {
+      if (!currentSetlist || !currentSetlist.songs[currentSongIndex]) return;
+
+      const song = currentSetlist.songs[currentSongIndex];
+      const res = await fetch(`/api/songs/${song.id}`);
+      const fullSong = await res.json();
+
+      // Update header
+      document.getElementById('current-song-title').textContent = fullSong.title;
+      document.getElementById('current-song-key').textContent = fullSong.key || '-';
+      document.getElementById('current-song-tempo').textContent = fullSong.tempo || '-';
+      document.getElementById('current-song-style').textContent = fullSong.style || '-';
+
+      // Karaoke link
+      const karaokeLink = document.getElementById('karaoke-link');
+      if (fullSong.karaoke_link) {
+        karaokeLink.href = fullSong.karaoke_link;
+        karaokeLink.style.display = 'inline-block';
+      } else {
+        karaokeLink.style.display = 'none';
+      }
+
+      // Position
+      document.getElementById('song-position').textContent =
+        `${currentSongIndex + 1}/${currentSetlist.songs.length}`;
+
+      // Nav buttons
+      document.getElementById('prev-song-btn').disabled = currentSongIndex === 0;
+      document.getElementById('next-song-btn').disabled = currentSongIndex === currentSetlist.songs.length - 1;
+
+      // Parse and render lyrics
+      renderLyrics(fullSong);
+
+      // Render structure nav
+      renderStructureNav(fullSong);
+
+      // Render history
+      renderSongHistory(fullSong.history || []);
+
+      // Reset feedback
+      resetFeedback();
+    }
+
+    function renderLyrics(song) {
+      const container = document.getElementById('lyrics-container');
+
+      if (!song.lyrics) {
+        container.innerHTML = '<div class="empty-state"><p>Geen tekst beschikbaar</p></div>';
+        return;
+      }
+
+      // Split by --- for sections
+      const sections = song.lyrics.split('---').map(s => s.trim()).filter(Boolean);
+
+      container.innerHTML = sections.map((section, i) => {
+        // Parse accents: **text** becomes <span class="accent">text</span>
+        const formattedText = section.replace(/\*\*([^*]+)\*\*/g, '<span class="accent">$1</span>');
+
+        return `
+          <div class="lyrics-section ${i === currentSectionIndex ? 'section-active' : ''}" data-section="${i}">
+            <div class="lyrics-text">${formattedText}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderStructureNav(song) {
+      const container = document.getElementById('structure-nav');
+
+      if (!song.structure) {
+        container.innerHTML = '';
+        return;
+      }
+
+      const parts = song.structure.split(',').map(s => s.trim());
+
+      container.innerHTML = parts.map((part, i) => `
+        <button class="structure-btn ${i === currentSectionIndex ? 'active' : ''}" onclick="goToSection(${i})">
+          ${part}
+        </button>
+      `).join('');
+    }
+
+    function goToSection(index) {
+      currentSectionIndex = index;
+
+      // Update section highlighting
+      document.querySelectorAll('.lyrics-section').forEach((el, i) => {
+        el.classList.toggle('section-active', i === index);
+      });
+
+      document.querySelectorAll('.structure-btn').forEach((el, i) => {
+        el.classList.toggle('active', i === index);
+      });
+
+      // Scroll to section
+      const section = document.querySelector(`.lyrics-section[data-section="${index}"]`);
+      if (section) {
+        section.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+
+      sendWSMessage('navigate', { sectionIndex: currentSectionIndex });
+    }
+
+    function prevSection() {
+      if (currentSectionIndex > 0) {
+        goToSection(currentSectionIndex - 1);
+      }
+    }
+
+    function nextSection() {
+      const sections = document.querySelectorAll('.lyrics-section');
+      if (currentSectionIndex < sections.length - 1) {
+        goToSection(currentSectionIndex + 1);
+      }
+    }
+
+    function prevSong() {
+      if (currentSongIndex > 0) {
+        goToSong(currentSongIndex - 1);
+      }
+    }
+
+    function nextSong() {
+      if (currentSongIndex < currentSetlist.songs.length - 1) {
+        goToSong(currentSongIndex + 1);
+      }
+    }
+
+    // Cues
+    function sendCue(cue) {
+      sendWSMessage('cue', { cue, timestamp: Date.now() });
+
+      // Visual feedback
+      const btn = event.target;
+      btn.style.transform = 'scale(0.95)';
+      setTimeout(() => btn.style.transform = '', 100);
+    }
+
+    // Feedback
+    function selectFeedback(btn) {
+      const type = btn.dataset.feedback;
+      const value = btn.dataset.value;
+
+      // Deselect siblings
+      btn.parentElement.querySelectorAll('.feedback-btn').forEach(b => {
+        b.classList.remove('selected');
+      });
+
+      btn.classList.add('selected');
+
+      if (type === 'tempo') feedbackTempo = value;
+      if (type === 'key') feedbackKey = value;
+    }
+
+    function resetFeedback() {
+      feedbackTempo = null;
+      feedbackKey = null;
+      document.getElementById('feedback-notes').value = '';
+      document.querySelectorAll('.feedback-btn').forEach(b => b.classList.remove('selected'));
+    }
+
+    async function saveFeedback() {
+      if (!currentSetlist || !currentSetlist.songs[currentSongIndex]) return;
+
+      const song = currentSetlist.songs[currentSongIndex];
+      const notes = document.getElementById('feedback-notes').value;
+
+      await fetch(`/api/songs/${song.id}/feedback`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          setlistId: currentSetlist.id,
+          keyUsed: song.key,
+          tempoFeedback: feedbackTempo,
+          keyFeedback: feedbackKey,
+          notes
+        })
+      });
+
+      // Reload song to show updated history
+      loadCurrentSong();
+    }
+
+    function renderSongHistory(history) {
+      const container = document.getElementById('song-history');
+
+      if (history.length === 0) {
+        container.innerHTML = '<p style="color: var(--text-muted); font-size: 0.85rem;">Nog geen historiek</p>';
+        return;
+      }
+
+      container.innerHTML = history.slice(0, 3).map(h => `
+        <div class="history-item">
+          <div class="date">${h.played_date} ${h.setlist_name ? `• ${h.setlist_name}` : ''}</div>
+          <div class="feedback">
+            ${h.tempo_feedback ? `<span class="${h.tempo_feedback === 'goed' ? 'good' : 'bad'}">Tempo: ${h.tempo_feedback}</span>` : ''}
+            ${h.key_feedback ? `<span class="${h.key_feedback === 'goed' ? 'good' : 'bad'}">Toon: ${h.key_feedback}</span>` : ''}
+          </div>
+          ${h.notes ? `<div style="margin-top: 0.25rem; color: var(--text-secondary);">${h.notes}</div>` : ''}
+        </div>
+      `).join('');
+    }
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+      if (currentView !== 'live') return;
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+      switch (e.key) {
+        case 'ArrowLeft':
+          prevSection();
+          e.preventDefault();
+          break;
+        case 'ArrowRight':
+          nextSection();
+          e.preventDefault();
+          break;
+        case ' ':
+          sendCue('PAUZE');
+          e.preventDefault();
+          break;
+        case '1':
+          sendCue('1-2-3!');
+          e.preventDefault();
+          break;
+        case 'n':
+        case 'N':
+          nextSong();
+          e.preventDefault();
+          break;
+        case 'p':
+        case 'P':
+          prevSong();
+          e.preventDefault();
+          break;
+      }
+    });
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      connectWebSocket();
+      loadSongs();
+      loadSetlists();
+      loadCategories();
+      loadMixerConfig();
+      showView('songs');
+    });
+  </script>
+</body>
+</html>
