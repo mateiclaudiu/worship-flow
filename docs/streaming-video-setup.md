@@ -118,39 +118,203 @@ ATEM Software Control → Audio tab:
 
 ## Streaming Mix (AUX 2 op UI24)
 
-### Configuratie
+### Waarom Dedicated AUX voor Stream?
+
+```
+FOUT - Externe mic op telefoon:
+  🎤 Externe mic → 📱 GSM → Stream
+  Resultaat: "Onder water", ruis, galm, amateur
+
+CORRECT - Direct van mixer:
+  🎛️ Soundcraft UI24 → AUX 2 OUT → ATEM/telefoon → Stream
+  Resultaat: Professionele kwaliteit, gecontroleerd
+```
+
+**Stream mix ≠ FOH mix:**
+- Stream kijkers gebruiken laptop speakers, earbuds, telefoons
+- Fouten zijn duidelijker hoorbaar (geen ruimte-akoestiek)
+- Moet "gepolijst" klinken met processing
+
+---
+
+### Stap 1: Balans Aanpassingen
 
 ```
 UI24 → AUX SENDS → AUX 2
 
-Per kanaal instellen:
-├── Mode: POST-fader (volgt main mix)
-├── Zang: +3 dB (prominenter in stream)
-├── Preek: +2 dB
-├── Keys: 0 dB
-├── Drums: -6 dB (minder in stream)
-└── Room mics: +6 dB (als je die hebt)
+Mode: POST-fader (volgt main mix als basis)
+
+Per kanaal (relatief tov FOH):
+├── Preek/Spraak:    +2 tot +3 dB  (belangrijkste!)
+├── Zang:            +2 tot +3 dB  (duidelijk hoorbaar)
+├── Keys/Pads:        0 dB         (vult mix)
+├── Akoest. gitaar:   0 dB
+├── Elektrisch:      -2 dB
+├── Bas:             -3 dB         (kleine speakers = weinig lows)
+├── Drums:           -6 dB         (bloedt al in andere mics)
+└── Room mic:        +6 dB         (sfeer, als je die hebt)
 ```
 
-### Master Processing op AUX 2
+**Waarom drums zachter?**
+- Drums bloeden in alle mics → al aanwezig
+- Kleine speakers kunnen geen lage freq aan
+- Timing-fouten vallen meer op bij harde drums
+
+---
+
+### Stap 2: Compressie op AUX 2 Master (CRUCIAAL)
 
 ```
-AUX 2 → COMP tab:
-├── Threshold: -18 dB
-├── Ratio: 4:1
-├── Attack: 10 ms
-├── Release: 100 ms
-├── Makeup: +3 dB
-└── Waarom: Lijmt mix, verbergt fouten, consistent volume
+UI24 → AUX 2 → Processing → COMP
 
-AUX 2 → EQ tab (optioneel):
-├── HPF: 60 Hz (rommel weg)
-├── Lichte boost @ 3kHz: +2 dB (spraak helderheid)
-└── Waarom: Geoptimaliseerd voor kleine speakers/koptelefoons
+├── Threshold:  -18 dB    (pakt alles vanaf gemiddeld niveau)
+├── Ratio:      4:1       (stevige compressie)
+├── Attack:     10-15 ms  (snel genoeg voor transiënten)
+├── Release:    100-150 ms
+├── Makeup:     +3 tot +6 dB
+└── Knee:       Soft (als beschikbaar)
+```
 
-FX Send naar AUX 2 (optioneel):
-├── Hall Reverb: 10-15%
-└── Waarom: Minder steriel, "live" gevoel
+**Wat dit doet:**
+- Luide pieken worden getemperd (drummer slaat te hard = minder erg)
+- Zachte passages komen omhoog (gemompel wordt verstaanbaar)
+- Consistent volume voor kijkers
+
+---
+
+### Stap 3: EQ op AUX 2 Master
+
+```
+UI24 → AUX 2 → Processing → EQ
+
+├── HPF:         80-100 Hz     (rommel weg)
+├── Low shelf:   -2 dB @ 150Hz (minder modder)
+├── Mid boost:   +2 dB @ 2-3kHz (spraak helderheid)
+├── High shelf:  +1 dB @ 8kHz  (lucht, niet te scherp)
+└── LPF:         12-14 kHz     (optioneel, vermindert ruis)
+```
+
+**Waarom?**
+- Stream kijkers gebruiken laptop speakers, earbuds, telefoon
+- Die kunnen geen 40Hz weergeven → cut het weg
+- Helderheid in mid-highs = verstaanbaarheid
+
+---
+
+### Stap 4: Limiter (laatste in chain)
+
+```
+UI24 → AUX 2 → Processing → LIMITER
+
+├── Threshold:  -3 dB
+├── Release:    50-100 ms
+└── Output:     -1 dB (nooit 0dB raken)
+```
+
+**Waarom?**
+- Onverwachte piek = clipt niet
+- YouTube/Facebook comprimeren opnieuw - geef ze headroom
+
+---
+
+### Stap 5: Reverb (alleen voor Stream)
+
+Reverb maakt de stream minder "droog" en steriel. Maar: **niet alle kanalen krijgen reverb!**
+
+#### A. FX Send per kanaal instellen
+
+```
+UI24 → Per kanaal → FX1 SEND
+
+                        FX Send
+Preek (CH1):        ████████░░  70-80%   ← veel
+Zang 1 (CH2):       ██████░░░░  50-60%   ← normaal
+Zang 2 (CH3):       ██████░░░░  50-60%   ← normaal
+Zang 3 (CH4):       ██████░░░░  50-60%   ← normaal
+Keys (CH5):         ░░░░░░░░░░  0%       ← GEEN (heeft eigen FX)
+Gitaar (CH6):       ████░░░░░░  30-40%   ← beetje
+Bas (CH7):          ░░░░░░░░░░  0%       ← geen
+Drums (CH8+):       ██░░░░░░░░  10-20%   ← subtiel
+```
+
+#### B. Reverb Settings (FX1)
+
+```
+UI24 → FX → FX1 → Hall Reverb
+
+├── Pre-delay:  20-30 ms
+├── Decay:      1.2-1.8 sec
+├── Damping:    Medium-high (hoge freq sterven sneller)
+└── Mix:        100% wet (het is een send-return setup)
+```
+
+#### C. FX Return routing (BELANGRIJK!)
+
+```
+UI24 → MIXER → FX1 RETURN kanaal
+
+┌─────────────────────────────────────────┐
+│  FX1 RETURN                             │
+│                                         │
+│  MAIN FADER:  -∞ (of MUTE)             │  ← Geen reverb naar PA!
+│                                         │
+│  AUX SENDS:                             │
+│  ├── AUX 1:   -∞                       │
+│  ├── AUX 2:   0 dB  ✓                  │  ← Reverb ALLEEN naar stream
+│  └── AUX 3:   -∞                       │
+│                                         │
+└─────────────────────────────────────────┘
+```
+
+#### Resultaat
+
+```
+Zang ───┬──────────────────────────► MAIN PA (droog)
+        │
+        └──► FX SEND ──► REVERB ──► FX RETURN
+                                        │
+                         MAIN: -∞ ──────┤ (geen reverb naar PA)
+                                        │
+                         AUX 2: 0dB ────┴──► STREAM (met reverb)
+```
+
+| Bestemming | Krijgt |
+|------------|--------|
+| PA Speakers | Droge mix (geen reverb) |
+| Stream | Mix + reverb (gepolijst) |
+
+---
+
+### Processing Chain Samenvatting
+
+```
+Kanalen (aangepaste balans)
+       │
+       ├────────────────────────────────► AUX 2 (droog)
+       │
+       └──► FX SEND ──► REVERB ──► FX RETURN ──► AUX 2 (wet)
+                                        │
+                                   MAIN: -∞
+
+AUX 2 Bus (droog + wet gecombineerd)
+       │
+       ▼
+┌──────────────┐
+│     EQ       │  HPF 80Hz, +2dB @ 3kHz
+└──────────────┘
+       │
+       ▼
+┌──────────────┐
+│  Compressor  │  -18dB threshold, 4:1
+└──────────────┘
+       │
+       ▼
+┌──────────────┐
+│   Limiter    │  -3dB ceiling
+└──────────────┘
+       │
+       ▼
+   AUX 2 OUT → ATEM/Telefoon → Stream
 ```
 
 ---
