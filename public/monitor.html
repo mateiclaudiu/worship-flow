@@ -79,15 +79,41 @@
       display: flex;
       flex-direction: column;
       gap: 1.5rem;
-      max-width: 400px;
+      max-width: 500px;
       margin: 0 auto;
       width: 100%;
     }
 
+    /* Info banner */
+    .info-banner {
+      background: rgba(212, 168, 83, 0.1);
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      font-size: 0.8rem;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .info-banner.loading {
+      background: rgba(52, 152, 219, 0.1);
+      border-color: var(--color-instruments);
+      color: var(--color-instruments);
+    }
+
+    .info-banner.error {
+      background: rgba(231, 76, 60, 0.1);
+      border-color: var(--color-vocals);
+      color: var(--color-vocals);
+    }
+
+    /* Mix section */
     .mix-section {
       background: var(--bg-card);
       border-radius: 16px;
-      padding: 1.5rem;
+      padding: 1.25rem;
       border: 1px solid var(--border);
     }
 
@@ -115,9 +141,11 @@
     }
 
     .section-value {
-      font-size: 1.25rem;
+      font-size: 1.1rem;
       font-weight: 700;
       font-family: monospace;
+      min-width: 70px;
+      text-align: right;
     }
 
     .vocals .section-title { color: var(--color-vocals); }
@@ -127,20 +155,20 @@
     /* Slider styling */
     .slider-container {
       position: relative;
-      padding: 1rem 0;
+      padding: 0.5rem 0;
     }
 
     .slider {
       -webkit-appearance: none;
       width: 100%;
-      height: 60px;
+      height: 50px;
       background: transparent;
       cursor: pointer;
     }
 
     .slider::-webkit-slider-runnable-track {
       width: 100%;
-      height: 60px;
+      height: 50px;
       background: var(--bg-surface);
       border-radius: 8px;
       border: 1px solid var(--border);
@@ -148,8 +176,8 @@
 
     .slider::-webkit-slider-thumb {
       -webkit-appearance: none;
-      width: 24px;
-      height: 60px;
+      width: 20px;
+      height: 50px;
       background: linear-gradient(to bottom, #fff, #ddd);
       border-radius: 4px;
       cursor: grab;
@@ -163,113 +191,73 @@
 
     /* Colored slider tracks */
     .vocals .slider::-webkit-slider-runnable-track {
-      background: linear-gradient(to right, var(--bg-surface) 0%, rgba(231, 76, 60, 0.3) 100%);
+      background: linear-gradient(to right, rgba(231, 76, 60, 0.1), rgba(231, 76, 60, 0.3));
     }
 
     .instruments .slider::-webkit-slider-runnable-track {
-      background: linear-gradient(to right, var(--bg-surface) 0%, rgba(52, 152, 219, 0.3) 100%);
+      background: linear-gradient(to right, rgba(52, 152, 219, 0.1), rgba(52, 152, 219, 0.3));
     }
 
     .master .slider::-webkit-slider-runnable-track {
-      background: linear-gradient(to right, var(--bg-surface) 0%, rgba(39, 174, 96, 0.3) 100%);
+      background: linear-gradient(to right, rgba(39, 174, 96, 0.1), rgba(39, 174, 96, 0.3));
     }
 
-    /* Quick buttons */
-    .quick-buttons {
+    /* Slider labels */
+    .slider-labels {
       display: flex;
-      gap: 0.5rem;
+      justify-content: space-between;
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      margin-top: 0.25rem;
+    }
+
+    /* Ratio indicator */
+    .ratio-indicator {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      text-align: center;
+      padding: 0.5rem;
+      background: var(--bg-surface);
+      border-radius: 6px;
       margin-top: 0.75rem;
     }
 
-    .quick-btn {
-      flex: 1;
-      padding: 0.75rem;
-      border: 1px solid var(--border);
-      background: var(--bg-surface);
-      color: var(--text);
-      border-radius: 8px;
-      font-size: 0.9rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.15s;
+    .ratio-indicator .value {
+      color: var(--accent);
+      font-weight: 600;
     }
 
-    .quick-btn:hover {
-      background: var(--border);
-    }
-
-    .quick-btn:active {
-      transform: scale(0.98);
-    }
-
-    .quick-btn.active {
-      background: var(--accent);
-      color: #000;
-      border-color: var(--accent);
-    }
-
-    /* Balance visualization */
-    .balance-visual {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 1rem;
-      background: var(--bg-surface);
-      border-radius: 8px;
-      margin-top: 1rem;
-    }
-
-    .balance-label {
-      font-size: 0.75rem;
+    /* Base levels display */
+    .base-levels {
+      font-size: 0.7rem;
       color: var(--text-dim);
-      width: 80px;
-      text-align: center;
-    }
-
-    .balance-label.left { color: var(--color-vocals); }
-    .balance-label.right { color: var(--color-instruments); }
-
-    .balance-bar {
-      flex: 1;
-      height: 8px;
+      margin-top: 0.5rem;
+      padding: 0.5rem;
       background: var(--bg);
       border-radius: 4px;
-      position: relative;
-      overflow: hidden;
     }
 
-    .balance-fill-left {
-      position: absolute;
-      left: 0;
-      top: 0;
-      bottom: 0;
-      width: 50%;
-      background: linear-gradient(to right, transparent, var(--color-vocals));
-      border-radius: 4px 0 0 4px;
+    .base-levels summary {
+      cursor: pointer;
+      user-select: none;
     }
 
-    .balance-fill-right {
-      position: absolute;
-      right: 0;
-      top: 0;
-      bottom: 0;
-      width: 50%;
-      background: linear-gradient(to left, transparent, var(--color-instruments));
-      border-radius: 0 4px 4px 0;
+    .base-levels-content {
+      margin-top: 0.5rem;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.25rem;
     }
 
-    .balance-indicator {
-      position: absolute;
-      top: -4px;
-      width: 4px;
-      height: 16px;
-      background: var(--accent);
-      border-radius: 2px;
-      transform: translateX(-50%);
-      transition: left 0.1s;
+    .base-level-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.2rem 0.4rem;
+      background: var(--bg-surface);
+      border-radius: 3px;
     }
 
-    /* Preset buttons */
+    /* Presets */
     .presets {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -278,12 +266,12 @@
     }
 
     .preset-btn {
-      padding: 1rem 0.5rem;
+      padding: 0.75rem 0.5rem;
       border: 1px solid var(--border);
       background: var(--bg-surface);
       color: var(--text);
       border-radius: 8px;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       cursor: pointer;
       transition: all 0.15s;
       text-align: center;
@@ -295,20 +283,33 @@
 
     .preset-btn:active {
       transform: scale(0.98);
+      background: var(--accent);
+      color: var(--bg);
     }
 
     .preset-btn .emoji {
-      font-size: 1.5rem;
+      font-size: 1.25rem;
       display: block;
       margin-bottom: 0.25rem;
     }
 
-    /* Info text */
-    .info-text {
-      font-size: 0.75rem;
+    /* Reset button */
+    .reset-btn {
+      display: block;
+      width: 100%;
+      padding: 0.75rem;
+      background: var(--bg-surface);
+      border: 1px dashed var(--border);
       color: var(--text-dim);
-      text-align: center;
-      padding: 1rem;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      margin-top: 0.5rem;
+    }
+
+    .reset-btn:hover {
+      border-color: var(--accent);
+      color: var(--text);
     }
 
     /* Footer nav */
@@ -338,7 +339,7 @@
 </head>
 <body>
   <header class="header">
-    <h1>Monitor Mix</h1>
+    <h1>🎧 Monitor Mix</h1>
     <div class="subtitle">Zanger Monitor Controle</div>
     <div class="status">
       <span class="status-dot" id="status-dot"></span>
@@ -347,6 +348,11 @@
   </header>
 
   <main class="main">
+    <div class="info-banner loading" id="info-banner">
+      <span>⏳</span>
+      <span id="info-text">Levels ophalen van mixer...</span>
+    </div>
+
     <!-- Master Volume -->
     <div class="mix-section master">
       <div class="section-header">
@@ -354,15 +360,15 @@
           <span class="icon">🔊</span>
           Monitor Volume
         </div>
-        <div class="section-value" id="master-value">0 dB</div>
+        <div class="section-value" id="master-value">0%</div>
       </div>
       <div class="slider-container">
         <input type="range" class="slider" id="master-slider" min="0" max="100" value="75">
-      </div>
-      <div class="quick-buttons">
-        <button class="quick-btn" onclick="setMaster(50)">Zacht</button>
-        <button class="quick-btn active" onclick="setMaster(75)">Normaal</button>
-        <button class="quick-btn" onclick="setMaster(90)">Luid</button>
+        <div class="slider-labels">
+          <span>Stil</span>
+          <span>Normaal</span>
+          <span>Luid</span>
+        </div>
       </div>
     </div>
 
@@ -373,16 +379,20 @@
           <span class="icon">🎤</span>
           Stemmen
         </div>
-        <div class="section-value" id="vocals-value">0 dB</div>
+        <div class="section-value" id="vocals-value">100%</div>
       </div>
       <div class="slider-container">
-        <input type="range" class="slider" id="vocals-slider" min="0" max="100" value="75">
+        <input type="range" class="slider" id="vocals-slider" min="0" max="200" value="100">
+        <div class="slider-labels">
+          <span>-∞</span>
+          <span>Basis</span>
+          <span>+6 dB</span>
+        </div>
       </div>
-      <div class="quick-buttons">
-        <button class="quick-btn" onclick="setVocals(50)">Minder</button>
-        <button class="quick-btn active" onclick="setVocals(75)">Normaal</button>
-        <button class="quick-btn" onclick="setVocals(100)">Meer</button>
-      </div>
+      <details class="base-levels">
+        <summary>Kanaal levels (basis van engineer)</summary>
+        <div class="base-levels-content" id="vocals-base-levels"></div>
+      </details>
     </div>
 
     <!-- Instruments -->
@@ -392,67 +402,217 @@
           <span class="icon">🎹</span>
           Begeleiding
         </div>
-        <div class="section-value" id="instruments-value">0 dB</div>
+        <div class="section-value" id="instruments-value">100%</div>
       </div>
       <div class="slider-container">
-        <input type="range" class="slider" id="instruments-slider" min="0" max="100" value="75">
+        <input type="range" class="slider" id="instruments-slider" min="0" max="200" value="100">
+        <div class="slider-labels">
+          <span>-∞</span>
+          <span>Basis</span>
+          <span>+6 dB</span>
+        </div>
       </div>
-      <div class="quick-buttons">
-        <button class="quick-btn" onclick="setInstruments(50)">Minder</button>
-        <button class="quick-btn active" onclick="setInstruments(75)">Normaal</button>
-        <button class="quick-btn" onclick="setInstruments(100)">Meer</button>
-      </div>
+      <details class="base-levels">
+        <summary>Kanaal levels (basis van engineer)</summary>
+        <div class="base-levels-content" id="instruments-base-levels"></div>
+      </details>
     </div>
 
-    <!-- Balance visualization -->
-    <div class="balance-visual">
-      <div class="balance-label left">Stemmen</div>
-      <div class="balance-bar">
-        <div class="balance-fill-left"></div>
-        <div class="balance-fill-right"></div>
-        <div class="balance-indicator" id="balance-indicator" style="left: 50%"></div>
-      </div>
-      <div class="balance-label right">Begeleiding</div>
+    <!-- Ratio indicator -->
+    <div class="ratio-indicator">
+      Verhouding Stemmen / Begeleiding: <span class="value" id="ratio-value">1:1</span>
     </div>
 
     <!-- Presets -->
     <div class="presets">
-      <button class="preset-btn" onclick="applyPreset('rehearsal')">
-        <span class="emoji">🎯</span>
-        Repetitie
-      </button>
-      <button class="preset-btn" onclick="applyPreset('performance')">
-        <span class="emoji">🎤</span>
-        Optreden
-      </button>
       <button class="preset-btn" onclick="applyPreset('vocals-focus')">
-        <span class="emoji">👥</span>
+        <span class="emoji">🎤</span>
         Meer Zang
+      </button>
+      <button class="preset-btn" onclick="applyPreset('balanced')">
+        <span class="emoji">⚖️</span>
+        Gebalanceerd
+      </button>
+      <button class="preset-btn" onclick="applyPreset('instruments-focus')">
+        <span class="emoji">🎹</span>
+        Meer Keys
       </button>
     </div>
 
-    <div class="info-text">
-      Schuif de balken om je monitor mix aan te passen.<br>
-      Wijzigingen worden direct toegepast.
-    </div>
+    <button class="reset-btn" onclick="resetToBase()">
+      ↺ Reset naar engineer basis
+    </button>
   </main>
 
   <nav class="footer-nav">
-    <a href="/live" class="footer-link">Lyrics</a>
-    <a href="/dirigent" class="footer-link">Dirigent</a>
+    <a href="/live" class="footer-link">← Lyrics</a>
+    <button class="footer-link" onclick="toggleSettings()" id="settings-toggle">⚙️ Instellingen</button>
+    <a href="/mixer" class="footer-link">Mixer →</a>
   </nav>
 
-  <script>
-    // Configuration - which AUX to use for singer monitors
-    const MONITOR_AUX = 3; // AUX 3 for singer monitors
+  <!-- Settings Panel -->
+  <div class="settings-overlay" id="settings-overlay" onclick="toggleSettings()"></div>
+  <div class="settings-panel" id="settings-panel">
+    <div class="settings-header">
+      <h2>⚙️ Monitor Instellingen</h2>
+      <button class="settings-close" onclick="toggleSettings()">×</button>
+    </div>
+    <div class="settings-content">
+      <div class="settings-group">
+        <label>Monitor AUX</label>
+        <select id="settings-aux">
+          <option value="1">AUX 1</option>
+          <option value="2">AUX 2</option>
+          <option value="3" selected>AUX 3</option>
+          <option value="4">AUX 4</option>
+          <option value="5">AUX 5</option>
+          <option value="6">AUX 6</option>
+        </select>
+        <span class="settings-hint">Welke AUX bus voor de zang monitor?</span>
+      </div>
 
-    // Channel groups
-    const VOCAL_CHANNELS = [2, 3, 4];      // Zang mics
-    const INSTRUMENT_CHANNELS = [5, 6, 7, 8, 9, 10, 11, 12]; // Instruments including keyboard
+      <div class="settings-group">
+        <label>🎤 Zang Kanalen</label>
+        <div class="channel-checkboxes" id="vocal-channels"></div>
+        <span class="settings-hint">Selecteer welke kanalen bij "Stemmen" horen</span>
+      </div>
+
+      <div class="settings-group">
+        <label>🎹 Muziek Kanalen</label>
+        <div class="channel-checkboxes" id="instrument-channels"></div>
+        <span class="settings-hint">Selecteer welke kanalen bij "Begeleiding" horen</span>
+      </div>
+
+      <button class="settings-save" onclick="saveSettings()">💾 Opslaan</button>
+    </div>
+  </div>
+
+  <style>
+    /* Settings panel styles */
+    .settings-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 100;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.2s;
+    }
+    .settings-overlay.open { opacity: 1; visibility: visible; }
+
+    .settings-panel {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--bg-card);
+      border-top: 1px solid var(--border);
+      border-radius: 16px 16px 0 0;
+      z-index: 101;
+      transform: translateY(100%);
+      transition: transform 0.3s ease;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+    .settings-panel.open { transform: translateY(0); }
+
+    .settings-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      background: var(--bg-card);
+    }
+    .settings-header h2 { font-size: 1rem; }
+    .settings-close {
+      background: none;
+      border: none;
+      color: var(--text-dim);
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    .settings-content { padding: 1rem; }
+
+    .settings-group {
+      margin-bottom: 1.5rem;
+    }
+    .settings-group label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+    .settings-group select {
+      width: 100%;
+      padding: 0.75rem;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 1rem;
+    }
+    .settings-hint {
+      display: block;
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      margin-top: 0.25rem;
+    }
+
+    .channel-checkboxes {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 0.5rem;
+    }
+    .channel-checkbox {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0.5rem;
+      background: var(--bg-surface);
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .channel-checkbox:hover { border-color: var(--accent); }
+    .channel-checkbox.selected {
+      border-color: var(--accent);
+      background: rgba(212, 168, 83, 0.1);
+    }
+    .channel-checkbox.selected.vocals { border-color: var(--color-vocals); background: rgba(231, 76, 60, 0.1); }
+    .channel-checkbox.selected.instruments { border-color: var(--color-instruments); background: rgba(52, 152, 219, 0.1); }
+    .channel-checkbox span { font-size: 0.8rem; font-weight: 600; }
+
+    .settings-save {
+      width: 100%;
+      padding: 1rem;
+      background: var(--accent);
+      border: none;
+      border-radius: 8px;
+      color: var(--bg);
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .settings-save:hover { opacity: 0.9; }
+  </style>
+
+  <script>
+    // Configuration (loaded from server)
+    let MONITOR_AUX = 3;
+    let VOCAL_CHANNELS = [2, 3, 4];
+    let INSTRUMENT_CHANNELS = [5, 6, 7, 8, 9, 10, 11, 12];
+    let ALL_CHANNELS = [];
 
     // State
     let connected = false;
-    let ws = null;
+    let baseLevels = {};       // Original levels from mixer (set by engineer)
+    let vocalMultiplier = 1.0;
+    let instrumentMultiplier = 1.0;
+    let masterLevel = 0.75;
 
     // Elements
     const masterSlider = document.getElementById('master-slider');
@@ -461,192 +621,377 @@
     const masterValue = document.getElementById('master-value');
     const vocalsValue = document.getElementById('vocals-value');
     const instrumentsValue = document.getElementById('instruments-value');
-    const balanceIndicator = document.getElementById('balance-indicator');
+    const ratioValue = document.getElementById('ratio-value');
+    const infoBanner = document.getElementById('info-banner');
+    const infoText = document.getElementById('info-text');
+    const statusDot = document.getElementById('status-dot');
+    const statusText = document.getElementById('status-text');
 
-    // Connect WebSocket
-    function connect() {
-      const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
-      ws = new WebSocket(`${protocol}//${location.host}?type=monitor`);
+    // Connect and fetch initial levels
+    async function initialize() {
+      updateStatus(false);
+      showInfo('loading', '⏳ Verbinden met mixer...');
 
-      ws.onopen = () => {
-        connected = true;
-        updateStatus(true);
-      };
+      try {
+        // Fetch current levels from mixer
+        const response = await fetch(`/api/mixer/aux/${MONITOR_AUX}/levels?channels=${ALL_CHANNELS.join(',')}`);
+        const data = await response.json();
 
-      ws.onclose = () => {
-        connected = false;
-        updateStatus(false);
-        setTimeout(connect, 3000);
-      };
+        if (data.connected) {
+          connected = true;
+          baseLevels = data.levels || {};
+          masterLevel = data.master || 0.75;
 
-      ws.onmessage = (e) => {
-        const msg = JSON.parse(e.data);
-        handleMessage(msg);
-      };
+          // Set master slider
+          masterSlider.value = Math.round(masterLevel * 100);
+          updateMasterDisplay();
+
+          // Display base levels
+          renderBaseLevels();
+
+          updateStatus(true);
+          showInfo('success', '✓ Verbonden - Levels geladen van mixer');
+
+          // Hide banner after 3 seconds
+          setTimeout(() => {
+            infoBanner.style.display = 'none';
+          }, 3000);
+        } else {
+          showInfo('error', '⚠ Mixer niet verbonden');
+        }
+      } catch (e) {
+        console.error('Failed to fetch levels:', e);
+        showInfo('error', '⚠ Kon geen verbinding maken: ' + e.message);
+      }
     }
 
     function updateStatus(isConnected) {
-      document.getElementById('status-dot').classList.toggle('connected', isConnected);
-      document.getElementById('status-text').textContent = isConnected ? 'Verbonden' : 'Niet verbonden';
+      statusDot.classList.toggle('connected', isConnected);
+      statusText.textContent = isConnected ? 'Verbonden' : 'Niet verbonden';
     }
 
-    function handleMessage(msg) {
-      // Handle status updates from server
-      if (msg.type === 'monitorLevels') {
-        // Update sliders from server state
-      }
+    function showInfo(type, text) {
+      infoBanner.className = 'info-banner ' + type;
+      infoText.textContent = text;
+      infoBanner.style.display = 'flex';
     }
 
-    // Convert slider (0-100) to dB display
-    function sliderToDb(value) {
-      if (value <= 0) return '-∞';
-      if (value >= 100) return '+10';
-      // 75 = 0dB
-      if (value < 75) {
-        const db = Math.round(-40 + (value / 75) * 40);
-        return db + ' dB';
+    // Render base levels in details sections
+    function renderBaseLevels() {
+      const vocalsContainer = document.getElementById('vocals-base-levels');
+      const instrumentsContainer = document.getElementById('instruments-base-levels');
+
+      vocalsContainer.innerHTML = VOCAL_CHANNELS.map(ch => {
+        const level = baseLevels[ch] || 0;
+        const db = levelToDb(level);
+        return `<div class="base-level-item"><span>CH${ch}</span><span>${db}</span></div>`;
+      }).join('');
+
+      instrumentsContainer.innerHTML = INSTRUMENT_CHANNELS.map(ch => {
+        const level = baseLevels[ch] || 0;
+        const db = levelToDb(level);
+        return `<div class="base-level-item"><span>CH${ch}</span><span>${db}</span></div>`;
+      }).join('');
+    }
+
+    // Convert 0-1 level to dB string
+    function levelToDb(level) {
+      if (level <= 0) return '-∞';
+      if (level >= 1) return '+10dB';
+      // Approximate: 0.75 = 0dB
+      if (level < 0.75) {
+        const db = Math.round(-40 + (level / 0.75) * 40);
+        return db + 'dB';
       } else {
-        const db = Math.round((value - 75) / 25 * 10);
-        return '+' + db + ' dB';
+        const db = Math.round((level - 0.75) / 0.25 * 10);
+        return '+' + db + 'dB';
       }
     }
 
-    // Update balance indicator
-    function updateBalance() {
-      const vocals = parseInt(vocalsSlider.value);
-      const instruments = parseInt(instrumentsSlider.value);
-      const total = vocals + instruments;
-      const balance = total > 0 ? (instruments / total) * 100 : 50;
-      balanceIndicator.style.left = balance + '%';
+    // Convert slider (0-200) to multiplier
+    // 0 = -inf, 100 = 1.0 (no change), 200 = 2.0 (+6dB)
+    function sliderToMultiplier(value) {
+      if (value <= 0) return 0;
+      return value / 100;
     }
 
-    // Send AUX level to server
-    async function sendAuxLevel(channels, level) {
-      // Convert 0-100 to 0-1
-      const normalizedLevel = level / 100;
+    // Apply multiplier to base level
+    function applyMultiplier(baseLevel, multiplier) {
+      return Math.min(1.0, baseLevel * multiplier);
+    }
 
-      for (const ch of channels) {
-        try {
-          await fetch(`/api/mixer/channel/${ch}/aux/${MONITOR_AUX}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ level: normalizedLevel })
-          });
-        } catch (e) {
-          console.error('Failed to set aux level:', e);
+    // Update display values
+    function updateMasterDisplay() {
+      const level = masterSlider.value;
+      masterValue.textContent = level + '%';
+    }
+
+    function updateVocalsDisplay() {
+      const value = vocalsSlider.value;
+      vocalMultiplier = sliderToMultiplier(value);
+      if (value === 0) {
+        vocalsValue.textContent = 'UIT';
+      } else {
+        vocalsValue.textContent = value + '%';
+      }
+      updateRatio();
+    }
+
+    function updateInstrumentsDisplay() {
+      const value = instrumentsSlider.value;
+      instrumentMultiplier = sliderToMultiplier(value);
+      if (value === 0) {
+        instrumentsValue.textContent = 'UIT';
+      } else {
+        instrumentsValue.textContent = value + '%';
+      }
+      updateRatio();
+    }
+
+    function updateRatio() {
+      if (vocalMultiplier === 0 && instrumentMultiplier === 0) {
+        ratioValue.textContent = 'Beide UIT';
+      } else if (vocalMultiplier === 0) {
+        ratioValue.textContent = 'Alleen begeleiding';
+      } else if (instrumentMultiplier === 0) {
+        ratioValue.textContent = 'Alleen stemmen';
+      } else if (vocalMultiplier === instrumentMultiplier) {
+        ratioValue.textContent = '1:1 (gelijk)';
+      } else {
+        const ratio = vocalMultiplier / instrumentMultiplier;
+        if (ratio > 1) {
+          ratioValue.textContent = `Stemmen +${Math.round((ratio - 1) * 100)}%`;
+        } else {
+          ratioValue.textContent = `Keys +${Math.round((1/ratio - 1) * 100)}%`;
         }
       }
     }
 
-    // Send master AUX level
-    async function sendMasterLevel(level) {
-      const normalizedLevel = level / 100;
+    // Send levels to mixer
+    async function sendMasterLevel() {
+      const level = masterSlider.value / 100;
       try {
         await fetch(`/api/mixer/aux/${MONITOR_AUX}/master`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ level: normalizedLevel })
+          body: JSON.stringify({ level })
         });
       } catch (e) {
-        console.error('Failed to set master level:', e);
+        console.error('Failed to set master:', e);
+      }
+    }
+
+    async function sendVocalsLevels() {
+      const levels = {};
+      for (const ch of VOCAL_CHANNELS) {
+        const base = baseLevels[ch] || 0.5;
+        levels[ch] = applyMultiplier(base, vocalMultiplier);
+      }
+
+      try {
+        await fetch(`/api/mixer/aux/${MONITOR_AUX}/levels`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ levels })
+        });
+      } catch (e) {
+        console.error('Failed to set vocals:', e);
+      }
+    }
+
+    async function sendInstrumentsLevels() {
+      const levels = {};
+      for (const ch of INSTRUMENT_CHANNELS) {
+        const base = baseLevels[ch] || 0.3;
+        levels[ch] = applyMultiplier(base, instrumentMultiplier);
+      }
+
+      try {
+        await fetch(`/api/mixer/aux/${MONITOR_AUX}/levels`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ levels })
+        });
+      } catch (e) {
+        console.error('Failed to set instruments:', e);
       }
     }
 
     // Slider handlers
-    masterSlider.addEventListener('input', (e) => {
-      masterValue.textContent = sliderToDb(e.target.value);
-      updateQuickButtons('.master .quick-btn', e.target.value);
-    });
+    masterSlider.addEventListener('input', updateMasterDisplay);
+    masterSlider.addEventListener('change', sendMasterLevel);
 
-    masterSlider.addEventListener('change', (e) => {
-      sendMasterLevel(parseInt(e.target.value));
-    });
+    vocalsSlider.addEventListener('input', updateVocalsDisplay);
+    vocalsSlider.addEventListener('change', sendVocalsLevels);
 
-    vocalsSlider.addEventListener('input', (e) => {
-      vocalsValue.textContent = sliderToDb(e.target.value);
-      updateQuickButtons('.vocals .quick-btn', e.target.value);
-      updateBalance();
-    });
-
-    vocalsSlider.addEventListener('change', (e) => {
-      sendAuxLevel(VOCAL_CHANNELS, parseInt(e.target.value));
-    });
-
-    instrumentsSlider.addEventListener('input', (e) => {
-      instrumentsValue.textContent = sliderToDb(e.target.value);
-      updateQuickButtons('.instruments .quick-btn', e.target.value);
-      updateBalance();
-    });
-
-    instrumentsSlider.addEventListener('change', (e) => {
-      sendAuxLevel(INSTRUMENT_CHANNELS, parseInt(e.target.value));
-    });
-
-    // Quick button handlers
-    function setMaster(value) {
-      masterSlider.value = value;
-      masterValue.textContent = sliderToDb(value);
-      updateQuickButtons('.master .quick-btn', value);
-      sendMasterLevel(value);
-    }
-
-    function setVocals(value) {
-      vocalsSlider.value = value;
-      vocalsValue.textContent = sliderToDb(value);
-      updateQuickButtons('.vocals .quick-btn', value);
-      updateBalance();
-      sendAuxLevel(VOCAL_CHANNELS, value);
-    }
-
-    function setInstruments(value) {
-      instrumentsSlider.value = value;
-      instrumentsValue.textContent = sliderToDb(value);
-      updateQuickButtons('.instruments .quick-btn', value);
-      updateBalance();
-      sendAuxLevel(INSTRUMENT_CHANNELS, value);
-    }
-
-    function updateQuickButtons(selector, value) {
-      document.querySelectorAll(selector).forEach(btn => {
-        btn.classList.remove('active');
-      });
-      // Highlight appropriate button based on value
-      const buttons = document.querySelectorAll(selector);
-      if (value <= 55) buttons[0]?.classList.add('active');
-      else if (value <= 85) buttons[1]?.classList.add('active');
-      else buttons[2]?.classList.add('active');
-    }
+    instrumentsSlider.addEventListener('input', updateInstrumentsDisplay);
+    instrumentsSlider.addEventListener('change', sendInstrumentsLevels);
 
     // Presets
     function applyPreset(preset) {
       switch (preset) {
-        case 'rehearsal':
-          setMaster(75);
-          setVocals(80);
-          setInstruments(70);
-          break;
-        case 'performance':
-          setMaster(80);
-          setVocals(75);
-          setInstruments(75);
-          break;
         case 'vocals-focus':
-          setMaster(75);
-          setVocals(90);
-          setInstruments(60);
+          vocalsSlider.value = 140;      // +40%
+          instrumentsSlider.value = 70;  // -30%
           break;
+        case 'balanced':
+          vocalsSlider.value = 100;
+          instrumentsSlider.value = 100;
+          break;
+        case 'instruments-focus':
+          vocalsSlider.value = 70;       // -30%
+          instrumentsSlider.value = 140; // +40%
+          break;
+      }
+
+      updateVocalsDisplay();
+      updateInstrumentsDisplay();
+      sendVocalsLevels();
+      sendInstrumentsLevels();
+    }
+
+    // Reset to base levels
+    function resetToBase() {
+      vocalsSlider.value = 100;
+      instrumentsSlider.value = 100;
+      masterSlider.value = 75;
+
+      updateVocalsDisplay();
+      updateInstrumentsDisplay();
+      updateMasterDisplay();
+
+      sendVocalsLevels();
+      sendInstrumentsLevels();
+      sendMasterLevel();
+    }
+
+    // =====================
+    // Settings Panel
+    // =====================
+
+    function toggleSettings() {
+      document.getElementById('settings-overlay').classList.toggle('open');
+      document.getElementById('settings-panel').classList.toggle('open');
+    }
+
+    function renderChannelCheckboxes() {
+      const vocalContainer = document.getElementById('vocal-channels');
+      const instrumentContainer = document.getElementById('instrument-channels');
+
+      // Render vocal channel checkboxes (1-12)
+      vocalContainer.innerHTML = '';
+      for (let ch = 1; ch <= 12; ch++) {
+        const isSelected = VOCAL_CHANNELS.includes(ch);
+        const div = document.createElement('div');
+        div.className = 'channel-checkbox' + (isSelected ? ' selected vocals' : '');
+        div.innerHTML = `<span>${ch}</span>`;
+        div.onclick = () => toggleChannel('vocal', ch, div);
+        vocalContainer.appendChild(div);
+      }
+
+      // Render instrument channel checkboxes (1-12)
+      instrumentContainer.innerHTML = '';
+      for (let ch = 1; ch <= 12; ch++) {
+        const isSelected = INSTRUMENT_CHANNELS.includes(ch);
+        const div = document.createElement('div');
+        div.className = 'channel-checkbox' + (isSelected ? ' selected instruments' : '');
+        div.innerHTML = `<span>${ch}</span>`;
+        div.onclick = () => toggleChannel('instrument', ch, div);
+        instrumentContainer.appendChild(div);
       }
     }
 
-    // Initialize
-    document.addEventListener('DOMContentLoaded', () => {
-      connect();
+    function toggleChannel(type, ch, element) {
+      const list = type === 'vocal' ? VOCAL_CHANNELS : INSTRUMENT_CHANNELS;
+      const otherList = type === 'vocal' ? INSTRUMENT_CHANNELS : VOCAL_CHANNELS;
 
-      // Set initial display values
-      masterValue.textContent = sliderToDb(masterSlider.value);
-      vocalsValue.textContent = sliderToDb(vocalsSlider.value);
-      instrumentsValue.textContent = sliderToDb(instrumentsSlider.value);
-      updateBalance();
+      // Remove from other list if present
+      const otherIndex = otherList.indexOf(ch);
+      if (otherIndex > -1) {
+        otherList.splice(otherIndex, 1);
+      }
+
+      // Toggle in current list
+      const index = list.indexOf(ch);
+      if (index > -1) {
+        list.splice(index, 1);
+        element.classList.remove('selected', 'vocals', 'instruments');
+      } else {
+        list.push(ch);
+        list.sort((a, b) => a - b);
+        element.classList.add('selected', type === 'vocal' ? 'vocals' : 'instruments');
+      }
+
+      // Re-render to update other list
+      renderChannelCheckboxes();
+    }
+
+    async function loadConfig() {
+      try {
+        const response = await fetch('/api/mixer/monitor/config');
+        const config = await response.json();
+
+        MONITOR_AUX = config.auxNumber || 3;
+        VOCAL_CHANNELS = config.vocalChannels || [2, 3, 4];
+        INSTRUMENT_CHANNELS = config.instrumentChannels || [5, 6, 7, 8, 9, 10, 11, 12];
+        ALL_CHANNELS = [...new Set([...VOCAL_CHANNELS, ...INSTRUMENT_CHANNELS])];
+
+        // Update settings UI
+        document.getElementById('settings-aux').value = MONITOR_AUX;
+        renderChannelCheckboxes();
+      } catch (e) {
+        console.error('Failed to load config:', e);
+        // Use defaults
+        ALL_CHANNELS = [...VOCAL_CHANNELS, ...INSTRUMENT_CHANNELS];
+      }
+    }
+
+    async function saveSettings() {
+      const auxNumber = parseInt(document.getElementById('settings-aux').value);
+
+      try {
+        await fetch('/api/mixer/monitor/config', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            auxNumber,
+            vocalChannels: VOCAL_CHANNELS,
+            instrumentChannels: INSTRUMENT_CHANNELS
+          })
+        });
+
+        MONITOR_AUX = auxNumber;
+        ALL_CHANNELS = [...new Set([...VOCAL_CHANNELS, ...INSTRUMENT_CHANNELS])];
+
+        toggleSettings();
+        showInfo('success', '✓ Instellingen opgeslagen');
+
+        // Reload levels with new config
+        setTimeout(() => {
+          initialize();
+        }, 500);
+
+      } catch (e) {
+        console.error('Failed to save settings:', e);
+        showInfo('error', '⚠ Kon instellingen niet opslaan');
+      }
+    }
+
+    // Initialize on load
+    document.addEventListener('DOMContentLoaded', async () => {
+      // Load config first
+      await loadConfig();
+
+      updateVocalsDisplay();
+      updateInstrumentsDisplay();
+      initialize();
+    });
+
+    // Reconnect on visibility change
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden && !connected) {
+        initialize();
+      }
     });
   </script>
 </body>

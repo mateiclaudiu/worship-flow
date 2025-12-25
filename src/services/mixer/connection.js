@@ -262,6 +262,98 @@ class MixerConnection {
       return false;
     }
   }
+
+  // =====================
+  // AUX Level Read-back
+  // =====================
+
+  // Subscribe to AUX send level for a channel
+  onAuxSendLevelChange(channel, auxNumber, callback) {
+    if (!this.mixer) return null;
+    try {
+      const sub = this.mixer.aux(auxNumber).input(channel).faderLevel$.subscribe(callback);
+      this.subscriptions.push(sub);
+      return sub;
+    } catch (e) {
+      console.error(`Failed to subscribe to AUX ${auxNumber} send for channel ${channel}:`, e.message);
+      return null;
+    }
+  }
+
+  // Subscribe to AUX master level
+  onAuxMasterLevelChange(auxNumber, callback) {
+    if (!this.mixer) return null;
+    try {
+      const sub = this.mixer.aux(auxNumber).faderLevel$.subscribe(callback);
+      this.subscriptions.push(sub);
+      return sub;
+    } catch (e) {
+      console.error(`Failed to subscribe to AUX ${auxNumber} master:`, e.message);
+      return null;
+    }
+  }
+
+  // Get current AUX send levels for multiple channels (one-time read)
+  getAuxSendLevels(auxNumber, channels) {
+    if (!this.mixer || !this.connected) return null;
+
+    const levels = {};
+
+    return new Promise((resolve) => {
+      let received = 0;
+      const total = channels.length;
+
+      channels.forEach(ch => {
+        try {
+          const sub = this.mixer.aux(auxNumber).input(ch).faderLevel$.subscribe(level => {
+            levels[ch] = level;
+            received++;
+            sub.unsubscribe();
+
+            if (received >= total) {
+              resolve(levels);
+            }
+          });
+
+          // Timeout fallback
+          setTimeout(() => {
+            if (!levels[ch]) {
+              levels[ch] = 0.75; // Default
+              received++;
+              sub.unsubscribe();
+              if (received >= total) resolve(levels);
+            }
+          }, 1000);
+        } catch (e) {
+          levels[ch] = 0.75;
+          received++;
+          if (received >= total) resolve(levels);
+        }
+      });
+    });
+  }
+
+  // Get current AUX master level (one-time read)
+  getAuxMasterLevel(auxNumber) {
+    if (!this.mixer || !this.connected) return Promise.resolve(0.75);
+
+    return new Promise((resolve) => {
+      try {
+        const sub = this.mixer.aux(auxNumber).faderLevel$.subscribe(level => {
+          sub.unsubscribe();
+          resolve(level);
+        });
+
+        // Timeout fallback
+        setTimeout(() => {
+          sub.unsubscribe();
+          resolve(0.75);
+        }, 1000);
+      } catch (e) {
+        resolve(0.75);
+      }
+    });
+  }
 }
 
 // Singleton

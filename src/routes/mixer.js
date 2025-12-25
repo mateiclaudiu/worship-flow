@@ -270,4 +270,112 @@ router.post('/channel/:num/aux/:aux/post', (req, res) => {
   res.json({ success });
 });
 
+// =====================
+// Monitor Configuration
+// =====================
+
+// Get monitor config
+router.get('/monitor/config', (req, res) => {
+  const config = db.get().mixerConfig;
+
+  // Default config if not set
+  const monitorConfig = config.monitorConfig || {
+    auxNumber: 3,
+    vocalChannels: [2, 3, 4],
+    instrumentChannels: [5, 6, 7, 8, 9, 10, 11, 12]
+  };
+
+  res.json(monitorConfig);
+});
+
+// Update monitor config
+router.put('/monitor/config', (req, res) => {
+  const { auxNumber, vocalChannels, instrumentChannels } = req.body;
+  const data = db.get();
+
+  data.mixerConfig.monitorConfig = {
+    auxNumber: auxNumber ?? 3,
+    vocalChannels: vocalChannels || [2, 3, 4],
+    instrumentChannels: instrumentChannels || [5, 6, 7, 8, 9, 10, 11, 12]
+  };
+
+  db.save();
+
+  res.json({ success: true, config: data.mixerConfig.monitorConfig });
+});
+
+// =====================
+// AUX Level Read-back (for monitor mix sync)
+// =====================
+
+// Get current AUX send levels for specified channels
+router.get('/aux/:aux/levels', async (req, res) => {
+  const auxNum = parseInt(req.params.aux);
+  const channelsParam = req.query.channels || '2,3,4,5,6,7,8,9,10,11,12';
+  const channels = channelsParam.split(',').map(c => parseInt(c.trim()));
+
+  if (!mixerService.connection.isConnected()) {
+    return res.json({
+      connected: false,
+      levels: {},
+      master: 0.75
+    });
+  }
+
+  try {
+    const [levels, master] = await Promise.all([
+      mixerService.connection.getAuxSendLevels(auxNum, channels),
+      mixerService.connection.getAuxMasterLevel(auxNum)
+    ]);
+
+    res.json({
+      connected: true,
+      auxNumber: auxNum,
+      levels: levels || {},
+      master: master || 0.75
+    });
+  } catch (e) {
+    console.error('Failed to get AUX levels:', e);
+    res.json({
+      connected: true,
+      levels: {},
+      master: 0.75,
+      error: e.message
+    });
+  }
+});
+
+// Set multiple AUX send levels at once (with multiplier support)
+router.post('/aux/:aux/levels', async (req, res) => {
+  const auxNum = parseInt(req.params.aux);
+  const { levels, master } = req.body;
+
+  if (!mixerService.connection.isConnected()) {
+    return res.status(400).json({ error: 'Mixer niet verbonden' });
+  }
+
+  const results = { channels: {}, master: null };
+
+  // Set individual channel levels
+  if (levels && typeof levels === 'object') {
+    for (const [ch, level] of Object.entries(levels)) {
+      const channelNum = parseInt(ch);
+      const clampedLevel = Math.max(0, Math.min(1, level));
+      const success = mixerService.connection.setAuxSendLevel(channelNum, auxNum, clampedLevel);
+      results.channels[channelNum] = { level: clampedLevel, success };
+    }
+  }
+
+  // Set master level
+  if (master !== undefined) {
+    const clampedMaster = Math.max(0, Math.min(1, master));
+    results.master = {
+      level: clampedMaster,
+      success: mixerService.connection.setAuxMasterLevel(auxNum, clampedMaster)
+    };
+  }
+
+  res.json({ success: true, results });
+});
+
 module.exports = router;
