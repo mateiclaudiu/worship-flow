@@ -450,13 +450,13 @@
     }
 
     .fine-btn {
-      width: 22px;
-      height: 18px;
+      width: 52px;
+      height: 52px;
       border: none;
       border-radius: 3px;
       background: var(--bg-tertiary);
       color: var(--text-primary);
-      font-size: 0.7rem;
+      font-size: 0.9rem;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.1s;
@@ -656,6 +656,7 @@
       border-radius: 12px;
       padding: 1rem;
       margin-bottom: 1.5rem;
+        width: 48%;
     }
 
     .scene-panel-header {
@@ -692,6 +693,7 @@
       cursor: pointer;
       transition: all 0.2s;
       text-align: center;
+        max-width: 120px;
     }
 
     .scene-btn:hover {
@@ -1413,25 +1415,21 @@
 
       <div class="scene-buttons">
         <button class="scene-btn" id="scene-worship" onclick="activateScene('worship')">
-          <div class="scene-btn-icon">🎤</div>
           <div class="scene-btn-name">WORSHIP</div>
           <div class="scene-btn-desc">Muziek aan</div>
           <div class="scene-btn-zaal uit">Zaal: UIT</div>
         </button>
         <button class="scene-btn" id="scene-speech" onclick="activateScene('speech')">
-          <div class="scene-btn-icon">🎙️</div>
           <div class="scene-btn-name">SPRAAK</div>
           <div class="scene-btn-desc">Preek aan</div>
           <div class="scene-btn-zaal aan">Zaal: AAN</div>
         </button>
         <button class="scene-btn" id="scene-prayer" onclick="activateScene('prayer')">
-          <div class="scene-btn-icon">🙏</div>
           <div class="scene-btn-name">GEBED</div>
           <div class="scene-btn-desc">Zang spraak</div>
           <div class="scene-btn-zaal aan">Zaal: AAN</div>
         </button>
         <button class="scene-btn" id="scene-neutral" onclick="activateScene('neutral')">
-          <div class="scene-btn-icon">⚖️</div>
           <div class="scene-btn-name">NEUTRAAL</div>
           <div class="scene-btn-desc">Handmatig</div>
         </button>
@@ -1440,7 +1438,7 @@
       <div class="zaal-status" id="zaal-status">
         <div class="zaal-status-icon">📢</div>
         <div class="zaal-status-info">
-          <div class="zaal-status-label">Zaal Speakers</div>
+          <div class="zaal-status-label">Zaal Multi Wall Speakers</div>
           <div class="zaal-status-bar">
             <div class="zaal-status-fill" id="zaal-status-fill"></div>
           </div>
@@ -1860,7 +1858,7 @@
           <div style="display: flex; gap: 6px; justify-content: center; margin-bottom: 0.3rem;">
             <div>
               <div class="fader-label">In</div>
-              <div style="height: 22px;"></div>
+              <div style="height: 52px;"></div>
               <div class="meter-container">
                 <div class="meter-fill" id="meter-${ch.number}" style="height: 0%"></div>
                 <div class="meter-target" style="bottom: 12.5%;" title="-18dB target"></div>
@@ -2246,6 +2244,11 @@
       }
     }
 
+    // Zaal speakers config (AUX 1)
+    const ZAAL_AUX = 1;
+    const ZAAL_LEVEL_ON = 0.75;   // 0dB
+    const ZAAL_LEVEL_OFF = 0;     // -∞
+
     // Activate scene (idempotent - same result no matter how many times pressed)
     async function activateScene(scene) {
       const sceneConfig = SCENES[scene];
@@ -2260,25 +2263,44 @@
       // Update Zaal status indicator
       updateZaalStatus(sceneConfig.zaalActive);
 
-      // Skip mute changes for neutral mode
+      // Skip changes for neutral mode
       if (scene === 'neutral') {
         console.log('Scene: NEUTRAL - handmatige controle');
         return;
       }
 
       // Apply mute/unmute changes
-      const mutePromises = [];
+      const promises = [];
 
       sceneConfig.mute.forEach(ch => {
-        mutePromises.push(setChannelMute(ch, true));
+        promises.push(setChannelMute(ch, true));
       });
 
       sceneConfig.unmute.forEach(ch => {
-        mutePromises.push(setChannelMute(ch, false));
+        promises.push(setChannelMute(ch, false));
       });
 
-      await Promise.all(mutePromises);
+      // Control Zaal speakers (AUX 1 master)
+      if (sceneConfig.zaalActive !== null) {
+        const zaalLevel = sceneConfig.zaalActive ? ZAAL_LEVEL_ON : ZAAL_LEVEL_OFF;
+        promises.push(setZaalLevel(zaalLevel));
+      }
+
+      await Promise.all(promises);
       console.log(`Scene: ${sceneConfig.name} - ${sceneConfig.mute.length} gemute, ${sceneConfig.unmute.length} actief, Zaal: ${sceneConfig.zaalActive ? 'AAN' : 'UIT'}`);
+    }
+
+    // Set Zaal speakers level (AUX 1 master)
+    async function setZaalLevel(level) {
+      try {
+        await fetch(`/api/mixer/aux/${ZAAL_AUX}/master`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ level })
+        });
+      } catch (e) {
+        console.error('Failed to set Zaal level:', e);
+      }
     }
 
     // Set mute state (not toggle!)
