@@ -363,6 +363,79 @@
       font-size: 0.8rem;
     }
 
+    /* EQ Frequency Chart */
+    .eq-chart {
+      font-size: 0.65rem;
+    }
+
+    .eq-row {
+      display: flex;
+      align-items: center;
+      padding: 0.3rem 0;
+      border-bottom: 1px solid var(--border);
+      gap: 0.5rem;
+    }
+
+    .eq-row:last-child {
+      border-bottom: none;
+    }
+
+    .eq-freq {
+      min-width: 55px;
+      font-family: monospace;
+      color: var(--blue);
+    }
+
+    .eq-bar {
+      flex: 1;
+      height: 8px;
+      background: var(--border);
+      border-radius: 4px;
+      position: relative;
+    }
+
+    .eq-bar-fill {
+      position: absolute;
+      height: 100%;
+      border-radius: 4px;
+    }
+
+    .eq-bar-fill.cut {
+      background: var(--red);
+      right: 50%;
+    }
+
+    .eq-bar-fill.boost {
+      background: var(--green);
+      left: 50%;
+    }
+
+    .eq-bar::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: var(--text-muted);
+    }
+
+    .eq-desc {
+      min-width: 100px;
+      color: var(--text-muted);
+      font-size: 0.6rem;
+    }
+
+    .eq-action {
+      font-size: 0.55rem;
+      padding: 1px 4px;
+      border-radius: 2px;
+    }
+
+    .eq-action.cut { background: rgba(231, 76, 60, 0.3); color: var(--red); }
+    .eq-action.boost { background: rgba(39, 174, 96, 0.3); color: var(--green); }
+    .eq-action.neutral { background: rgba(100, 100, 100, 0.3); color: var(--text-muted); }
+
     /* Print Styles */
     @media print {
       body {
@@ -424,6 +497,103 @@
         <tr><td>40%</td><td>-8dB</td><td class="good">Target</td></tr>
         <tr><td>15%</td><td>-16dB</td><td class="warn">Te laag</td></tr>
       </table>
+    </div>
+
+    <!-- EQ Frequenties -->
+    <div class="card">
+      <h2>EQ Frequenties</h2>
+      <div class="eq-chart">
+        <div class="eq-row">
+          <span class="eq-freq">20-60Hz</span>
+          <div class="eq-bar"><div class="eq-bar-fill cut" style="width: 30%;"></div></div>
+          <span class="eq-desc">Sub bass, rommel</span>
+          <span class="eq-action cut">CUT</span>
+        </div>
+        <div class="eq-row">
+          <span class="eq-freq">80-120Hz</span>
+          <div class="eq-bar"></div>
+          <span class="eq-desc">Punch, body</span>
+          <span class="eq-action neutral">—</span>
+        </div>
+        <div class="eq-row">
+          <span class="eq-freq">200-400Hz</span>
+          <div class="eq-bar"><div class="eq-bar-fill cut" style="width: 20%;"></div></div>
+          <span class="eq-desc">Modder, boxy</span>
+          <span class="eq-action cut">CUT</span>
+        </div>
+        <div class="eq-row">
+          <span class="eq-freq">500-800Hz</span>
+          <div class="eq-bar"><div class="eq-bar-fill cut" style="width: 15%;"></div></div>
+          <span class="eq-desc">Nasaal, honky</span>
+          <span class="eq-action cut">CUT</span>
+        </div>
+        <div class="eq-row">
+          <span class="eq-freq">1-3kHz</span>
+          <div class="eq-bar"><div class="eq-bar-fill boost" style="width: 20%;"></div></div>
+          <span class="eq-desc">Presence, spraak</span>
+          <span class="eq-action boost">+2dB</span>
+        </div>
+        <div class="eq-row">
+          <span class="eq-freq">3-5kHz</span>
+          <div class="eq-bar"></div>
+          <span class="eq-desc">Attack, snare</span>
+          <span class="eq-action neutral">—</span>
+        </div>
+        <div class="eq-row">
+          <span class="eq-freq">6-8kHz</span>
+          <div class="eq-bar"><div class="eq-bar-fill cut" style="width: 15%;"></div></div>
+          <span class="eq-desc">Sibilance, harsh</span>
+          <span class="eq-action cut">CUT</span>
+        </div>
+        <div class="eq-row">
+          <span class="eq-freq">10-16kHz</span>
+          <div class="eq-bar"><div class="eq-bar-fill boost" style="width: 10%;"></div></div>
+          <span class="eq-desc">Air, shimmer</span>
+          <span class="eq-action boost">+1dB</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- EQ per Instrument -->
+    <div class="card">
+      <h2>EQ per Instrument</h2>
+      <div class="gain-list">
+        <div class="gain-item">
+          <span>Zang</span>
+          <span class="gain-value"><span style="color:var(--red)">HPF 80</span> · <span style="color:var(--red)">-3@250</span> · <span style="color:var(--green)">+2@3k</span></span>
+        </div>
+        <div class="gain-item">
+          <span>Spraak</span>
+          <span class="gain-value"><span style="color:var(--red)">HPF 100</span> · <span style="color:var(--green)">+3@3k</span></span>
+        </div>
+        <div class="gain-item">
+          <span>Keyboard</span>
+          <span class="gain-value"><span style="color:var(--red)">HPF 60</span> · <span style="color:var(--text-muted)">meestal flat</span></span>
+        </div>
+        <div class="gain-item">
+          <span>Akoes. Gitaar</span>
+          <span class="gain-value"><span style="color:var(--red)">HPF 80</span> · <span style="color:var(--red)">-3@200</span> · <span style="color:var(--green)">+2@5k</span></span>
+        </div>
+        <div class="gain-item">
+          <span>E-Gitaar</span>
+          <span class="gain-value"><span style="color:var(--red)">HPF 80</span> · <span style="color:var(--red)">-2@400</span></span>
+        </div>
+        <div class="gain-item">
+          <span>Bas</span>
+          <span class="gain-value"><span style="color:var(--red)">HPF 40</span> · <span style="color:var(--green)">+2@80</span> · <span style="color:var(--green)">+2@2k</span></span>
+        </div>
+        <div class="gain-item">
+          <span>Kick</span>
+          <span class="gain-value"><span style="color:var(--green)">+3@60</span> · <span style="color:var(--red)">-4@400</span> · <span style="color:var(--green)">+3@4k</span></span>
+        </div>
+        <div class="gain-item">
+          <span>Snare</span>
+          <span class="gain-value"><span style="color:var(--red)">HPF 100</span> · <span style="color:var(--green)">+2@200</span> · <span style="color:var(--green)">+3@5k</span></span>
+        </div>
+      </div>
+      <div style="font-size: 0.55rem; color: var(--text-muted); margin-top: 0.5rem;">
+        HPF = High Pass Filter | <span style="color:var(--red)">Rood = cut</span> | <span style="color:var(--green)">Groen = boost</span>
+      </div>
     </div>
 
     <!-- Gain per Instrument -->
