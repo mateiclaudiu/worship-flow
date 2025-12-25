@@ -257,4 +257,56 @@ De Soundcraft UI24 stuurt meter levels als 0.0 tot 1.0:
 
 ---
 
+## 12. Keyboard & Line Level Instrumenten
+
+### Volume op het Keyboard Zelf
+
+**Zet je keyboard volume op 75-80%** (net onder max)
+
+```
+Keyboard volume:  ████████░░  (75-80%)
+Mixer gain:       -20 tot 0 dB
+Mixer fader:      Unity (0 dB) of naar smaak
+```
+
+**Waarom niet lager?**
+- Keyboard is al **line level** (sterk signaal)
+- Bij lager volume moet mixer gain omhoog → meer ruis
+- Je verliest dynamisch bereik
+
+**Waarom niet 100%?**
+- Sommige keyboards clippen intern bij max volume
+- Geen ruimte voor onverwachte pieken
+
+### Ingebouwde EQ: Laat FLAT
+
+| Instelling | Aanbeveling |
+|------------|-------------|
+| Bass EQ | 0 (flat) |
+| Mid EQ | 0 (flat) |
+| Treble EQ | 0 (flat) |
+
+**Redenen:**
+1. **EQ'en doe je op de mixer** - overzicht over totale mix
+2. **Patches klinken verschillend** - piano EQ werkt niet voor strings
+3. **Engineer moet weten wat binnenkomt** - onverwachte EQ bemoeilijkt troubleshooting
+
+**Uitzondering:** Als je keyboard een structureel probleem heeft (bijv. resonantie bij 200Hz in élke patch), kun je dat op het keyboard cutten. Meld dit wel aan de engineer.
+
+### Andere Line Level Bronnen
+
+Dezelfde regels gelden voor:
+- Laptops/tablets (backing tracks)
+- Synths en modules
+- E-drums brain output
+- DJ controllers
+
+```
+Bron volume:    75-80%
+Mixer gain:     Negatief tot unity (-30 tot 0 dB)
+EQ op bron:     FLAT
+```
+
+---
+
 *Gemaakt voor Worship Flow - Live Worship Management*

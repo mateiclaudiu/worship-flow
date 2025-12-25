@@ -348,7 +348,7 @@
         "attackTime": 30,
         "releaseTime": 500,
         "name": "CH 2",
-        "autoGainEnabled": true
+        "autoGainEnabled": false
       },
       {
         "number": 3,
