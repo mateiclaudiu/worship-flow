@@ -21,7 +21,7 @@ const server = http.createServer(app);
 db.load();
 
 // Middleware
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Initialize WebSocket
@@ -39,6 +39,31 @@ app.use('/api/stats', statsRouter);
 // Categories endpoint
 app.get('/api/categories', (req, res) => {
   res.json(db.get().categories);
+});
+
+// Export/Import endpoints for data sync
+app.get('/api/export', (req, res) => {
+  res.json(db.get());
+});
+
+app.post('/api/import', (req, res) => {
+  try {
+    const data = req.body;
+    if (!data || typeof data !== 'object') {
+      return res.status(400).json({ error: 'Invalid data format' });
+    }
+    // Merge imported data with existing
+    const current = db.get();
+    if (data.songs) current.songs = data.songs;
+    if (data.setlists) current.setlists = data.setlists;
+    if (data.categories) current.categories = data.categories;
+    if (data.songHistory) current.songHistory = data.songHistory;
+    if (data.mixerConfig) current.mixerConfig = data.mixerConfig;
+    db.save();
+    res.json({ success: true, message: 'Data imported successfully' });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
 });
 
 // Frontend routes
