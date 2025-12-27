@@ -2,7 +2,8 @@ const fs = require('fs');
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 
-const DB_FILE = path.join(__dirname, '../../data.json');
+// Use DATA_PATH env var for Render persistent disk, otherwise local
+const DB_FILE = process.env.DATA_PATH || path.join(__dirname, '../../data.json');
 
 function getDefaultDB() {
   return {
