@@ -2,6 +2,8 @@
 
 Handleiding voor het live zetten van Worship Flow.
 
+**Live URL:** https://worship-flow.onrender.com
+
 ---
 
 ## Overzicht
@@ -15,19 +17,18 @@ Handleiding voor het live zetten van Worship Flow.
 │  ═══════════════════                 ═════════════            │
 │                                                                │
 │  ┌──────────────┐                    ┌──────────────┐         │
-│  │   INTERNET   │                    │   OFFLINE    │         │
-│  │              │                    │   (PWA)      │         │
+│  │   INTERNET   │                    │   LOKAAL     │         │
+│  │              │                    │   SERVER     │         │
 │  │  • Planning  │                    │              │         │
-│  │  • Setlists  │                    │  • Setlist   │         │
-│  │  • Liedjes   │                    │  • Liedjes   │         │
+│  │  • Setlists  │                    │  • Mixer     │         │
+│  │  • Liedjes   │                    │  • Live sync │         │
 │  └──────────────┘                    │  • Dirigent  │         │
 │         │                            └──────────────┘         │
 │         │                                   │                 │
 │         ▼                                   ▼                 │
 │  ┌──────────────┐                    ┌──────────────┐         │
-│  │   Railway/   │                    │   Mixer PC   │         │
-│  │   Render     │                    │   (lokaal)   │         │
-│  │   Cloud      │                    │              │         │
+│  │   Render     │                    │   Laptop +   │         │
+│  │   Cloud      │                    │   UI24 WiFi  │         │
 │  └──────────────┘                    └──────────────┘         │
 │                                                                │
 └────────────────────────────────────────────────────────────────┘
@@ -35,412 +36,237 @@ Handleiding voor het live zetten van Worship Flow.
 
 ---
 
-## Optie 1: Railway (Aanbevolen)
-
-Railway is de makkelijkste manier om Node.js apps te deployen.
-
-### Stap 1: GitHub Repository
-
-```bash
-# In de worship-flow directory
-git init
-git add .
-git commit -m "Initial commit"
-
-# Maak repo op GitHub, dan:
-git remote add origin https://github.com/JOUW-USERNAME/worship-flow.git
-git push -u origin main
-```
-
-### Stap 2: Railway Account
-
-1. Ga naar [railway.app](https://railway.app)
-2. Sign up met GitHub
-3. Klik **"New Project"**
-4. Kies **"Deploy from GitHub repo"**
-5. Selecteer `worship-flow`
-
-### Stap 3: Configuratie
-
-Railway detecteert automatisch Node.js. Check deze settings:
-
-```
-Settings → General:
-├── Root Directory: /
-├── Build Command: (leeg laten, geen build nodig)
-└── Start Command: npm start
-
-Settings → Variables:
-└── PORT: (Railway zet dit automatisch)
-
-Settings → Networking:
-└── Generate Domain: ✓ (krijg je URL zoals worship-flow.up.railway.app)
-```
-
-### Stap 4: Custom Domain (optioneel)
-
-```
-Settings → Networking → Custom Domain
-
-Voeg toe: worship.jouwnaam.nl
-
-DNS instelling bij je domein provider:
-Type: CNAME
-Naam: worship
-Waarde: worship-flow.up.railway.app
-```
-
-### Stap 5: Persistent Storage
-
-**Belangrijk:** Railway reset standaard alle files bij elke deploy. Voor data.json:
-
-```
-Settings → Volumes → Add Volume
-
-├── Mount Path: /app/data.json
-└── Size: 1GB (meer dan genoeg)
-```
-
-Update `server.js` om environment-aware data path te gebruiken:
-
-```javascript
-// In src/services/database.js, verander:
-const DATA_PATH = process.env.DATA_PATH || path.join(__dirname, '../../data.json');
-```
-
----
-
-## Optie 2: Render
-
-Alternatief voor Railway met gratis tier.
+## Render Deployment (Aanbevolen)
 
 ### Stap 1: Account & Deploy
 
 1. Ga naar [render.com](https://render.com)
 2. Sign up met GitHub
-3. **New** → **Web Service**
-4. Connect GitHub repo
+3. **New +** → **Web Service**
+4. Connect GitHub repo `worship-flow`
 5. Configureer:
 
 ```
-Name: worship-flow
-Region: Frankfurt (EU)
-Branch: main
-Build Command: npm install
-Start Command: npm start
-Instance Type: Free (of Starter voor sneller)
+Name:             worship-flow
+Region:           Frankfurt (EU)
+Branch:           main
+Root Directory:   (leeg)
+Runtime:          Node
+Build Command:    npm install
+Start Command:    npm start
+Instance Type:    Starter ($7/maand) of hoger
 ```
 
-### Stap 2: Environment Variables
+> **Let op:** Free tier heeft geen persistent disk - data gaat verloren!
 
-```
-PORT = 10000  (Render default)
-NODE_ENV = production
-```
+### Stap 2: Persistent Disk
 
-### Stap 3: Persistent Disk
-
-Voor data.json persistent storage:
+Data moet bewaard blijven tussen deploys:
 
 ```
 Disks → Add Disk
-├── Name: worship-data
-├── Mount Path: /var/data
-└── Size: 1GB
+
+Name:        worship-data
+Mount Path:  /var/data
+Size:        1 GB
 ```
 
-Update database path naar `/var/data/data.json`.
-
----
-
-## Optie 3: VPS / Self-Hosted
-
-Voor volledige controle, draai op eigen server.
-
-### Vereisten
-
-- Ubuntu 22.04 (of soortgelijk)
-- Node.js 18+
-- PM2 (process manager)
-- Nginx (reverse proxy)
-- Let's Encrypt (SSL)
-
-### Setup Script
-
-```bash
-# 1. Node.js installeren
-curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-sudo apt-get install -y nodejs
-
-# 2. App clonen
-cd /var/www
-git clone https://github.com/JOUW-USERNAME/worship-flow.git
-cd worship-flow
-npm install
-
-# 3. PM2 installeren & starten
-npm install -g pm2
-pm2 start server.js --name worship-flow
-pm2 startup
-pm2 save
-
-# 4. Nginx configuratie
-sudo nano /etc/nginx/sites-available/worship-flow
-```
-
-### Nginx Config
-
-```nginx
-server {
-    listen 80;
-    server_name worship.jouwnaam.nl;
-
-    location / {
-        proxy_pass http://localhost:3000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_cache_bypass $http_upgrade;
-        proxy_set_header X-Real-IP $remote_addr;
-    }
-}
-```
-
-```bash
-# 5. Enable site & SSL
-sudo ln -s /etc/nginx/sites-available/worship-flow /etc/nginx/sites-enabled/
-sudo nginx -t
-sudo systemctl reload nginx
-
-# 6. Let's Encrypt SSL
-sudo apt install certbot python3-certbot-nginx
-sudo certbot --nginx -d worship.jouwnaam.nl
-```
-
----
-
-## PWA Offline Mode
-
-De app werkt offline dankzij de PWA (Progressive Web App) setup.
-
-### Hoe het werkt
-
-1. **Eerste bezoek (online)**: Browser cached automatisch:
-   - Alle HTML pagina's
-   - JavaScript, CSS
-   - Setlists en liedjes (via API cache)
-
-2. **In de kerk (offline)**:
-   - App laadt vanuit cache
-   - Alle gecachede content beschikbaar
-   - Mixer features werken lokaal (zelfde netwerk als mixer)
-
-### App Installeren
-
-**Op iPhone/iPad:**
-1. Open de app in Safari
-2. Tik op Share icon (vierkant met pijl omhoog)
-3. Scroll en tik **"Zet op beginscherm"**
-4. Tik **"Voeg toe"**
-
-**Op Android:**
-1. Open de app in Chrome
-2. Tik op menu (3 puntjes)
-3. Tik **"Toevoegen aan startscherm"** of **"Installeren"**
-
-**Op Desktop (Chrome):**
-1. Open de app
-2. Klik op install icon in de URL balk (plus in vierkant)
-3. Of: Menu → **"Worship Flow installeren"**
-
-### Cache Updaten
-
-Wanneer je thuis bent met internet, open de app om de cache te verversen:
+### Stap 3: Environment Variables
 
 ```
-App openen → Service Worker checkt updates → Cache wordt bijgewerkt
+Environment → Add Environment Variable
+
+Key:    DATA_PATH
+Value:  /var/data/data.json
 ```
 
----
+### Stap 4: Deploy
 
-## Workflow: Thuis vs Kerk
+Klik **Create Web Service**. Render bouwt en deployed automatisch.
 
-### Thuis (Planning)
-
+Na ~2 minuten is je app live op:
 ```
-1. Open https://worship.jouwnaam.nl
-2. Maak/bewerk setlists
-3. Voeg liedjes toe
-4. Alles wordt automatisch opgeslagen
-```
-
-### Onderweg naar Kerk
-
-```
-1. Open de app (met internet)
-2. Check dat setlist geladen is
-3. Hiermee is cache geüpdatet met laatste data
-```
-
-### In de Kerk (Offline/Lokaal)
-
-```
-OPTIE A: Offline PWA
-├── Open geïnstalleerde app
-├── Setlist is gecached
-└── Geen internet nodig
-
-OPTIE B: Lokale Server
-├── Start server op mixer laptop
-├── npm start
-├── Andere devices verbinden via lokaal IP
-└── Full functionaliteit incl. mixer control
-```
-
----
-
-## Architectuur: Twee Modi
-
-### Cloud Mode (Planning)
-
-```
-┌──────────────┐     ┌──────────────┐     ┌──────────────┐
-│   Browser    │────▶│   Railway    │────▶│   data.json  │
-│   (thuis)    │◀────│   Server     │◀────│   (cloud)    │
-└──────────────┘     └──────────────┘     └──────────────┘
-```
-
-### Local Mode (Live Performance)
-
-```
-┌──────────────┐     ┌──────────────┐     ┌──────────────┐
-│   Tablet     │────▶│   Laptop     │────▶│  Soundcraft  │
-│   (dirigent) │◀────│   Server     │◀────│   UI24       │
-└──────────────┘     └──────────────┘     └──────────────┘
-        │                   │
-        │            ┌──────┴──────┐
-        │            │             │
-        ▼            ▼             ▼
-   ┌────────┐   ┌────────┐   ┌────────┐
-   │ Zanger │   │ Monitor│   │  Live  │
-   │  view  │   │  view  │   │  view  │
-   └────────┘   └────────┘   └────────┘
+https://worship-flow.onrender.com
 ```
 
 ---
 
 ## Data Synchronisatie
 
-### Probleem
-
-Cloud en lokaal hebben aparte data.json files.
-
-### Oplossing: Export/Import
-
-Voeg toe aan de app (toekomstige feature):
-
-```
-Settings → Export Data → Download JSON
-Settings → Import Data → Upload JSON
-```
-
-### Workaround (Nu)
+### Lokale data uploaden naar cloud
 
 ```bash
-# Cloud data downloaden
-curl https://worship.jouwnaam.nl/api/songs > songs.json
-curl https://worship.jouwnaam.nl/api/setlists > setlists.json
+curl -X POST https://worship-flow.onrender.com/api/import \
+  -H "Content-Type: application/json" \
+  -d @data.json
+```
 
-# Lokaal importeren (handmatig data.json mergen)
+### Cloud data downloaden naar lokaal
+
+```bash
+curl https://worship-flow.onrender.com/api/export > data.json
+```
+
+### API Endpoints
+
+| Endpoint | Methode | Beschrijving |
+|----------|---------|--------------|
+| `/api/export` | GET | Download alle data als JSON |
+| `/api/import` | POST | Upload JSON, overschrijft data |
+
+---
+
+## Lokale Server (In de Kerk)
+
+In de kerk draai je een lokale server voor mixer control.
+
+### Setup
+
+```bash
+# 1. Clone of update repo
+git pull origin main
+
+# 2. Start server
+npm start
+
+# Server draait op http://localhost:3000
+```
+
+### Netwerk
+
+```
+┌─────────────────────────────────────────────────────────┐
+│            SOUNDCRAFT UI24 NETWERK                      │
+│                                                         │
+│  ┌─────────┐    WebSocket     ┌─────────┐              │
+│  │  UI24   │◄────────────────►│ Laptop  │              │
+│  │ Mixer   │                  │ Server  │              │
+│  └─────────┘                  └─────────┘              │
+│                                    │                    │
+│              ┌─────────────────────┼──────────┐        │
+│              ▼                     ▼          ▼        │
+│         ┌────────┐           ┌────────┐  ┌────────┐   │
+│         │ Tablet │           │ Zanger │  │ Monitor│   │
+│         │dirigent│           │  app   │  │  app   │   │
+│         └────────┘           └────────┘  └────────┘   │
+│                                                         │
+│  Alle devices: http://192.168.x.x:3000                 │
+└─────────────────────────────────────────────────────────┘
+```
+
+### Workflow: Voor de dienst
+
+```bash
+# 1. Download laatste data van cloud
+curl https://worship-flow.onrender.com/api/export > data.json
+
+# 2. Start lokale server
+npm start
+
+# 3. Verbind met UI24 WiFi netwerk
+```
+
+### Workflow: Na de dienst
+
+```bash
+# Upload lokale wijzigingen naar cloud
+curl -X POST https://worship-flow.onrender.com/api/import \
+  -H "Content-Type: application/json" \
+  -d @data.json
 ```
 
 ---
 
-## Checklist Deployment
+## PWA Offline Mode
 
-### Voorbereiding
+De app kan geïnstalleerd worden voor offline toegang.
 
-- [ ] GitHub account aangemaakt
-- [ ] Repository gepusht naar GitHub
-- [ ] Railway/Render account aangemaakt
+### App Installeren
 
-### Deployment
+**iPhone/iPad:**
+1. Open app in Safari
+2. Tik Share → **"Zet op beginscherm"**
 
-- [ ] App deployed naar cloud platform
-- [ ] Custom domain geconfigureerd (optioneel)
-- [ ] SSL werkend (https://)
-- [ ] Persistent storage voor data.json
+**Android:**
+1. Open app in Chrome
+2. Menu → **"Installeren"**
 
-### PWA Setup
+**Desktop:**
+1. Open app in Chrome
+2. Klik install icon in URL balk
 
-- [ ] App geïnstalleerd op telefoon/tablet
-- [ ] Offline mode getest
-- [ ] Cache refresh getest
+### Wat werkt offline
 
-### Testing
+| Feature | Offline (PWA) | Lokale Server |
+|---------|---------------|---------------|
+| Setlist bekijken | ✅ | ✅ |
+| Liedjes lezen | ✅ | ✅ |
+| Wijzigingen opslaan | ❌ | ✅ |
+| Mixer control | ❌ | ✅ |
+| Live sync | ❌ | ✅ |
 
-- [ ] Planning features werken online
-- [ ] Setlists laden correct
-- [ ] Offline mode toont gecachede data
-- [ ] Lokale server + mixer werkt
+> **Tip:** Voor volledige functionaliteit in de kerk, gebruik de lokale server.
 
 ---
 
-## PWA Icons Maken
+## Checklist
 
-De app heeft icons nodig voor installatie. Maak deze aan:
+### Eerste Setup
 
-### Optie 1: Online Generator
+- [x] GitHub repo aangemaakt
+- [x] Render account aangemaakt
+- [x] Web Service geconfigureerd
+- [x] Persistent Disk toegevoegd
+- [x] DATA_PATH environment variable gezet
+- [x] Lokale data geüpload naar cloud
 
-1. Ga naar [favicon.io](https://favicon.io/favicon-generator/)
-2. Maak icon met tekst "WF" of logo
-3. Download en plaats in `/public/icons/`:
-   - `icon-192.png` (192x192)
-   - `icon-512.png` (512x512)
+### Voor Elke Dienst
 
-### Optie 2: Figma/Canva
+- [ ] `git pull` voor laatste code
+- [ ] `curl .../api/export > data.json` voor laatste data
+- [ ] `npm start` op mixer laptop
+- [ ] Verbind met UI24 WiFi
 
-Maak 512x512 icon met:
+### Na Elke Dienst
+
+- [ ] Upload wijzigingen: `curl -X POST .../api/import -d @data.json`
+
+---
+
+## PWA Icons
+
+Plaats icons in `/public/icons/`:
+
+| Bestand | Formaat |
+|---------|---------|
+| `icon-192.png` | 192x192 px |
+| `icon-512.png` | 512x512 px |
+
+Maak via [favicon.io](https://favicon.io/favicon-generator/) met:
+- Tekst: "WF"
 - Achtergrond: #f39c12 (oranje)
-- Tekst/symbool: wit
-- Export als PNG
-
-```bash
-# Resize voor beide formaten
-# macOS:
-sips -z 192 192 icon-512.png --out icon-192.png
-
-# Of ImageMagick:
-convert icon-512.png -resize 192x192 icon-192.png
-```
 
 ---
 
 ## Troubleshooting
 
-| Probleem | Oorzaak | Oplossing |
-|----------|---------|-----------|
-| App laadt niet offline | Cache niet gevuld | Open app met internet eerst |
-| Data weg na deploy | Geen persistent storage | Volume/disk toevoegen |
-| WebSocket error in cloud | Proxy config | Check nginx/platform WS support |
-| Mixer werkt niet vanuit cloud | Netwerk isolatie | Mixer alleen lokaal bereikbaar |
-| Install prompt komt niet | Geen HTTPS | SSL certificaat fixen |
+| Probleem | Oplossing |
+|----------|-----------|
+| Data weg na deploy | Check DATA_PATH env var en disk mount |
+| Import werkt niet | Wacht tot deploy klaar is (~2 min) |
+| Mixer reageert niet | Check of laptop op UI24 WiFi zit |
+| App laadt niet offline | Open eerst online om cache te vullen |
+| 502 Bad Gateway | Check Render logs voor errors |
 
 ---
 
-## Kosten Overzicht
+## Kosten
 
-| Platform | Gratis Tier | Betaald |
-|----------|-------------|---------|
-| Railway | $5 credit/maand | $5-20/maand |
-| Render | 750 uur/maand | $7/maand |
-| Vercel | Unlimited static | $20/maand (niet geschikt, geen backend) |
-| VPS (Hetzner) | - | €4/maand |
-| VPS (DigitalOcean) | - | $6/maand |
-
-**Aanbeveling:** Railway of Render gratis tier is voldoende voor planning gebruik.
+| Plan | Prijs | Features |
+|------|-------|----------|
+| Render Starter | $7/maand | Persistent disk, geen sleep |
+| Render Free | $0 | Geen disk, slaapt na 15 min |
 
 ---
 
-*Worship Flow - Deployment Guide v1.0*
+*Worship Flow - Deployment Guide v2.0*
