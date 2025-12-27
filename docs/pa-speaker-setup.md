@@ -301,4 +301,157 @@ Elke delay ring krijgt meer delay:
 
 ---
 
+## Wireless Audio naar Speakers
+
+Voor situaties waar kabels onpraktisch zijn (wekelijkse op/afbouw).
+
+### Waarom Wireless?
+
+```
+MET kabels:
+├── XLR uitrollen: 10 min
+├── Speakers neerzetten: 5 min
+├── Aansluiten + testen: 5 min
+└── Totaal: ~20 min
+
+ZONDER kabels (wireless):
+├── Speakers neerzetten: 5 min
+├── Stroom insteken: 2 min
+└── Totaal: ~7 min
+```
+
+**Let op:** Speakers hebben nog steeds STROOM nodig - alleen audio is draadloos!
+
+---
+
+### Bluetooth = NIET geschikt
+
+| Methode | Latency | Geschikt? |
+|---------|---------|-----------|
+| Bluetooth | 100-300ms | ❌ Veel te traag |
+| WiFi audio | 20-50ms | ⚠️ Onvoorspelbaar |
+| Dedicated wireless | 2-5ms | ✓ Prima |
+
+---
+
+### Aanbevolen Systemen
+
+| Systeem | Prijs/set | Latency | Bereik | Stabiliteit |
+|---------|-----------|---------|--------|-------------|
+| **Alto Stealth** | ~€180 | 2.9ms | 100m | ⭐⭐⭐ |
+| **Sennheiser XSW-D** | ~€280 | 2.4ms | 75m | ⭐⭐⭐⭐ |
+| **Shure GLXD14+** | ~€500 | 2ms | 60m | ⭐⭐⭐⭐⭐ |
+
+#### Budget: Alto Stealth Wireless (~€180/set)
+```
++ Goedkoopste optie
++ Speciaal voor PA speakers gemaakt
++ 2.9ms latency is prima
+- Plastic behuizing
+- Kan dropout bij veel WiFi interferentie
+```
+
+#### Mid-range: Sennheiser XSW-D (~€280/set)
+```
++ Sennheiser kwaliteit & betrouwbaarheid
++ Metalen behuizing
++ 2.4ms latency
++ Frequency hopping (minder dropouts)
+- Iets duurder
+```
+
+#### Pro: Shure GLXD14+ (~€500/set)
+```
++ Industrie standaard
++ Automatisch frequentie-management
++ Meest betrouwbaar
++ Oplaadbare batterijen
+- Duur
+```
+
+---
+
+### Aanbeveling voor Kerken
+
+**Sennheiser XSW-D** = beste prijs/kwaliteit voor wekelijks gebruik
+
+---
+
+### Complete Wireless Setup (Main PA + Delay)
+
+```
+┌──────────────────────────────────────────────────────────┐
+│                                                          │
+│   MIXER                                                  │
+│                                                          │
+│   MAIN L/R ──► TRANSMITTER 1 ))) ((( MAIN PA L          │
+│                                   ((( MAIN PA R          │
+│                                                          │
+│   AUX 4 ────► TRANSMITTER 2 ))) ((( DELAY L             │
+│               (met 70ms delay)   ((( DELAY R             │
+│                                                          │
+└──────────────────────────────────────────────────────────┘
+```
+
+#### Benodigde Hardware
+
+| Item | Aantal | Per stuk | Totaal |
+|------|--------|----------|--------|
+| Wireless Stereo Set | 2x | €180-280 | €360-560 |
+
+Set 1: Main L/R naar Main PA speakers
+Set 2: AUX out naar Delay speakers
+
+---
+
+### Delay Aanpassen voor Wireless
+
+Wireless voegt ~2-3ms latency toe. Compenseer dit:
+
+```
+MAIN PA:
+├── Mixer delay: 0ms
+├── Wireless latency: ~3ms
+└── Totaal: ~3ms (onmerkbaar)
+
+DELAY SPEAKERS:
+├── Oude mixer delay: 73ms
+├── Minus wireless: -3ms
+├── Nieuwe mixer delay: 70ms
+└── Wireless latency: +3ms
+└── Totaal: 73ms ✓
+```
+
+---
+
+### RF Stabiliteit Vergelijking
+
+```
+Alto Stealth:
+└── 2.4GHz, vast kanaal
+    Kan storen met WiFi routers
+
+Sennheiser XSW-D:
+└── 2.4GHz, frequency hopping
+    Springt automatisch weg van storing
+
+Shure GLXD14+:
+└── 2.4GHz, intelligent frequency management
+    Beste interferentie-afhandeling
+```
+
+---
+
+### Troubleshooting Wireless
+
+| Probleem | Oorzaak | Oplossing |
+|----------|---------|-----------|
+| Dropouts | WiFi interferentie | Transmitter verder van router |
+| Dropouts | Te ver weg | Transmitter dichter bij speakers |
+| Vervorming | Te hoge input | Volume op mixer verlagen |
+| Geen signaal | Batterij leeg | Batterijen vervangen/opladen |
+| Echo | Delay niet aangepast | Compenseer voor wireless latency |
+
+---
+
 *Worship Flow - PA & Speaker Setup v1.0*

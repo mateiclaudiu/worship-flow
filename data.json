@@ -29,7 +29,7 @@
     {
       "id": "35e83d3a-4fdb-47d3-92dc-2339f4704678",
       "title": "Aleluia",
-      "lyrics": "Vers 1:\n/: Isus Cristos e Domnul\nAmin, Aleluia!\nEl e Mântuitorul.\nAmin, Aleluia. :/\n\n---\n\nRefrein:\n/:Aleluia, Amin, Aleluia\nAleluia, Amin, Aleluia :/\n\n---\n\nVers 2:\n/: Sa cânte fiecare:\nAmin, Aleluia!\nE zi de sărbătoare.\nAmin, Aleluia :/\n\n---\n\nRefrein:\n/:Aleluia, Amin, Aleluia\nAleluia, Amin, Aleluia :/\n\n---\n\nVers 3:\n/: Curând vine răpirea\nAmin, Aleluia!\nNe vine izbăvirea\nAmin, Aleluia! :/\n\n---\n\nRefrein:\n/:Aleluia, Amin, Aleluia\nAleluia, Amin, Aleluia :/\n\n---\n\nRefrein:\n/:Aleluia, Amin, Aleluia\nAleluia, Amin, Aleluia :/",
+      "lyrics": "Vers 1:\n/: Isus Cristos e **D**omnul\nAmin, Aleluia!\nEl e Mântuitorul.\nAmin, Aleluia\n\n---\n\nRefrein:\n/:Aleluia, Amin, Aleluia\nAleluia, Amin, Aleluia :/\n\n---\n\nVers 2:\n/: Sa cânte fiecare:\nAmin, Aleluia!\nE zi de sărbătoare.\nAmin, Aleluia :/\n\n---\n\nRefrein:\n/:Aleluia, Amin, Aleluia\nAleluia, Amin, Aleluia :/\n\n---\n\nVers 3:\n/: Curând vine răpirea\nAmin, Aleluia!\nNe vine izbăvirea\nAmin, Aleluia! :/\n\n---\n\nRefrein:\n/:Aleluia, Amin, Aleluia\nAleluia, Amin, Aleluia :/\n\n---\n\nRefrein:\n/:Aleluia, Amin, Aleluia\nAleluia, Amin, Aleluia :/",
       "key": "",
       "tempo": "",
       "category": "",
@@ -37,7 +37,8 @@
       "karaoke_link": "",
       "structure": "Vers 1,Refrein,Vers 2,Refrein,Vers 3,Refrein,Refrein",
       "createdAt": "2025-12-23T19:09:14.108Z",
-      "updatedAt": "2025-12-23T19:09:14.108Z"
+      "updatedAt": "2025-12-26T20:16:42.391Z",
+      "mixerScene": ""
     },
     {
       "id": "c5e680a5-2867-4433-a51d-bdf81ca1ae45",
@@ -91,6 +92,62 @@
       "createdAt": "2025-12-24T01:12:27.793Z",
       "updatedAt": "2025-12-25T01:11:50.144Z",
       "mixerScene": ""
+    },
+    {
+      "id": "29d347b0-3598-41de-b692-6cefe4ab885d",
+      "title": "Dumnezeu e dragoste",
+      "lyrics": "Vers 1:\n1. /: Dumnezeu e dragoste :/\nDumnezeu cel veşnic\nDomn al păcii\nDumnezeu e dragoste.\n\n---\n\nVers 2:\n2. /: Dumnezeu e adevăr :/\nDumnezeu cel veşnic\nDomn al păcii\nDumnezeu e adevăr.\n\n---\n\nVers 3:\n3. /: Dumnezeu e lumina mea :/\nDumnezeu cel veşnic\nDomn al păcii\nDumnezeu e lumina mea.\n\n---\n\nVers 4:\n4. /: Dumnezeu e-l meu Salvator :/\nDumnezeu cel veşnic\nDomn al păcii\nDumnezeu e-al meu Salvator.\n\n---\n\nVers 5:\n5. /: În curând El vine pe nori :/\nDumnezeu cel veşnic\nDomn al păcii\nÎn curând El vine pe nori.",
+      "key": "",
+      "tempo": "",
+      "category": "",
+      "style": "",
+      "karaoke_link": "",
+      "structure": "Vers 1,Vers 2,Vers 3,Vers 4,Vers 5",
+      "mixerScene": "",
+      "createdAt": "2025-12-26T20:00:17.725Z",
+      "updatedAt": "2025-12-26T20:00:17.725Z"
+    },
+    {
+      "id": "31ce7528-48c2-4190-a254-b557ba6a8727",
+      "title": "O, de­-aş avea eu limbi o mie",
+      "lyrics": "Vers 1:\n1. O, de-aş avea eu limbi o mie\nŞi mii de buze să cuvânt\nPe tonuri mii o armonie\nSpre slava Celui pururi sfânt,\n/: I-aş mulţumi de ce­a făcut\nCu mine, fiul cel pierdut. :/\n\n---\n\nVers 2:\n2. O, de-ar suna glasul meu tare,\nSă se audă pân’ la cer,\nCăci sângele­-mi ca-ntr-o vâltoare\nSe zbate, Doamne, când Te cer.\n/: De-ar fi toata suflarea mea\nUn imn spre înălţărea Ta! :/\n\n---\n\nVers 3:\n3. De ce tăceţi, puteri a mele?\nMai sus, mai sus, zburaţi mai sus!\nŞi Domnului slujiţi cu cinste\nDrept mulţumire lui Isus!\n/: Aşa sufletul, trupul meu\nSă servească pe Dumnezeu. :/",
+      "key": "",
+      "tempo": "",
+      "category": "",
+      "style": "",
+      "karaoke_link": "",
+      "structure": "Vers 1,Vers 2,Vers 3",
+      "mixerScene": "",
+      "createdAt": "2025-12-26T20:02:53.811Z",
+      "updatedAt": "2025-12-26T20:23:37.678Z"
+    },
+    {
+      "id": "0718831c-177c-4962-a9e2-150dbc217eea",
+      "title": "Lauda mea e pentru Împăratul",
+      "lyrics": "Vers 1:\n1. Sunt un mesager al Domnului prin lume,\nSunt un călător spre patria de sus,\nMi-am pus harfa mea în slujba unui Nume,\nNume înălţat şi minunat, Isus.\n\n---\n\nRefrein:\nR: Lauda mea e pentru Împăratul,\nNimeni nu-i ca EL aşa frumos,\nSfânt şi bun a fost cum nu e altul\nCa-al meu Mire drag Isus Hristos.\n\n---\n\nVers 2:\n2. Cum să nu Îi cânt, când cu atâta milă,\nM-a luat în braţe când zăceam zdrobit,\nCând celor din jur le inspiram doar silă,\nEl m-a ridicat cu drag căci m-a iubit.\n\n---\n\nInstrumentaal:\n🎹 Instrumentaal\n\n---\n\nRefrein:\nR: Lauda mea e pentru Împăratul,\nNimeni nu-i ca EL aşa frumos,\nSfânt şi bun a fost cum nu e altul\nCa-al meu Mire drag Isus Hristos.\n\n---\n\nVers 3:\n3. Voi cânta mereu, cât voi avea suflare\nŞi-L voi preamări căci m-a iubit nespus.\nCând mi-a fost mai greu, în foc şi încercare,\nLângă mine-a stat aproape doar Isus.\n\n---\n\nRefrein:\nR: Lauda mea e pentru Împăratul,\nNimeni nu-i ca EL aşa frumos,\nSfânt şi bun a fost cum nu e altul\nCa-al meu Mire drag Isus Hristos.\n\n---\n\nVers 4:\n4. Spuneţi tuturor, să ştie orişicine\nDe iubirea Lui şi-al Său belşug de har,\nOrice muritor ce sincer la EL vine\nAre viaţă-n veci şi mântuire-n dar.\n\n---\n\nRefrein:\nR: Lauda mea e pentru Împăratul,\nNimeni nu-i ca EL aşa frumos,\nSfânt şi bun a fost cum nu e altul\nCa-al meu Mire drag Isus Hristos.",
+      "key": "",
+      "tempo": "",
+      "category": "",
+      "style": "",
+      "karaoke_link": "",
+      "structure": "Vers 1,Refrein,Vers 2,Instrumentaal,Refrein,Vers 3,Refrein,Vers 4,Refrein",
+      "mixerScene": "",
+      "createdAt": "2025-12-26T20:05:03.306Z",
+      "updatedAt": "2025-12-26T20:07:14.649Z"
+    },
+    {
+      "id": "645bf3b5-e131-4567-906e-f970fdc0b6cc",
+      "title": "M-am hotărât sa-L urmez pe Isus",
+      "lyrics": "Vers 1:\n1. /: M-am hotărât sa-L urmez pe Isus, :/ x3\n/: Și înapoi eu nu voi da! :/\n\n---\n\nVers 2:\n2. /: Nimic nu mă va clinti pe cale, :/ x3\n/: Și înapoi eu nu voi da! :/\n\n---\n\nVers 3:\n3. /: În urmă-i lumea, 'nainte-i crucea, :/ x3\n/: Și înapoi eu nu voi da! :/\n\n---\n\nVers 4:\n4. /: Renunț la lume, dar nu la Isus, :/ x3\n/: Și înapoi eu nu voi da! :/ x4",
+      "key": "Bb",
+      "tempo": "",
+      "category": "Doopsel",
+      "style": "",
+      "karaoke_link": "",
+      "structure": "Vers 1,Vers 2,Vers 3,Vers 4",
+      "mixerScene": "",
+      "createdAt": "2025-12-27T19:48:30.736Z",
+      "updatedAt": "2025-12-27T19:48:30.736Z"
     }
   ],
   "setlists": [
@@ -169,8 +226,12 @@
           "position": 0
         },
         {
-          "songId": "f7016d1a-3e71-45bc-b439-0614b9a679e1",
+          "songId": "0718831c-177c-4962-a9e2-150dbc217eea",
           "position": 1
+        },
+        {
+          "songId": "f7016d1a-3e71-45bc-b439-0614b9a679e1",
+          "position": 2
         }
       ],
       "createdAt": "2025-12-24T01:12:57.682Z",
@@ -324,6 +385,13 @@
       "key_feedback": "te hoog",
       "notes": "Nu D, volgende keer in C",
       "createdAt": "2025-12-24T02:48:31.632Z"
+    },
+    {
+      "id": "c8d589c0-c506-41ad-8620-23c907e18116",
+      "songId": "0718831c-177c-4962-a9e2-150dbc217eea",
+      "setlistId": "ae0f85f7-6a01-46f5-aa39-0b723b561240",
+      "performedAt": "2025-12-26T20:08:18.444Z",
+      "type": "amen"
     }
   ],
   "mixerConfig": {
