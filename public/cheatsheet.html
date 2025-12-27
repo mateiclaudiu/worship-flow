@@ -865,5 +865,12 @@ AUX 2:   <span class="active">0 dB ✓</span> ← alleen naar stream
   <div class="footer">
     Worship Flow Cheatsheet v1.0 | <a href="/dirigent" style="color: var(--blue);">← Terug</a>
   </div>
+<script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js')
+        .then(() => console.log('SW registered'))
+        .catch(err => console.log('SW failed:', err));
+    }
+  </script>
 </body>
 </html>
