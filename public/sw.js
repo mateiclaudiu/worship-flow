@@ -1,23 +1,18 @@
 // Worship Flow Service Worker - Offline Support
-const CACHE_NAME = 'worship-flow-v1';
+const CACHE_NAME = 'worship-flow-v2';
 
 // Files to cache for offline use
 const STATIC_ASSETS = [
   '/',
   '/dirigent',
-  '/setlist',
-  '/mixer.html',
-  '/monitor.html',
-  '/live.html',
+  '/leider',
+  '/zanger',
+  '/presentatie',
+  '/live',
+  '/mixer',
+  '/monitor',
   '/cheatsheet.html',
   '/manifest.json'
-];
-
-// API routes to cache (setlists, songs, etc.)
-const API_ROUTES = [
-  '/api/setlists',
-  '/api/songs',
-  '/api/services'
 ];
 
 // Install event - cache static assets
