@@ -2253,7 +2253,27 @@
     const ZAAL_LEVEL_ON = 0.75;   // 0dB
     const ZAAL_LEVEL_OFF = 0;     // -∞
 
-    // Activate scene (idempotent - same result no matter how many times pressed)
+    // Crossfade config
+    const FADE_DURATION = 300;    // ms
+    const FADE_STEPS = 15;        // smooth animation steps
+    const homeFaderLevels = {};   // stores "home" level for each channel when active
+
+    // Animate fader from current to target level
+    async function fadeChannelTo(channelNum, targetLevel) {
+      const startLevel = currentFaderLevels[channelNum] ?? 0.75;
+      const stepTime = FADE_DURATION / FADE_STEPS;
+      const levelDelta = (targetLevel - startLevel) / FADE_STEPS;
+
+      for (let i = 1; i <= FADE_STEPS; i++) {
+        const level = startLevel + (levelDelta * i);
+        currentFaderLevels[channelNum] = level;
+        updateFaderVisual(channelNum, level);
+        await setChannelFader(channelNum, level);
+        await new Promise(r => setTimeout(r, stepTime));
+      }
+    }
+
+    // Activate scene with crossfade (idempotent)
     async function activateScene(scene) {
       const sceneConfig = SCENES[scene];
       if (!sceneConfig) return;
@@ -2273,25 +2293,43 @@
         return;
       }
 
-      // Apply mute/unmute changes
-      const promises = [];
-
+      // Store home levels for channels being muted (so we can restore later)
       sceneConfig.mute.forEach(ch => {
-        promises.push(setChannelMute(ch, true));
+        if (currentFaderLevels[ch] && currentFaderLevels[ch] > 0.05) {
+          homeFaderLevels[ch] = currentFaderLevels[ch];
+        }
       });
 
+      // Crossfade: fade out muted channels, fade in unmuted channels simultaneously
+      const fadePromises = [];
+
+      // Fade out channels being muted
+      sceneConfig.mute.forEach(ch => {
+        fadePromises.push(fadeChannelTo(ch, 0));
+      });
+
+      // Fade in channels being unmuted (restore to home level or 0dB)
       sceneConfig.unmute.forEach(ch => {
-        promises.push(setChannelMute(ch, false));
+        // First unmute so we can hear the fade in
+        setChannelMute(ch, false);
+        const targetLevel = homeFaderLevels[ch] || 0.75; // 0dB default
+        fadePromises.push(fadeChannelTo(ch, targetLevel));
       });
 
-      // Control Zaal speakers (AUX 1 master)
+      // Fade Zaal speakers
       if (sceneConfig.zaalActive !== null) {
         const zaalLevel = sceneConfig.zaalActive ? ZAAL_LEVEL_ON : ZAAL_LEVEL_OFF;
-        promises.push(setZaalLevel(zaalLevel));
+        fadePromises.push(setZaalLevel(zaalLevel));
       }
 
-      await Promise.all(promises);
-      console.log(`Scene: ${sceneConfig.name} - ${sceneConfig.mute.length} gemute, ${sceneConfig.unmute.length} actief, Zaal: ${sceneConfig.zaalActive ? 'AAN' : 'UIT'}`);
+      // Wait for all fades to complete
+      await Promise.all(fadePromises);
+
+      // Now mute the faded-out channels
+      const mutePromises = sceneConfig.mute.map(ch => setChannelMute(ch, true));
+      await Promise.all(mutePromises);
+
+      console.log(`Scene: ${sceneConfig.name} (crossfade ${FADE_DURATION}ms)`);
     }
 
     // Set Zaal speakers level (AUX 1 master)
