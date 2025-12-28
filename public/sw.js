@@ -1,5 +1,5 @@
 // Worship Flow Service Worker - Offline Support
-const CACHE_NAME = 'worship-flow-v2';
+const CACHE_NAME = 'worship-flow-v3';
 
 // Files to cache for offline use
 const STATIC_ASSETS = [
@@ -61,12 +61,16 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Skip mixer API calls when online (always get fresh data)
-  if (url.pathname.startsWith('/api/mixer')) {
+  // Mixer API: cache config, skip live control
+  const mixerConfigRoutes = ['/api/mixer/config', '/api/mixer/autogain'];
+  const isMixerConfig = mixerConfigRoutes.some(route => url.pathname.startsWith(route));
+
+  // Skip live mixer control (faders, mutes, etc.) - these go direct to Soundcraft
+  if (url.pathname.startsWith('/api/mixer') && !isMixerConfig) {
     return;
   }
 
-  // For API routes - network first, cache fallback
+  // For API routes (including mixer config) - network first, cache fallback
   if (url.pathname.startsWith('/api/')) {
     event.respondWith(
       fetch(event.request)
