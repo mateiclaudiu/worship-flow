@@ -227,6 +227,65 @@ router.get('/autogain/recovery', (req, res) => {
   res.json({ enabled: mixerService.autoGain.isAutoRecoveryEnabled() });
 });
 
+// One-shot optimize all channels (manual trigger)
+router.post('/autogain/optimize', async (req, res) => {
+  if (!mixerService.connection.isConnected()) {
+    return res.json({ success: false, error: 'Mixer niet verbonden' });
+  }
+
+  const config = db.get().mixerConfig;
+  const channels = config.channels || [];
+  const adjustments = [];
+
+  // Get current levels and calculate optimal gain for each channel
+  for (const ch of channels) {
+    const status = mixerService.autoGain.getChannelStatus(ch.number);
+    if (!status) continue;
+
+    const avgLevel = status.averageLevel || 0;
+    const currentGain = status.currentGain || 0;
+
+    // Target: -18dB average (0.125 linear)
+    const targetAvg = 0.125;
+
+    // Skip if no signal or already optimal
+    if (avgLevel < 0.01) {
+      adjustments.push({ channel: ch.number, action: 'skip', reason: 'no signal' });
+      continue;
+    }
+
+    if (avgLevel >= 0.08 && avgLevel <= 0.18) {
+      adjustments.push({ channel: ch.number, action: 'skip', reason: 'already optimal' });
+      continue;
+    }
+
+    // Calculate needed gain change
+    const neededGainChange = 20 * Math.log10(targetAvg / avgLevel);
+    const clampedChange = Math.max(-12, Math.min(12, Math.round(neededGainChange)));
+
+    if (Math.abs(clampedChange) < 1) {
+      adjustments.push({ channel: ch.number, action: 'skip', reason: 'change too small' });
+      continue;
+    }
+
+    const newGain = Math.max(ch.minGain || -40, Math.min(ch.maxGain || 10, currentGain + clampedChange));
+
+    // Apply the gain change
+    mixerService.autoGain.setChannelGain(ch.number, newGain);
+
+    adjustments.push({
+      channel: ch.number,
+      action: 'adjusted',
+      from: currentGain,
+      to: newGain,
+      change: clampedChange
+    });
+  }
+
+  console.log('[Optimize All] Adjustments:', adjustments);
+  res.json({ success: true, adjustments });
+});
+
 // =====================
 // AUX Send Controls (for monitor mixes)
 // =====================
@@ -376,6 +435,81 @@ router.post('/aux/:aux/levels', async (req, res) => {
   }
 
   res.json({ success: true, results });
+});
+
+// =====================
+// Sync New Speaker - One-shot auto-gain for vocal channels
+// =====================
+
+// POST /api/mixer/sync-speaker
+// Runs auto-gain on vocal channels for X seconds, then locks gains
+router.post('/sync-speaker', async (req, res) => {
+  const { channels, duration } = req.body;
+
+  // Default: vocal channels 2,3,4 for 5 seconds
+  const targetChannels = channels || [2, 3, 4];
+  const syncDuration = duration || 5000;
+
+  if (!mixerService.connection.isConnected()) {
+    return res.json({ success: false, error: 'Mixer niet verbonden' });
+  }
+
+  console.log(`[Sync Speaker] Starting for channels ${targetChannels.join(',')} (${syncDuration}ms)`);
+
+  // Unlock and enable auto-gain on target channels
+  for (const ch of targetChannels) {
+    mixerService.autoGain.setGainLock(ch, false);
+
+    // Check if channel is already being monitored
+    const status = mixerService.autoGain.getChannelStatus(ch);
+    if (!status) {
+      // Add channel temporarily for sync
+      mixerService.autoGain.addChannel(ch, {
+        name: `CH ${ch}`,
+        type: 'vocal',
+        autoGainEnabled: true
+      });
+    }
+
+    // Reset hasInitialAdjustment to allow fresh JUMP
+    const chData = mixerService.autoGain.channels.get(ch);
+    if (chData) {
+      chData.hasInitialAdjustment = false;
+      chData.levelHistory = [];
+      chData.averageLevel = 0;
+    }
+  }
+
+  // After duration, lock the gains
+  setTimeout(() => {
+    const results = [];
+    for (const ch of targetChannels) {
+      const status = mixerService.autoGain.getChannelStatus(ch);
+      if (status) {
+        mixerService.autoGain.setGainLock(ch, true);
+        results.push({
+          channel: ch,
+          gain: status.currentGain,
+          avgLevel: status.averageLevel
+        });
+      }
+    }
+    console.log(`[Sync Speaker] Complete:`, results);
+
+    // Broadcast completion to UI
+    const wsService = require('../services/websocket');
+    wsService.broadcast({
+      type: 'syncSpeakerComplete',
+      data: { channels: results }
+    });
+  }, syncDuration);
+
+  res.json({
+    success: true,
+    channels: targetChannels,
+    duration: syncDuration,
+    message: `Syncing ${targetChannels.length} channels for ${syncDuration/1000}s`
+  });
 });
 
 module.exports = router;

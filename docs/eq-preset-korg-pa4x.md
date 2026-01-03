@@ -68,7 +68,60 @@ De zaal voegt al reverb toe - dubbele reverb = modder.
 
 ## Soundcraft UI24 EQ Settings
 
-### Soundcraft UI24 Settings (6-band)
+### Kies je Setup
+
+**Scenario A: Alles via L/R** (standaard bij styles)
+- Drums, bass, keys komen allemaal uit L/R
+- HPF laag houden om bass te behouden
+
+**Scenario B: Split outputs** (aanbevolen)
+- Keys via L/R, Drums+Bass via OUT 1/2
+- HPF hoger op keys kanaal mogelijk
+- Zie: [Audio Apparatuur](audio-apparatuur-claudiu.md) voor routing
+
+---
+
+### Scenario A: Alles via L/R (met styles)
+
+```
+┌────────────────────────────────────────────────────────────────┐
+│  HPF     1       2       3       4      LPF    DE-ESSER       │
+│  (blauw) (groen) (rood)  (paars) (goud) (bruin)               │
+└────────────────────────────────────────────────────────────────┘
+
+HPF (High Pass Filter)
+├── Frequency: 40 Hz of UIT
+├── Slope: 18 dB/oct
+└── Waarom: Bass zit in L/R, niet wegsnijden!
+
+Band 1 (Groen) - LOW MID CUT
+├── Frequency: 200 Hz
+├── Gain: -2 dB (minder dan split setup)
+├── Q: 1.5
+└── Waarom: Mud reduction, maar bass body behouden
+
+Band 2 (Rood) - MID CLARITY
+├── Frequency: 800 Hz
+├── Gain: 0 dB (flat)
+├── Q: 1.0
+└── Waarom: Meestal flat
+
+Band 3 (Paars) - PRESENCE
+├── Frequency: 3 kHz
+├── Gain: +1 dB (voorzichtig - drums hebben hier ook content)
+├── Q: 2.0
+└── Waarom: Keys presence zonder drums te hard te maken
+
+Band 4 (Goud) - HIGH / AIR
+├── Frequency: 8 kHz
+├── Gain: -1.5 dB
+├── Q: 1.0
+└── Waarom: Hihat/cymbal temmen + reflecties
+```
+
+---
+
+### Scenario B: Split - Keys via L/R (zonder drums/bass)
 
 ```
 ┌────────────────────────────────────────────────────────────────┐
@@ -79,7 +132,7 @@ De zaal voegt al reverb toe - dubbele reverb = modder.
 HPF (High Pass Filter)
 ├── Frequency: 80 Hz
 ├── Slope: 18 dB/oct
-└── Waarom: Sub doet alles onder 80Hz, keyboard niet nodig daar
+└── Waarom: Alleen keys, sub doet low-end via drums+bass kanaal
 
 Band 1 (Groen) - LOW MID CUT
 ├── Frequency: 200 Hz
@@ -133,39 +186,122 @@ DE-ESSER
             80    200  800   3k    8k   16k
 ```
 
+### Scenario B: Drums+Bass kanaal (OUT 1/2)
+
+```
+┌────────────────────────────────────────────────────────────────┐
+│  HPF     1       2       3       4      LPF    DE-ESSER       │
+└────────────────────────────────────────────────────────────────┘
+
+HPF (High Pass Filter)
+├── Frequency: 40 Hz of UIT
+└── Waarom: Bass moet door! Sub vangt <40Hz op
+
+Band 1 (Groen) - SUB BASS PUNCH
+├── Frequency: 80 Hz
+├── Gain: +1 dB
+├── Q: 1.0
+└── Waarom: Kick/bass fundament versterken
+
+Band 2 (Rood) - MUD CUT
+├── Frequency: 400 Hz
+├── Gain: -2 dB
+├── Q: 1.5
+└── Waarom: Ruimte maken, bass strakker
+
+Band 3 (Paars) - ATTACK/PRESENCE
+├── Frequency: 2.5 kHz
+├── Gain: +1 dB
+├── Q: 2.0
+└── Waarom: Kick attack, bass definitie
+
+Band 4 (Goud) - HIGH
+├── Frequency: 8 kHz
+├── Gain: -1 dB
+├── Q: 1.0
+└── Waarom: Hihat/cymbal temmen in galmende zaal
+```
+
 ---
 
 ## Per Muziekstijl - Fijnafstelling
 
+> **Let op:** Deze aanpassingen zijn voor het KEYS kanaal.
+> Bij Scenario A (alles L/R): wees voorzichtiger met cuts (bass zit erin!)
+
 ### Country / Acoustic Piano
-```
-Band 2 (200Hz): -3 dB (standaard)
-Band 3 (3kHz):  +1 dB (lichte presence)
-Band 4 (8kHz):  0 dB (flat - akoestische helderheid behouden)
-```
+
+| Band | Freq | Scenario A | Scenario B | Q |
+|------|------|------------|------------|---|
+| 1 | 200Hz | -2 dB | -3 dB | 1.5 |
+| 2 | 800Hz | 0 dB | 0 dB | 1.0 |
+| 3 | 3kHz | +0.5 dB | +1 dB | 2.0 |
+| 4 | 8kHz | 0 dB | 0 dB | 1.0 |
 
 ### Schlager / Waltz
-```
-Band 2 (200Hz): -4 dB (extra mud cut - dense arrangements)
-Band 3 (3kHz):  0 dB (flat - accordeon zit hier al)
-Band 4 (8kHz):  -2 dB (zachter, warmer)
-```
+
+| Band | Freq | Scenario A | Scenario B | Q |
+|------|------|------------|------------|---|
+| 1 | 200Hz | -2 dB | -4 dB | 1.2 |
+| 2 | 800Hz | -1 dB | -2 dB | 1.0 |
+| 3 | 3kHz | 0 dB | 0 dB | 2.0 |
+| 4 | 8kHz | -2 dB | -2 dB | 0.8 |
+
+Dense arrangements → bredere Q (0.8-1.2) voor meer cut. 800Hz cut voor accordeon/brass ruimte.
 
 ### Ballad / E-Piano
-```
-Band 2 (200Hz): -2 dB (minder cut - warmte behouden)
-Band 3 (3kHz):  0 dB (flat)
-Band 4 (8kHz):  -1 dB (smooth)
 
-Extra: Korg interne tremolo/chorus laag houden
-```
+| Band | Freq | Scenario A | Scenario B | Q |
+|------|------|------------|------------|---|
+| 1 | 200Hz | -1 dB | -2 dB | 2.0 |
+| 2 | 800Hz | +1 dB | +1 dB | 1.5 |
+| 3 | 3kHz | 0 dB | 0 dB | 2.0 |
+| 4 | 8kHz | -1 dB | -1 dB | 1.0 |
+
+Warmte behouden → smallere Q (2.0) bij 200Hz. 800Hz boost voor piano body. Korg interne tremolo/chorus laag houden.
 
 ### Pop / Uptempo
-```
-Band 2 (200Hz): -3 dB (standaard)
-Band 3 (3kHz):  +2 dB (meer punch)
-Band 4 (8kHz):  0 dB (bright maar controlled)
-```
+
+| Band | Freq | Scenario A | Scenario B | Q |
+|------|------|------------|------------|---|
+| 1 | 200Hz | -2 dB | -3 dB | 1.5 |
+| 2 | 800Hz | 0 dB | -1 dB | 1.0 |
+| 3 | 3kHz | +1 dB | +2 dB | 2.5 |
+| 4 | 8kHz | 0 dB | 0 dB | 1.0 |
+
+Presence boost → smallere Q (2.5) voor punch zonder harsh. 800Hz flat of lichte cut voor ruimte.
+
+---
+
+## Per Style - Volume Balans (Scenario B)
+
+> Bij Scenario B: Drums+Bass EQ blijft vast, alleen volume aanpassen.
+
+### Fader Posities (relatief t.o.v. 0dB)
+
+| Style | Keys (L/R) | Drums+Bass | Opmerking |
+|-------|------------|------------|-----------|
+| **Ballad** | 0dB | -4dB | Keys dominant, drums subtiel |
+| **Waltz** | 0dB | -2dB | Drums voor tempo, niet overheersend |
+| **Country** | -1dB | 0dB | Drums/bass dragen het ritme |
+| **Schlager** | -2dB | 0dB | Stevige ritme sectie |
+| **Pop/Rock** | -2dB | +1dB | Drums vooraan |
+| **Piano Solo** | 0dB | -∞ (mute) | Alleen keys |
+
+### Monitor Send (AUX 3) - Drums+Bass
+
+| Style | Drums+Bass naar monitors |
+|-------|--------------------------|
+| Ballad | Laag (zangers volgen keys) |
+| Waltz/Country | Medium |
+| Pop/Schlager | Hoog (tempo kritisch) |
+
+### Tips
+
+- **Start met Keys @ 0dB** en pas Drums+Bass aan
+- **Uptempo = meer drums** naar monitors
+- **Ballad = minder drums**, zangers volgen piano/melodie
+- Bij twijfel: vraag zangers of ze genoeg drums horen
 
 ---
 
@@ -199,13 +335,24 @@ Makeup Gain: +1 dB
 
 ## Checklist voor Soundcheck
 
-- [ ] Korg interne reverb verlaagd naar 30-40%
-- [ ] Korg delay uit of zeer laag
-- [ ] HPF @ 50Hz actief
-- [ ] 200Hz cut toegepast (-3dB)
-- [ ] Geen excessive presence boost
-- [ ] High shelf -1 tot -2dB
-- [ ] Fader op 0dB (unity)
+### Korg PA4X
+- [ ] Interne reverb verlaagd naar 30-40%
+- [ ] Delay uit of zeer laag
+- [ ] Output routing correct (L/R of split met OUT 1/2)
+
+### Mixer - Scenario A (alles via L/R)
+- [ ] HPF @ 40Hz of UIT (bass behouden!)
+- [ ] 200Hz cut: -2dB
+- [ ] 3kHz presence: +1dB (voorzichtig)
+- [ ] 8kHz: -1.5dB
+
+### Mixer - Scenario B (split outputs)
+- [ ] L/R kanaal: HPF @ 80Hz, 200Hz -3dB
+- [ ] OUT 1/2 kanaal: HPF @ 40Hz of UIT
+- [ ] Drums+Bass extra naar monitors
+
+### Algemeen
+- [ ] Faders op 0dB (unity)
 - [ ] Snapshot opgeslagen
 
 ---

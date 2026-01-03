@@ -574,6 +574,58 @@
       background: var(--accent-red);
     }
 
+    /* Sync/Lock state button - single button for all states */
+    .sync-state-btn {
+      width: 100%;
+      padding: 0.6rem;
+      margin-top: 0.5rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      transition: all 0.2s;
+      background: var(--color-gain);
+      color: white;
+    }
+
+    .sync-state-btn:hover {
+      filter: brightness(1.1);
+    }
+
+    .sync-state-btn:active {
+      transform: scale(0.98);
+    }
+
+    /* State: Ready to sync (gain color - red/orange) */
+    .sync-state-btn.ready {
+      background: var(--color-gain);
+    }
+
+    /* State: Syncing (countdown - pulsing orange) */
+    .sync-state-btn.syncing {
+      background: var(--accent-orange);
+      animation: pulse 0.5s infinite;
+    }
+
+    /* State: Locked (green = done) */
+    .sync-state-btn.locked {
+      background: var(--accent-green);
+    }
+
+    .sync-state-icon {
+      font-size: 1rem;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+
     /* Auto-gain indicator */
     .auto-indicator {
       width: 8px;
@@ -827,6 +879,83 @@
       gap: 1rem;
       margin-bottom: 2rem;
       flex-wrap: wrap;
+      align-items: center;
+    }
+
+    /* Toggle switch for auto-gain */
+    .toggle-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: var(--bg-tertiary);
+      border-radius: 6px;
+      border: 1px solid var(--border);
+    }
+
+    .toggle-group label {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 44px;
+      height: 24px;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: var(--bg-primary);
+      transition: 0.3s;
+      border-radius: 24px;
+      border: 1px solid var(--border);
+    }
+
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 2px;
+      bottom: 2px;
+      background-color: var(--text-muted);
+      transition: 0.3s;
+      border-radius: 50%;
+    }
+
+    .toggle-switch input:checked + .toggle-slider {
+      background-color: rgba(39, 174, 96, 0.3);
+      border-color: var(--accent-green);
+    }
+
+    .toggle-switch input:checked + .toggle-slider:before {
+      transform: translateX(20px);
+      background-color: var(--accent-green);
+    }
+
+    .toggle-status {
+      font-size: 0.75rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      background: var(--bg-primary);
+      color: var(--text-muted);
+    }
+
+    .toggle-status.active {
+      background: rgba(39, 174, 96, 0.2);
+      color: var(--accent-green);
     }
 
     .section-title {
@@ -1402,7 +1531,7 @@
         <span id="status-text">Niet verbonden</span>
       </div>
       <button class="btn btn-secondary" onclick="openSettings()">⚙️ Settings</button>
-      <a href="/dirigent" class="btn btn-secondary">← Terug</a>
+      <a href="/" class="btn btn-secondary">⌂ Home</a>
     </div>
   </header>
 
@@ -1453,13 +1582,11 @@
 
     <!-- Quick Actions -->
     <div class="quick-actions">
-      <button class="btn btn-secondary" onclick="resetAllGains(-24)">🔄 Reset Gains (-24dB)</button>
-      <button class="btn btn-secondary" onclick="resetAllGains(-12)">🔄 Reset Gains (-12dB)</button>
       <button class="btn btn-danger" onclick="muteAll()">🔇 Mute Alles</button>
     </div>
 
     <!-- Channel Strips -->
-    <h3 class="section-title">Kanalen met Auto-Gain</h3>
+    <h3 class="section-title">Kanalen</h3>
     <div class="channels-grid" id="channels-grid">
       <!-- Channels will be rendered here -->
       <button class="add-channel-btn" onclick="openAddChannel()">+</button>
@@ -1626,9 +1753,18 @@
         updateMeters(msg.data);
       } else if (msg.type === 'mixerStatus') {
         updateConnectionStatus(msg.data.connected);
+      } else if (msg.type === 'mixerError') {
+        showMixerError(msg.data.error);
       } else if (msg.type === 'autoGainAdjust') {
         flashChannel(msg.data.channel);
       }
+    }
+
+    function showMixerError(error) {
+      const alert = document.getElementById('not-connected-alert');
+      alert.innerHTML = `⚠️ Mixer fout: ${error}`;
+      alert.style.display = 'flex';
+      console.error('Mixer error:', error);
     }
 
     // API calls
@@ -1650,6 +1786,9 @@
       document.getElementById('autogain-enabled').checked = data.enabled;
       document.getElementById('autogain-threshold').value = data.threshold || 0.85;
       document.getElementById('autogain-min').value = data.minGain || -40;
+
+      // Sync the quick-action toggle
+      updateAutoGainToggle(data.enabled);
 
       channels = data.channels || [];
       renderChannels();
@@ -1673,11 +1812,15 @@
     }
 
     async function saveAutoGain() {
+      const enabled = document.getElementById('autogain-enabled').checked;
       const data = {
-        enabled: document.getElementById('autogain-enabled').checked,
+        enabled,
         threshold: parseFloat(document.getElementById('autogain-threshold').value),
         minGain: parseInt(document.getElementById('autogain-min').value)
       };
+
+      // Sync UI immediately
+      syncAutoGainUI(enabled);
 
       await fetch('/api/mixer/autogain', {
         method: 'PUT',
@@ -1817,6 +1960,75 @@
       }
     }
 
+    // Toggle continuous auto-gain
+    async function toggleContinuousAutoGain() {
+      const toggle = document.getElementById('continuous-autogain');
+      const enabled = toggle.checked;
+
+      // Sync all UI elements
+      syncAutoGainUI(enabled);
+
+      // Save to server
+      await fetch('/api/mixer/autogain', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ enabled })
+      });
+
+      console.log('Continuous auto-gain:', enabled ? 'enabled' : 'disabled');
+    }
+
+    // Sync all auto-gain UI elements (quick-action toggle + Settings checkbox)
+    function syncAutoGainUI(enabled) {
+      // Quick-action toggle
+      const toggle = document.getElementById('continuous-autogain');
+      const status = document.getElementById('autogain-status');
+      if (toggle) toggle.checked = enabled;
+      if (status) {
+        status.textContent = enabled ? 'AAN' : 'UIT';
+        status.classList.toggle('active', enabled);
+      }
+
+      // Settings checkbox
+      const settingsCheckbox = document.getElementById('autogain-enabled');
+      if (settingsCheckbox) settingsCheckbox.checked = enabled;
+    }
+
+    // Update toggle state from server data
+    function updateAutoGainToggle(enabled) {
+      syncAutoGainUI(enabled);
+    }
+
+    // One-shot optimize all channels
+    async function optimizeAllGains() {
+      const btn = document.getElementById('optimize-btn');
+      btn.textContent = '⏳ Optimizing...';
+      btn.disabled = true;
+
+      try {
+        const res = await fetch('/api/mixer/autogain/optimize', {
+          method: 'POST'
+        });
+        const result = await res.json();
+
+        if (result.success) {
+          btn.textContent = '✓ Done!';
+          console.log('Optimization results:', result.adjustments);
+        } else {
+          btn.textContent = '✗ Failed';
+          console.error('Optimization failed:', result.error);
+        }
+      } catch (e) {
+        btn.textContent = '✗ Error';
+        console.error('Optimization error:', e);
+      }
+
+      setTimeout(() => {
+        btn.textContent = '🎚️ Optimize All';
+        btn.disabled = false;
+      }, 2000);
+    }
+
     // UI
     function updateConnectionStatus(connected) {
       const dot = document.getElementById('status-dot');
@@ -1885,12 +2097,11 @@
           </div>
           <div class="fader-value" id="fader-value-${ch.number}" onclick="openValueInput(${ch.number})" title="Klik om waarde in te voeren">0 dB</div>
           <div class="gain-display">G: <span id="gain-${ch.number}">0</span> dB</div>
+          <button class="sync-state-btn" id="sync-state-${ch.number}" onclick="handleSyncButton(${ch.number})">
+            <span class="sync-state-icon">🎤</span>
+            <span class="sync-state-text">SYNC</span>
+          </button>
           <button class="mute-btn" id="mute-btn-${ch.number}" onclick="toggleMute(${ch.number})">MUTE</button>
-          <div class="channel-controls">
-            <button class="channel-btn ${ch.autoGainEnabled ? 'active' : ''}" onclick="toggleChannelAutoGain(${ch.number})" title="Auto-Gain aan/uit">A</button>
-            <button class="channel-btn" id="lock-${ch.number}" onclick="toggleLock(${ch.number})" title="Lock gain">🔓</button>
-            <button class="channel-btn" onclick="removeChannel(${ch.number})" title="Verwijderen">×</button>
-          </div>
         `;
 
         // Setup fader drag
@@ -1965,6 +2176,94 @@
       });
 
       channelLocks[num] = newLock;
+    }
+
+    // Sync/Lock state machine per channel
+    // States: 'ready' | 'syncing' | 'locked'
+    const channelStates = {};
+    const SYNC_DURATION = 5; // seconds (TODO: make configurable)
+
+    function getChannelState(num) {
+      return channelStates[num] || 'ready';
+    }
+
+    function setChannelState(num, state) {
+      channelStates[num] = state;
+      updateSyncButton(num, state);
+    }
+
+    function updateSyncButton(num, state, countdown = null) {
+      const btn = document.getElementById(`sync-state-${num}`);
+      if (!btn) return;
+
+      const icon = btn.querySelector('.sync-state-icon');
+      const text = btn.querySelector('.sync-state-text');
+
+      btn.classList.remove('ready', 'syncing', 'locked');
+      btn.classList.add(state);
+
+      switch (state) {
+        case 'ready':
+          icon.textContent = '🎤';
+          text.textContent = 'SYNC';
+          break;
+        case 'syncing':
+          icon.textContent = '⏱';
+          text.textContent = countdown !== null ? countdown : '...';
+          break;
+        case 'locked':
+          icon.textContent = '🔒';
+          text.textContent = 'LOCKED';
+          break;
+      }
+    }
+
+    async function handleSyncButton(num) {
+      const currentState = getChannelState(num);
+
+      if (currentState === 'syncing') {
+        // Can't interrupt sync
+        return;
+      }
+
+      if (currentState === 'locked') {
+        // Unlock → ready for new sync
+        await fetch(`/api/mixer/channel/${num}/lock`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ locked: false })
+        });
+        setChannelState(num, 'ready');
+        return;
+      }
+
+      // State is 'ready' → start sync
+      setChannelState(num, 'syncing');
+
+      try {
+        await fetch('/api/mixer/sync-speaker', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ channels: [num], duration: SYNC_DURATION * 1000 })
+        });
+
+        // Countdown
+        let remaining = SYNC_DURATION;
+        updateSyncButton(num, 'syncing', remaining);
+
+        const countdown = setInterval(() => {
+          remaining--;
+          if (remaining > 0) {
+            updateSyncButton(num, 'syncing', remaining);
+          } else {
+            clearInterval(countdown);
+            setChannelState(num, 'locked');
+          }
+        }, 1000);
+      } catch (e) {
+        console.error('Sync failed:', e);
+        setChannelState(num, 'ready');
+      }
     }
 
     // Auto-recovery toggle

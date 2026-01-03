@@ -426,6 +426,7 @@
       padding: 1.25rem;
       cursor: pointer;
       transition: all 0.2s;
+      position: relative;
     }
 
     .song-card:hover {
@@ -436,6 +437,34 @@
     .song-card h3 {
       font-size: 1.1rem;
       margin-bottom: 0.5rem;
+      padding-right: 2rem;
+    }
+
+    .song-card .play-btn {
+      position: absolute;
+      top: 0.75rem;
+      right: 0.75rem;
+      width: 28px;
+      height: 28px;
+      background: var(--accent-gold);
+      border: none;
+      border-radius: 50%;
+      color: var(--bg-deep);
+      font-size: 0.9rem;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.2s, transform 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .song-card:hover .play-btn {
+      opacity: 1;
+    }
+
+    .song-card .play-btn:hover {
+      transform: scale(1.1);
     }
 
     .song-card .tags {
@@ -1864,6 +1893,7 @@
     <div class="header-right">
       <a href="/mixer" class="icon-btn" title="Mixer Dashboard" style="text-decoration: none;">🎛</a>
       <button class="icon-btn" onclick="toggleFullscreen()" title="Volledig scherm">⛶</button>
+      <a href="/" class="icon-btn" title="Home" style="text-decoration: none;">⌂</a>
       <div class="connection-status">
         <span class="connection-dot" id="connection-dot"></span>
         <span class="mixer-dot" id="mixer-dot" title="Mixer status"></span>
@@ -3136,6 +3166,7 @@ And grace my fears relieved..."
 
       grid.innerHTML = filtered.map(song => `
         <div class="song-card" onclick="openSongModal('${song.id}')">
+          <button class="play-btn" onclick="event.stopPropagation(); openInLive('${song.id}')" title="Open in Live">▶</button>
           <h3>${song.title}</h3>
           <div class="tags">
             ${song.key ? `<span class="tag key">${song.key}</span>` : ''}
@@ -3333,6 +3364,10 @@ And grace my fears relieved..."
     }
 
     // Song Modal
+    function openInLive(songId) {
+      window.open(`/live?song=${songId}`, '_blank');
+    }
+
     async function openSongModal(id = null) {
       const modal = document.getElementById('song-modal');
       const form = document.getElementById('song-form');

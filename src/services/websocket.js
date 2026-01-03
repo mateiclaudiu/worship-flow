@@ -14,17 +14,38 @@ class WebSocketService {
       cueTimestamp: null
     };
     this.messageHandlers = [];
+    // Rate limiting: track connections per IP
+    this.connectionCounts = new Map();
+    this.lastLogTime = 0;
   }
 
   init(server) {
     this.wss = new WebSocket.Server({ server });
 
+    // Handle WebSocket server errors
+    this.wss.on('error', (err) => {
+      console.error('WebSocket server error:', err.message);
+      // Don't crash on EADDRINUSE - the HTTP server will handle retry
+    });
+
     this.wss.on('connection', (ws, req) => {
       const clientId = uuidv4();
       const clientType = new URL(req.url, 'http://localhost').searchParams.get('type') || 'singer';
+      const clientIP = req.socket.remoteAddress || 'unknown';
 
-      this.clients.set(clientId, { ws, type: clientType });
-      console.log(`Client connected: ${clientId} (${clientType})`);
+      // Rate limiting: track connections per type
+      const typeKey = `${clientType}-${clientIP}`;
+      const count = (this.connectionCounts.get(typeKey) || 0) + 1;
+      this.connectionCounts.set(typeKey, count);
+
+      // Only log occasionally to prevent spam (max 1 log per 10 seconds per type)
+      const now = Date.now();
+      if (now - this.lastLogTime > 10000 || count <= 2) {
+        console.log(`Client connected: ${clientType} from ${clientIP} (${this.clients.size + 1} total)`);
+        this.lastLogTime = now;
+      }
+
+      this.clients.set(clientId, { ws, type: clientType, ip: clientIP });
 
       // Send current state to new client
       ws.send(JSON.stringify({ type: 'state', data: this.currentState }));
@@ -40,7 +61,7 @@ class WebSocketService {
 
       ws.on('close', () => {
         this.clients.delete(clientId);
-        console.log(`Client disconnected: ${clientId}`);
+        // Don't log every disconnect to reduce spam
       });
     });
 

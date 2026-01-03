@@ -10,13 +10,14 @@ class MixerService {
   }
 
   init() {
+    // Register callback to start auto-gain when connected
+    this.connection.onConnected(() => {
+      console.log('Mixer connected - starting auto-gain');
+      this.autoGain.start();
+    });
+
     // Connect to mixer if configured
     this.connection.connect();
-
-    // Start auto-gain if enabled
-    if (this.connection.isConnected()) {
-      this.autoGain.start();
-    }
 
     // Listen for song selection to load mixer scenes
     wsService.onMessage((clientId, msg) => {

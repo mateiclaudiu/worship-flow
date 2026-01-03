@@ -7,6 +7,12 @@ class MixerConnection {
     this.mixer = null;
     this.connected = false;
     this.subscriptions = [];
+    this.onConnectedCallbacks = [];
+  }
+
+  // Register a callback to be called when connection is established
+  onConnected(callback) {
+    this.onConnectedCallbacks.push(callback);
   }
 
   connect() {
@@ -24,20 +30,45 @@ class MixerConnection {
 
       // Subscribe to connection status
       const statusSub = this.mixer.status$.subscribe(status => {
-        this.connected = status === 'OPEN';
-        console.log(`Mixer connection status: ${status}`);
+        const wasConnected = this.connected;
+        // Status can be string 'OPEN' or object {type: 'OPEN'}
+        const statusType = typeof status === 'object' ? status.type : status;
+        this.connected = statusType === 'OPEN';
+        console.log(`Mixer connection status: ${statusType}`);
         wsService.broadcast({
           type: 'mixerStatus',
           data: { connected: this.connected }
         });
+
+        // Call onConnected callbacks when connection is first established
+        if (this.connected && !wasConnected) {
+          console.log('Mixer connected - calling onConnected callbacks');
+          this.onConnectedCallbacks.forEach(cb => {
+            try { cb(); } catch (e) { console.error('onConnected callback error:', e); }
+          });
+        }
       });
       this.subscriptions.push(statusSub);
 
       this.mixer.connect();
       console.log(`Connecting to Soundcraft UI24 at ${config.ip}...`);
+
+      // Log connection errors (if conn property exists)
+      if (this.mixer.conn && this.mixer.conn.error$) {
+        const errorSub = this.mixer.conn.error$.subscribe(error => {
+          console.error('Mixer connection error:', error);
+          wsService.broadcast({
+            type: 'mixerError',
+            data: { error: error.message || String(error) }
+          });
+        });
+        this.subscriptions.push(errorSub);
+      }
+
       return true;
     } catch (e) {
       console.error('Failed to connect to mixer:', e.message);
+      console.error('Full error:', e);
       this.connected = false;
       return false;
     }
@@ -98,11 +129,12 @@ class MixerConnection {
     return this.mixer.master.input(channel);
   }
 
-  // Set gain for a channel (-40 to +40 dB typically, but we'll use raw values)
-  setGain(channel, gainValue) {
+  // Set gain for a channel in dB (-6 to +57 dB range on UI24)
+  setGain(channel, gainValueDB) {
     if (!this.mixer || !this.connected) return false;
     try {
-      this.mixer.master.input(channel).setGain(gainValue);
+      // Gain is on hardware channels, not master input
+      this.mixer.hw(channel).setGainDB(gainValueDB);
       return true;
     } catch (e) {
       console.error(`Failed to set gain for channel ${channel}:`, e.message);
@@ -139,10 +171,21 @@ class MixerConnection {
   }
 
   // Subscribe to meter level for a channel
+  // Returns vuData: { vuPre, vuPost, vuPostFader }
   onMeterLevel(channel, callback) {
     if (!this.mixer) return null;
     try {
-      const sub = this.mixer.master.input(channel).meterLevel$.subscribe(callback);
+      // Use vuProcessor for VU meter data
+      let logCount = 0;
+      const sub = this.mixer.vuProcessor.input(channel).subscribe(vuData => {
+        // Debug: log first few values to see the actual range
+        if (logCount < 5) {
+          console.log(`[VU Debug] CH${channel}: vuPre=${vuData.vuPre}, vuPost=${vuData.vuPost}, vuPostFader=${vuData.vuPostFader}`);
+          logCount++;
+        }
+        // Pass the pre-fader level to the callback
+        callback(vuData.vuPre);
+      });
       this.subscriptions.push(sub);
       return sub;
     } catch (e) {
@@ -151,11 +194,12 @@ class MixerConnection {
     }
   }
 
-  // Subscribe to gain value for a channel
+  // Subscribe to gain value for a channel (returns dB value)
   onGainChange(channel, callback) {
     if (!this.mixer) return null;
     try {
-      const sub = this.mixer.master.input(channel).gain$.subscribe(callback);
+      // Gain is on hardware channels
+      const sub = this.mixer.hw(channel).gainDB$.subscribe(callback);
       this.subscriptions.push(sub);
       return sub;
     } catch (e) {

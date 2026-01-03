@@ -2,13 +2,19 @@ const mixerConnection = require('./connection');
 const db = require('../database');
 const wsService = require('../websocket');
 
+// Timestamp helper for readable logs
+function ts() {
+  return new Date().toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+}
+
 // Channel type presets met optimale thresholds
+// UI24 gain range: -40 to +50 dB (preamp gain)
 const CHANNEL_PRESETS = {
   vocal: {
     name: 'Zang',
     threshold: 0.82,      // Iets onder clip voor warmte
-    minGain: -20,
-    maxGain: 15,
+    minGain: -40,          // Dynamic mic: 10-50 dB typisch
+    maxGain: 50,
     attackTime: 30,       // Snelle reactie op plotse schreeuw
     releaseTime: 500,
     description: 'Dynamische zang, snel reageren op pieken'
@@ -16,8 +22,8 @@ const CHANNEL_PRESETS = {
   keyboard: {
     name: 'Keyboard/Keys',
     threshold: 0.88,      // Line level, zeer consistent
-    minGain: -40,
-    maxGain: 0,
+    minGain: -40,         // Line level: -40 tot 10 dB
+    maxGain: 10,
     attackTime: 100,
     releaseTime: 1000,
     description: 'Arranger/synth, stabiel line signaal'
@@ -25,8 +31,8 @@ const CHANNEL_PRESETS = {
   acoustic_guitar: {
     name: 'Akoestische Gitaar',
     threshold: 0.75,      // Veel headroom voor strumming pieken
-    minGain: -25,
-    maxGain: 20,
+    minGain: 10,          // Pickup/mic: 10-45 dB
+    maxGain: 45,
     attackTime: 20,       // Zeer snel voor transients
     releaseTime: 400,
     description: 'Dynamisch, scherpe aanslag pieken'
@@ -34,8 +40,8 @@ const CHANNEL_PRESETS = {
   electric_guitar: {
     name: 'Elektrische Gitaar',
     threshold: 0.80,      // Amp/DI comprimeert al wat
-    minGain: -30,
-    maxGain: 10,
+    minGain: -20,         // DI/amp: -20 tot 30 dB
+    maxGain: 30,
     attackTime: 50,
     releaseTime: 600,
     description: 'Via amp of DI, redelijk consistent'
@@ -43,8 +49,8 @@ const CHANNEL_PRESETS = {
   bass: {
     name: 'Bas',
     threshold: 0.85,      // Consistent, maar slap/pop kan pieken
-    minGain: -35,
-    maxGain: 5,
+    minGain: -20,         // DI: -20 tot 25 dB
+    maxGain: 25,
     attackTime: 40,
     releaseTime: 800,
     description: 'DI signaal, let op slap pieken'
@@ -52,8 +58,8 @@ const CHANNEL_PRESETS = {
   drums_kick: {
     name: 'Kick Drum',
     threshold: 0.65,      // VEEL headroom voor zware transients
-    minGain: -40,
-    maxGain: 10,
+    minGain: 15,          // Dynamic mic: 15-45 dB
+    maxGain: 45,
     attackTime: 10,       // Ultra snel
     releaseTime: 300,
     description: 'Extreme transients, maximale headroom'
@@ -61,8 +67,8 @@ const CHANNEL_PRESETS = {
   drums_snare: {
     name: 'Snare',
     threshold: 0.68,      // Veel headroom
-    minGain: -35,
-    maxGain: 15,
+    minGain: 15,          // Dynamic mic: 15-45 dB
+    maxGain: 45,
     attackTime: 10,
     releaseTime: 300,
     description: 'Scherpe rimshots opvangen'
@@ -70,8 +76,8 @@ const CHANNEL_PRESETS = {
   drums_overhead: {
     name: 'Overhead/Cymbals',
     threshold: 0.70,      // Cymbals zijn heel dynamisch
-    minGain: -30,
-    maxGain: 20,
+    minGain: 10,          // Condenser: 10-40 dB
+    maxGain: 40,
     attackTime: 15,
     releaseTime: 400,
     description: 'Cymbals kunnen hard pieken'
@@ -79,8 +85,8 @@ const CHANNEL_PRESETS = {
   drums_tom: {
     name: 'Toms',
     threshold: 0.68,
-    minGain: -35,
-    maxGain: 15,
+    minGain: 15,          // Dynamic mic: 15-45 dB
+    maxGain: 45,
     attackTime: 10,
     releaseTime: 300,
     description: 'Vergelijkbaar met kick'
@@ -88,8 +94,8 @@ const CHANNEL_PRESETS = {
   backing_track: {
     name: 'Backing Track',
     threshold: 0.90,      // Al gemasterd, zeer consistent
-    minGain: -40,
-    maxGain: -10,
+    minGain: -40,         // Line level: -40 tot 5 dB
+    maxGain: 5,
     attackTime: 200,
     releaseTime: 2000,
     description: 'Gemasterde audio, nauwelijks aanpassing nodig'
@@ -97,8 +103,8 @@ const CHANNEL_PRESETS = {
   speech: {
     name: 'Spraak/Presentatie',
     threshold: 0.78,      // Meer headroom dan zang
-    minGain: -15,
-    maxGain: 20,
+    minGain: 15,          // Dynamic mic: 15-50 dB
+    maxGain: 50,
     attackTime: 50,
     releaseTime: 600,
     description: 'Spreker, minder dynamisch dan zang'
@@ -106,8 +112,8 @@ const CHANNEL_PRESETS = {
   choir: {
     name: 'Koor Mic',
     threshold: 0.75,      // Kan plotseling hard worden
-    minGain: -20,
-    maxGain: 25,
+    minGain: 20,          // Condenser, verder weg: 20-50 dB
+    maxGain: 50,
     attackTime: 40,
     releaseTime: 500,
     description: 'Groepszang, kan snel aanzwellen'
@@ -123,23 +129,24 @@ const GAIN_HEALTH = {
   CLIPPING: 'clipping'      // Over threshold - reducing gain
 };
 
-// Target levels for optimal gain staging (based on dB)
-// Conversion: -6dB = 50%, -12dB = 25%, -18dB = 12.5%, -24dB = 6.25%
+// Target levels for optimal gain staging
+// Note: vuPre values from Soundcraft library are scaled differently than actual dB
+// Calibrated for UI24 to achieve -12dB peak on mixer (higher values = louder)
 const TARGET_LEVELS = {
-  // Peak targets (-12dB ideal)
-  peakIdeal: 0.25,        // -12dB - ideal peak level
-  peakMax: 0.50,          // -6dB - absolute max for peaks
-  peakMin: 0.10,          // -20dB - peaks too low
+  // Peak targets (calibrated for UI24)
+  peakIdeal: 0.70,        // Target peak level (was 0.50)
+  peakMax: 0.85,          // Absolute max for peaks (start reducing)
+  peakMin: 0.40,          // Peaks too low
 
-  // Average targets (-18dB ideal)
-  avgIdeal: 0.125,        // -18dB - ideal average level
-  avgHigh: 0.20,          // -14dB - average getting hot
-  avgLow: 0.06,           // -24dB - average too low
-  avgCritical: 0.03,      // -30dB - way too low, urgent action
+  // Average targets - aim for -12dB on mixer
+  avgIdeal: 0.70,         // Target average level (+15% hoger)
+  avgHigh: 0.80,          // Average getting hot
+  avgLow: 0.40,           // Average too low
+  avgCritical: 0.15,      // Way too low, urgent action
 
-  // Tolerance band (don't adjust if within this range)
-  avgToleranceLow: 0.08,  // -22dB
-  avgToleranceHigh: 0.18, // -15dB
+  // Tolerance band - aim for -12dB zone
+  avgToleranceLow: 0.50,  // Below this = increase gain
+  avgToleranceHigh: 0.85, // Above this = decrease gain
 };
 
 class AutoGainController {
@@ -164,7 +171,7 @@ class AutoGainController {
       return;
     }
 
-    console.log('Starting auto-gain controller...');
+    console.log(`[${ts()}] Auto-gain starting...`);
     this.running = true;
 
     // Start monitoring configured channels
@@ -175,12 +182,12 @@ class AutoGainController {
       }
     });
 
-    // Broadcast meter levels to UI periodically
+    // Broadcast meter levels to UI periodically (reduced to prevent lag)
     this.broadcastInterval = setInterval(() => {
       this.broadcastLevels();
-    }, 100); // 10 times per second
+    }, 250); // 4 times per second (was 10x)
 
-    console.log(`Auto-gain started for ${this.channels.size} channels`);
+    console.log(`[${ts()}] Auto-gain ready (${this.channels.size} channels)`);
   }
 
   stop() {
@@ -231,7 +238,7 @@ class AutoGainController {
       lastIncreaseTime: 0,
       // For average level tracking (RMS-like)
       levelHistory: [],
-      levelHistoryMaxSize: 50, // ~5 seconds of samples at 10Hz
+      levelHistoryMaxSize: 20, // ~2 seconds of samples at 10Hz (faster response)
       averageLevel: 0,
       lowLevelDuration: 0, // How long signal has been too low
       lastLevelTime: 0,
@@ -239,13 +246,14 @@ class AutoGainController {
       health: GAIN_HEALTH.OPTIMAL,
       healthMessage: '',
       gainLocked: false, // Manual lock to prevent auto-changes
+      hasInitialAdjustment: false, // Track if first big jump was made
       // Fader and mute state
       faderLevel: 0.75, // 0.0-1.0, default to ~0dB
       muted: false,
       config: {
         threshold: config.threshold ?? globalConfig.threshold ?? 0.85,
         minGain: config.minGain ?? globalConfig.minGain ?? -40,
-        maxGain: config.maxGain ?? globalConfig.maxGain ?? 0,
+        maxGain: config.maxGain ?? globalConfig.maxGain ?? 50,  // Default to +50dB
         attackTime: config.attackTime ?? globalConfig.attackTime ?? 50,
         releaseTime: config.releaseTime ?? globalConfig.releaseTime ?? 500,
         reductionStep: config.reductionStep ?? 1, // dB per step
@@ -264,7 +272,7 @@ class AutoGainController {
     if (sub) {
       channelData.subscription = sub;
       this.channels.set(channelNumber, channelData);
-      console.log(`Auto-gain enabled for channel ${channelNumber} (${channelData.name})`);
+      console.log(`[${ts()}] CH${channelNumber} enabled (${channelData.name})`);
 
       // Also subscribe to gain changes to track current gain
       mixerConnection.onGainChange(channelNumber, (gain) => {
@@ -325,11 +333,25 @@ class AutoGainController {
     }
 
     // Track average level (rolling window)
+    const prevAvg = ch.averageLevel;
     ch.levelHistory.push(level);
     if (ch.levelHistory.length > ch.levelHistoryMaxSize) {
       ch.levelHistory.shift();
     }
     ch.averageLevel = ch.levelHistory.reduce((a, b) => a + b, 0) / ch.levelHistory.length;
+
+    // Fast response: detect sudden gain drops (e.g., user lowered gain on mixer)
+    // Only trigger if: level dropped to <10% of previous AND not adjusted in last 1s
+    const timeSinceLastAdjust = now - (ch.lastIncreaseTime || 0);
+    const timeSinceLastReduce = now - (ch.lastReductionTime || 0);
+    const recentlyAdjusted = timeSinceLastAdjust < 1000 || timeSinceLastReduce < 1000;
+
+    if (level < prevAvg * 0.1 && prevAvg > 0.1 && !recentlyAdjusted) {
+      ch.levelHistory = [level, level, level]; // Reset to current level
+      ch.averageLevel = level;
+      ch.hasInitialAdjustment = false; // Allow new JUMP
+      console.log(`[${ts()}] CH${channelNumber}: RESET (manual gain change detected)`);
+    }
 
     const { threshold, minGain, maxGain, attackTime, releaseTime, reductionStep, lowSignalTime, increaseStep } = ch.config;
 
@@ -352,7 +374,7 @@ class AutoGainController {
           ch.currentGain = newGain;
           mixerConnection.setGain(channelNumber, newGain);
 
-          console.log(`[AutoGain] CH${channelNumber}: Level ${(level * 100).toFixed(0)}% > threshold, gain -> ${newGain}dB`);
+          console.log(`[${ts()}] CH${channelNumber}: CLIP ${(level * 100).toFixed(0)}% -> gain ${newGain}dB`);
 
           wsService.broadcast({
             type: 'autoGainAdjust',
@@ -368,30 +390,37 @@ class AutoGainController {
         }
       }
     }
-    // === LOW SIGNAL - Proportional increase towards target ===
-    else if (ch.averageLevel < TARGET_LEVELS.avgToleranceLow && ch.averageLevel > 0.01) {
+    // === LOW SIGNAL - Direct jump to target ===
+    else if (ch.averageLevel < TARGET_LEVELS.avgToleranceLow && ch.averageLevel > 0.0001) {
       ch.lowLevelDuration += timeDelta;
       ch.isReducing = false;
 
-      // Wait time: 2s for critical, 4s for low
-      const waitTime = ch.averageLevel < TARGET_LEVELS.avgCritical ? 2000 : 4000;
+      // Quick start: 200ms wait, then act immediately
+      const waitTime = 200;
 
       if (this.autoRecoveryEnabled && !ch.gainLocked && ch.lowLevelDuration > waitTime) {
-        if (!ch.isIncreasing || now - ch.lastIncreaseTime > 1000) {
+        // Cooldown: 300ms between adjustments
+        if (!ch.isIncreasing || now - ch.lastIncreaseTime > 300) {
           ch.isIncreasing = true;
           ch.lastIncreaseTime = now;
 
-          // Proportional: calculate needed gain, apply 50% capped at 6dB
+          // Calculate FULL needed gain to reach target (-12dB peak = avgIdeal)
           const neededGain = 20 * Math.log10(TARGET_LEVELS.avgIdeal / ch.averageLevel);
-          const step = Math.min(Math.round(neededGain * 0.5), 6);
-          const newGain = Math.min(maxGain, ch.currentGain + step);
+
+          // First adjustment: apply 90% of needed gain (aggressive)
+          // Subsequent adjustments: apply 100% (fine-tune)
+          const isFirstAdjustment = !ch.hasInitialAdjustment;
+          const factor = isFirstAdjustment ? 0.9 : 1.0;
+          const step = Math.round(neededGain * factor);
+          const newGain = Math.min(maxGain, Math.max(minGain, ch.currentGain + step));
 
           if (newGain !== ch.currentGain && step > 0) {
             ch.currentGain = newGain;
-            ch.pendingStep = step; // Store for health message
+            ch.hasInitialAdjustment = true;
+            ch.pendingStep = step;
             mixerConnection.setGain(channelNumber, newGain);
 
-            console.log(`[AutoGain] CH${channelNumber}: Low signal, need +${neededGain.toFixed(0)}dB, applying +${step}dB -> ${newGain}dB`);
+            console.log(`[${ts()}] CH${channelNumber}: ${isFirstAdjustment ? 'JUMP' : 'tune'} +${step}dB -> ${newGain}dB (avg=${(ch.averageLevel*100).toFixed(0)}%)`);
 
             wsService.broadcast({
               type: 'autoGainAdjust',
@@ -430,7 +459,7 @@ class AutoGainController {
             ch.pendingStep = -step;
             mixerConnection.setGain(channelNumber, newGain);
 
-            console.log(`[AutoGain] CH${channelNumber}: Hot signal, need -${neededReduction.toFixed(0)}dB, applying -${step}dB -> ${newGain}dB`);
+            console.log(`[${ts()}] CH${channelNumber}: HOT -${step}dB -> ${newGain}dB (avg=${(ch.averageLevel*100).toFixed(0)}%)`);
 
             wsService.broadcast({
               type: 'autoGainAdjust',

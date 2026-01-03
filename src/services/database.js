@@ -28,7 +28,7 @@ function getDefaultDB() {
     ],
     songHistory: [],
     mixerConfig: {
-      ip: '',
+      ip: '10.10.1.1',
       showName: '',
       enabled: false,
       channels: [],

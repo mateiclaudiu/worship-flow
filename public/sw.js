@@ -1,13 +1,10 @@
 // Worship Flow Service Worker - Offline Support
-const CACHE_NAME = 'worship-flow-v3';
+const CACHE_NAME = 'worship-flow-v8';
 
 // Files to cache for offline use
 const STATIC_ASSETS = [
   '/',
   '/dirigent',
-  '/leider',
-  '/zanger',
-  '/presentatie',
   '/live',
   '/mixer',
   '/monitor',
@@ -91,7 +88,30 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // For static assets - cache first, network fallback
+  // For HTML pages - network first (always get latest)
+  if (event.request.mode === 'navigate' || url.pathname.endsWith('.html') ||
+      url.pathname === '/' || url.pathname === '/live' || url.pathname === '/dirigent' ||
+      url.pathname === '/mixer' || url.pathname === '/monitor') {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          // Cache for offline use
+          const responseClone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseClone);
+          });
+          return response;
+        })
+        .catch(() => {
+          // Offline - serve from cache
+          console.log('[SW] Offline, serving cached page:', url.pathname);
+          return caches.match(event.request);
+        })
+    );
+    return;
+  }
+
+  // For other static assets (js, css, images) - cache first, network fallback
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       if (cachedResponse) {

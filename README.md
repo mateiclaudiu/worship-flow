@@ -7,7 +7,7 @@ Een live worship management tool voor kerkmuzikanten. Beheer liedjes, bouw setli
 - **Liedjes Database**: Beheer 100+ liedjes met tekst, toonhoogte, tempo, categorieën en stijlen
 - **Setlist Builder**: Maak setlists voor oefening (zaterdag) en live (zondag)
 - **Live Dirigent Console**: Stuur real-time cues naar zangers (1-2-3!, Pauze, Bis, etc.)
-- **Zangers View**: Mobiel-vriendelijke interface met teksten en live cues
+- **Live View**: Unified presentatie en zanger interface met teksten en live sync
 - **Accent Markering**: Markeer lettergrepen met `**tekst**` voor nadruk
 - **Feedback Systeem**: Log feedback per lied (tempo, toonhoogte) met historiek
 - **Real-time Sync**: WebSocket verbinding tussen dirigent en zangers
@@ -41,10 +41,8 @@ Na het starten zie je:
 ║  Open in browser:                                         ║
 ║  • Home:     http://localhost:3000                        ║
 ║  • Dirigent: http://localhost:3000/dirigent               ║
-║  • Zanger:   http://localhost:3000/zanger                 ║
-║                                                           ║
-║  For singers on other devices, use your local IP:         ║
-║  • http://<your-ip>:3000/zanger                           ║
+║  • Live:     http://localhost:3000/live                   ║
+║  • Mixer:    http://localhost:3000/mixer                  ║
 ╚═══════════════════════════════════════════════════════════╝
 ```
 
@@ -58,7 +56,7 @@ Na het starten zie je:
 ### Voor Zangers:
 
 1. Verbind met hetzelfde WiFi netwerk (jouw hotspot)
-2. Open `http://<jouw-ip>:3000/zanger` op hun telefoon
+2. Open `http://<jouw-ip>:3000/live` op hun telefoon
 3. Ze zien automatisch de teksten wanneer jij live start
 
 ### Jouw IP vinden:

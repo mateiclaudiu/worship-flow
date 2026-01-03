@@ -69,15 +69,25 @@ app.post('/api/import', (req, res) => {
 // Frontend routes
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 app.get('/dirigent', (req, res) => res.sendFile(path.join(__dirname, 'public', 'dirigent.html')));
-app.get('/zanger', (req, res) => res.sendFile(path.join(__dirname, 'public', 'zanger.html')));
-app.get('/leider', (req, res) => res.sendFile(path.join(__dirname, 'public', 'leider.html')));
-app.get('/presentatie', (req, res) => res.sendFile(path.join(__dirname, 'public', 'presentatie.html')));
 app.get('/live', (req, res) => res.sendFile(path.join(__dirname, 'public', 'live.html')));
 app.get('/mixer', (req, res) => res.sendFile(path.join(__dirname, 'public', 'mixer.html')));
 app.get('/monitor', (req, res) => res.sendFile(path.join(__dirname, 'public', 'monitor.html')));
 
 // Start server
 const PORT = process.env.PORT || 3000;
+
+server.on('error', (err) => {
+  if (err.code === 'EADDRINUSE') {
+    console.log(`Port ${PORT} is busy, retrying in 1 second...`);
+    setTimeout(() => {
+      server.close();
+      server.listen(PORT, '0.0.0.0');
+    }, 1000);
+  } else {
+    console.error('Server error:', err);
+  }
+});
+
 server.listen(PORT, '0.0.0.0', () => {
   console.log(`
 ╔═══════════════════════════════════════════════════════════╗
@@ -91,9 +101,21 @@ server.listen(PORT, '0.0.0.0', () => {
 ║  • Live:       http://localhost:${PORT}/live                 ║
 ║  • Mixer:      http://localhost:${PORT}/mixer                ║
 ║                                                           ║
-║  For singers on other devices, use your local IP:         ║
-║  • Zanger:     http://<your-ip>:${PORT}/zanger               ║
+║  For other devices, use your local IP:                    ║
 ║  • Monitor:    http://<your-ip>:${PORT}/monitor              ║
 ╚═══════════════════════════════════════════════════════════╝
   `);
+});
+
+// Graceful shutdown
+process.on('SIGTERM', () => {
+  console.log('SIGTERM received, shutting down...');
+  mixerService.connection.disconnect();
+  server.close(() => process.exit(0));
+});
+
+process.on('SIGINT', () => {
+  console.log('SIGINT received, shutting down...');
+  mixerService.connection.disconnect();
+  server.close(() => process.exit(0));
 });
