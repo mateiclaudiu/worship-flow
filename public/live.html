@@ -531,14 +531,14 @@
     /* Song chips */
     .song-chips {
       display: flex;
-      gap: 0.4rem;
+      gap: 0.5rem;
       overflow-x: auto;
       max-width: 50vw;
       -webkit-overflow-scrolling: touch;
     }
 
     .song-chips::-webkit-scrollbar {
-      height: 2px;
+      height: 3px;
     }
 
     .song-chips::-webkit-scrollbar-thumb {
@@ -548,12 +548,12 @@
 
     .song-chip {
       background: var(--bg);
-      border: 1px solid var(--border);
-      color: var(--text-dim);
-      padding: 0.3rem 0.6rem;
-      border-radius: 15px;
-      font-size: 0.75rem;
-      font-weight: 500;
+      border: 2px solid var(--border);
+      color: var(--text);
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-size: 0.95rem;
+      font-weight: 600;
       white-space: nowrap;
       cursor: pointer;
       transition: all 0.15s;
@@ -1119,7 +1119,7 @@
     // State
     let currentView = 'presentatie';
     let isLeader = true; // Always leader mode now
-    let isDarkTheme = true;
+    let isDarkTheme = false; // Light theme by default
     let baseFontSize = 2.75;
 
     let setlists = [];
@@ -1343,6 +1343,11 @@
       currentSongId = songId;
       currentSong = currentSetlist?.songs?.find(s => s.id === songId);
       resetAmenButton();
+
+      // Update URL to persist song on refresh
+      const url = new URL(window.location);
+      url.searchParams.set('song', songId);
+      window.history.replaceState({}, '', url);
 
       // Update chips
       document.querySelectorAll('.song-chip').forEach(chip => {
@@ -1698,6 +1703,9 @@
       loadSetlists();
       showHeader(); // Show header on load
 
+      // Apply light theme by default
+      document.body.classList.add('light');
+
       const params = new URLSearchParams(window.location.search);
       if (params.get('view') === 'zanger') {
         setView('zanger');
@@ -1884,6 +1892,11 @@
         currentSongId = songId;
         currentSong = song;
         resetAmenButton();
+
+        // Update URL to persist song on refresh
+        const url = new URL(window.location);
+        url.searchParams.set('song', songId);
+        window.history.replaceState({}, '', url);
 
         // Update header center with key/tempo
         document.getElementById('header-center').style.display = 'flex';

@@ -78,6 +78,51 @@ Alle apparaat instellingen op 1 pagina. Geoptimaliseerd voor: **grote katholieke
 | Master Reverb | **30-40%** | Zaal voegt al reverb toe |
 | Master Delay | **20-30% of UIT** | Voorkom dubbele echo |
 
+### EQ Carving bij Meerdere Geluiden (Anti-Modder)
+
+**Het probleem:** De PA4X heeft 8 parts. Rechterhand speelt vaak piano + pads + strings tegelijk. Dit geeft modderig geluid in de 300-800Hz range waar alle instrumenten concurreren.
+
+**Oplossingen:**
+
+#### 1. EQ per Achtergrond-instrument (op de Korg zelf)
+
+Per style/sound kun je de EQ per part aanpassen:
+
+| Instrument | Low | Mid | High | Reden |
+|------------|-----|-----|------|-------|
+| Strings | -3dB | -2dB | +1dB | Ruimte voor piano |
+| Pads | -4dB | -2dB | +2dB | Alleen "air" |
+| Orgel | -3dB | -1dB | +1dB | Minder body |
+| Piano | **0dB** | **0dB** | **0dB** | Hoofdinstrument = flat |
+
+**Hoe:** `MENU → MIXER/TUNING → TRACK EQ → [selecteer part]`
+
+#### 2. Maximaal 2 van 3 tegelijk
+
+Nooit piano + pads + strings tegelijk. Kies combinaties:
+- Piano + Strings (pads uit)
+- Piano + Pads (strings uit)
+- Strings + Pads (piano rustig of uit)
+
+#### 3. Kerk-optimalisatie (galm in zaal)
+
+Voor gebruik in grote kerkzaal:
+
+| Setting | Waarde | Reden |
+|---------|--------|-------|
+| Master Reverb | **UIT** | Zaal voegt al galm toe |
+| Master Compressor | **UIT** | Dynamiek behouden |
+| Master EQ High | **+1 tot +2dB** | Compenseer afstand |
+| Master EQ Low | **-1 tot -2dB** | Voorkom brom opbouw |
+
+**Hoe:** `MENU → EFFECTS → MASTER` of via Global settings
+
+#### 4. Opslaan als User Style of Performance
+
+Sla je kerk-settings op zodat je niet elke keer moet instellen:
+- **User Style:** `WRITE → STYLE` (behoudt EQ en effects)
+- **Performance:** `MENU → PERFORMANCE → WRITE` (complete snapshot)
+
 ---
 
 ### Scenario A: Alles via L/R (standaard bij styles)
