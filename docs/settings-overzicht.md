@@ -125,6 +125,55 @@ Sla je kerk-settings op zodat je niet elke keer moet instellen:
 
 ---
 
+### Stijl-specifieke Settings (Kerk)
+
+Per stijl-categorie de optimale settings voor gebruik in kerkzaal:
+
+#### Ballad / Worship
+| Part | Volume | EQ Low | EQ Mid | EQ High |
+|------|--------|--------|--------|---------|
+| Piano | 0dB | 0 | 0 | 0 |
+| Pads | **-3 tot -6dB** | -3 | -2 | +1 |
+| Strings | 0dB (alleen refrein) | -2 | -1 | +1 |
+
+**Tip:** Strings alleen bij refrein, pads zacht of uit bij couplet.
+
+#### Pop / Schlager (met gitaren)
+| Part | Volume | EQ Low | EQ Mid | EQ High |
+|------|--------|--------|--------|---------|
+| Piano | 0dB | 0 | 0 | 0 |
+| Gitaar | 0dB | **-2** | 0 | **+2** |
+| Synth Pads | -3dB | **-4** | -1 | +1 |
+
+**Tip:** Drums + Bass via SUB OUT voor aparte mixer EQ.
+
+#### Swing / Waltz / Polka
+| Part | Volume | EQ Low | EQ Mid | EQ High |
+|------|--------|--------|--------|---------|
+| Piano | 0dB | 0 | 0 | 0 |
+| Bass | 0dB | **+1** | **-2** | 0 |
+| Brass | 0dB | -1 | 0 | +1 |
+
+**Tip:** Minder parts = minder aanpassingen nodig.
+
+#### Romanian (Hora, Etno, Estam)
+| Part | Volume | EQ Low | EQ Mid | EQ High |
+|------|--------|--------|--------|---------|
+| Accordeon | 0dB | 0 | **-3** | **+1** |
+| Viool/Strings | 0dB | **-3** | **-2** | +1 |
+| Ţambal | 0dB | 0 | 0 | **-1** |
+| Bas | 0dB | +1 | -1 | 0 |
+
+**Tip:** Accordeon en strings concurreren beide in 300-800Hz - één van beide zachter of EQ carven.
+
+#### Aanbevolen User Styles
+Maak deze kerk-geoptimaliseerde styles:
+1. `WORSHIP-KERK` - Pads laag, reverb uit
+2. `POP-KERK` - Gitaren helder, synths gedempt
+3. `ROEMEENS-KERK` - Accordeon/strings EQ carved
+
+---
+
 ### Scenario A: Alles via L/R (standaard bij styles)
 
 Drums, bass, keys komen allemaal uit L/R.
