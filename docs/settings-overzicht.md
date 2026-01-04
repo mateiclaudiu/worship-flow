@@ -369,6 +369,259 @@ OUT 1/2     →  Drums + Bass
 
 ---
 
+## 9. Geavanceerde Mix Technieken
+
+### Compressie (Dynamiek Controle)
+
+Maakt zachte delen luider en luide delen zachter → consistenter volume.
+
+#### Wanneer gebruiken
+
+| Bron | Compressie? | Waarom |
+|------|-------------|--------|
+| Zang (solo) | ✅ Ja, licht | Fluisteren → belten consistent |
+| Spraak/preek | ✅ Ja, medium | Verstaanbaarheid |
+| Keyboard | ❌ Nee | Al gecomprimeerd in keyboard |
+| Drums (uit keyboard) | ❌ Nee | Style heeft al dynamiek |
+
+#### Settings voor Zang op UI24
+
+| Parameter | Waarde | Uitleg |
+|-----------|--------|--------|
+| Threshold | -20dB | Wanneer compressie start |
+| Ratio | 3:1 | Hoeveel demping |
+| Attack | 10ms | Snel genoeg voor zang |
+| Release | 100ms | Natuurlijk uitsterven |
+| Makeup Gain | +3dB | Compenseer volumeverlies |
+
+**Vuistregel:** Gain reduction meter mag max **-6dB** tonen. Meer = te veel.
+
+---
+
+### Gate / Expander (Mic Discipline)
+
+Mic gaat "dicht" als er geen signaal is → minder ruis, minder feedback risico.
+
+#### Wanneer gebruiken
+
+| Bron | Gate? | Waarom |
+|------|-------|--------|
+| Zang mics | ⚠️ Voorzichtig | Kan woorden afkappen |
+| Preek mic | ✅ Ja | Lange pauzes = stil |
+| Keyboard DI | ❌ Nee | Altijd signaal |
+
+#### Settings voor Spraak
+
+| Parameter | Waarde |
+|-----------|--------|
+| Threshold | -40dB |
+| Range | -20dB (niet volledig dicht) |
+| Attack | 1ms |
+| Hold | 200ms |
+| Release | 100ms |
+
+**Tip:** Gebruik "Expander" mode ipv hard gate - klinkt natuurlijker.
+
+---
+
+### Feedback Preventie
+
+#### Waarom feedback?
+Mic vangt speaker op → versterkt → speaker → mic → LOOP → piep!
+
+#### Ring-out Procedure
+
+Bij soundcheck, voordat mensen komen:
+
+1. Zet mic op standplaats waar zanger zal staan
+2. Fader langzaam omhoog tot je feedback hoort
+3. Noteer de frequentie (bijv. 2.5kHz)
+4. Zet notch filter op die frequentie: -3dB, Q=8
+5. Herhaal tot je 6dB boven normale volume kunt zonder feedback
+
+#### Typische Feedback Frequenties
+
+| Freq | Klinkt als | Oorzaak |
+|------|-----------|---------|
+| 250Hz | Brom | Te dicht bij monitor |
+| 800Hz | Hol/boxy | Kamer resonantie |
+| 2-4kHz | Schel/piep | Mic direct naar speaker |
+| 8kHz+ | Scherpe fluittoon | Hoog volume + reflecties |
+
+#### Preventie Tips
+
+- ✅ Mic ACHTER de speakers (in de "schaduw")
+- ✅ Monitors gericht WEG van mic
+- ✅ HPF aan op alle mics (100Hz+)
+- ❌ Monitor naar plafond richten
+- ❌ Gain te hoog (gebruik fader ipv gain)
+- ❌ EQ boosten in feedback-gevoelige range
+
+---
+
+### Fase-uitlijning
+
+#### Wanneer relevant?
+Meerdere mics op dezelfde bron (bijv. 2 mics op koor, of mic + DI).
+
+#### Het probleem
+Geluid bereikt mics op verschillende tijden → sommige frequenties cancelen.
+
+#### Oplossingen
+
+| Situatie | Oplossing |
+|----------|-----------|
+| 2 mics, 1 persoon | **3:1 regel** - afstand tussen mics = 3x afstand tot bron |
+| Mic + DI (bijv. gitaar) | Phase flip op DI kanaal testen |
+| Choir mics | Gelijke afstand tot zangers |
+
+#### Testen op UI24
+1. Pan beide kanalen center
+2. Speel/zing
+3. Druk **Ø (phase)** knop op één kanaal
+4. Kies versie met **meer bas en body**
+
+---
+
+### Room EQ / System Tuning
+
+PA afstemmen op de akoestiek van de zaal.
+
+#### Simpele Aanpak (zonder meetmic)
+
+Luister kritisch naar spraak en pas Master EQ aan:
+
+| Probleem | Oplossing |
+|----------|-----------|
+| Boomend/dreunerig | Low -2 tot -4dB |
+| Mompelend/onduidelijk | Mid (2-4kHz) +2dB |
+| Schel/hard | High -2dB |
+| Echo/wazig | Verlaag volume, meer directe speakers |
+
+#### Pro Aanpak (met meetmicrofoon)
+
+##### Benodigdheden
+
+| Item | Optie Budget | Optie Pro |
+|------|--------------|-----------|
+| Meetmicrofoon | Behringer ECM8000 (~€50) | Earthworks M23 (~€600) |
+| Audio interface | Focusrite Scarlett Solo (~€100) | Bestaande mixer |
+| Software | REW (gratis) | Smaart (~€800) |
+
+**Budget totaal:** ~€150 met REW + ECM8000
+
+##### REW Software Setup (Gratis)
+
+1. Download REW: [roomeqwizard.com](https://www.roomeqwizard.com)
+2. Sluit meetmic aan op interface/mixer
+3. Calibreer mic in REW (of laad calibratie file voor ECM8000)
+
+##### Meetprocedure
+
+1. **Genereer roze ruis:**
+   - In REW: `Tools → Generator → Pink Noise`
+   - Of via Soundcraft: `MEDIA → Pink Noise`
+   - Volume: normaal spraakvolume (~75dB SPL)
+
+2. **Positioneer meetmic:**
+   - Hoogte: oorhoogte van zittend publiek (~1.2m)
+   - Positie: midden van zaal (primaire luisterplek)
+   - Richting: naar speakers (of omni mic = maakt niet uit)
+
+3. **Neem meting:**
+   - In REW: `Measure → Start`
+   - Wacht tot stabiel (5-10 sec)
+   - Sla op als referentie
+
+4. **Analyseer frequentie respons:**
+
+   | Wat je ziet | Wat het betekent | Actie |
+   |-------------|------------------|-------|
+   | Piek bij 100Hz | Kamer resonantie (bas buildup) | Cut -3dB @ 100Hz |
+   | Dip bij 250Hz | Fase cancellatie | Speaker positie aanpassen |
+   | Piek bij 2kHz | Reflectie van harde muur | Cut -2dB @ 2kHz |
+   | Afval boven 8kHz | Normaal (lucht absorptie) | Licht boost +1dB |
+
+5. **Pas Master EQ aan:**
+   - Doel: zo vlak mogelijke lijn
+   - Prioriteit: 200Hz - 4kHz (spraakgebied)
+   - Accepteer: lichte afval onder 80Hz en boven 12kHz
+
+##### Voorbeeld Meting Kerkzaal
+
+```
+Typische problemen grote kerk:
+
+     +6dB |
+     +3dB |    /\
+      0dB |---/  \----____/\____--------
+     -3dB |              \/
+     -6dB |
+          50   100  250  500  1k  2k  4k  8k  Hz
+              ↑         ↑
+           Bas piek   Dip (echo)
+```
+
+**Correctie EQ:**
+- 80Hz: -3dB (Q=1.0)
+- 500Hz: +2dB (Q=1.5)
+- Resultaat: vlakkere respons, betere spraakverstaanbaarheid
+
+##### Tips
+
+- Meet op meerdere posities (links, rechts, achter) en middel
+- Meet ZONDER publiek én MET publiek (mensen absorberen hoog)
+- Sla metingen op voor vergelijking later
+- Kleine aanpassingen (±3dB) zijn meestal genoeg
+
+---
+
+### Monitor Mixing
+
+#### Gouden Regel
+Monitors zijn NIET dezelfde mix als FOH. Zangers hebben andere behoeften.
+
+#### Wat zangers willen in monitors
+
+| Element | In monitor? | Niveau |
+|---------|-------------|--------|
+| Eigen stem | ✅ Ja | Luid |
+| Andere zangers | ✅ Ja | Medium |
+| Keyboard | ✅ Ja | Medium |
+| Drums/click | ✅ Ja | Medium |
+| Bas | 🔸 Optioneel | Zacht (voelen, niet horen) |
+| Volledige mix | ❌ Nee | Dat is FOH |
+
+#### AUX Setup op UI24
+
+```
+AUX 1: Zaal speakers (spraak/preek)
+AUX 3: Floor monitors + in-ears (zang + keys + drums)
+AUX 5: Livestream (aparte mix)
+```
+
+#### Monitor EQ (anders dan FOH)
+
+| Aanpassing | Waarom |
+|------------|--------|
+| HPF 150Hz | Minder brom, minder feedback |
+| +2dB @ 2-4kHz | Stemhelderheid |
+| Notch filters | Op feedback frequenties |
+
+#### In-Ear vs Floor Wedge
+
+| Aspect | Floor Wedge | In-Ear |
+|--------|-------------|--------|
+| Feedback risico | Hoog | Laag |
+| Volume controle | Beperkt | Per persoon |
+| Geluidskwaliteit | Afhankelijk van zaal | Consistent |
+| Gehoorschade | Minder controle | Meer controle |
+| Ruimtegevoel | Natuurlijk | Kunstmatig |
+
+**Tip:** Combineer: 1 oor in-ear, 1 oor open voor ruimtegevoel.
+
+---
+
 ## Checklist voor Soundcheck
 
 ### Speakers
