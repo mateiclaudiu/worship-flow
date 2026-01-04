@@ -174,6 +174,108 @@ Maak deze kerk-geoptimaliseerde styles:
 
 ---
 
+### Style Editing (Minder Drukke Arrangementen)
+
+Factory styles zijn gemaakt voor demo's - vaak te vol voor live kerk. Maak je eigen kerk-versies.
+
+#### Wat je kunt aanpassen
+
+| Element | Hoe | Effect |
+|---------|-----|--------|
+| Parts uitzetten | MIXER → mute Pad2, String2 | Direct minder druk |
+| Velocity verlagen | STYLE EDIT → velocity -20% | Zachter, minder agressief |
+| Fills simplificeren | STYLE EDIT → eenvoudigere fill patterns | Minder chaos bij overgangen |
+| Drum pattern | STYLE EDIT → minder hi-hat/percussion | Rustiger groove |
+
+#### Praktisch Voorbeeld: Worship Ballad
+
+**Factory versie (te druk):**
+```
+Piano + Pad1 + Pad2 + Strings + Bass + Drums + Percussion = 7 elementen
+```
+
+**Kerk-versie (clean):**
+```
+Piano + Pad1 (zacht) + Bass + Kick/Snare only = 4 elementen
+```
+
+**Hoe te maken:**
+1. `STYLE PLAY → MENU → STYLE EDIT`
+2. Ga naar `MIXER/TUNING`
+3. Mute: Pad2, Strings, Percussion
+4. Volume Pad1: -6dB
+5. `WRITE → USER STYLE`
+
+---
+
+### Sound Selectie (Wat Klinkt Live het Best)
+
+Vuistregel: Kies sounds met **snelle attack** en **minder lage harmonics**.
+
+#### Piano Sounds
+
+| Sound | Live? | Reden |
+|-------|-------|-------|
+| Grand Piano (Natural) | ✅ | Helder, snijdt door mix |
+| Stage Piano | ✅ | Minder bas, zit niet in de weg |
+| Bright Piano | ⚠️ | Kan schel zijn in zaal |
+| Dark/Mellow Piano | ❌ | Verdwijnt in mix |
+
+#### Pad Sounds
+
+| Sound | Live? | Reden |
+|-------|-------|-------|
+| Simple Pad / Soft Pad | ✅ | Weinig harmonics, vult op |
+| Analog Pad | ✅ | Warm, niet druk |
+| Orchestral Pad | ⚠️ | Kan modderig worden |
+| Synth Pad (bright) | ❌ | Vecht met zang |
+
+#### String Sounds
+
+| Sound | Live? | Reden |
+|-------|-------|-------|
+| Chamber Strings | ✅ | Klein ensemble, helder |
+| Solo Violin/Cello | ✅ | Duidelijke lijn |
+| Full Orchestra | ❌ | Te breed, modder |
+| Slow Strings | ⚠️ | Attack te langzaam voor uptempo |
+
+---
+
+### Expression Pedaal Setup
+
+#### Toepassingen
+
+| Gebruik | Setting | Wanneer |
+|---------|---------|---------|
+| Volume swell | Expression → Master Vol | Algemene dynamiek |
+| Pad only volume | Expression → Pad track | Piano hard, pads variabel |
+| Orgel swell | Expression → Organ track | Authentiek orgelspel |
+
+**Setup:** `MENU → CONTROLLERS → FOOT CONTROLLER → EXPRESSION`
+
+#### Worship Tip
+Zet expression op alleen Pad volume:
+- **Couplet:** pedaal dicht (alleen piano)
+- **Refrein:** pedaal open (piano + pad swell)
+
+---
+
+### Pad Sustain/Hold (Soepele Overgangen)
+
+| Functie | Wat het doet |
+|---------|--------------|
+| PAD HOLD | Pad blijft klinken na loslaten toetsen |
+| PAD SOSTENUTO | Alleen huidige noten vasthouden |
+
+**Worship Toepassing:**
+1. Speel laatste akkoord van lied
+2. Druk HOLD knop
+3. Pads blijven klinken
+4. Predikant begint praten
+5. Fade uit met expression pedaal
+
+---
+
 ### Scenario A: Alles via L/R (standaard bij styles)
 
 Drums, bass, keys komen allemaal uit L/R.
