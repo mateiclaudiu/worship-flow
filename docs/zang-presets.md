@@ -44,6 +44,9 @@ Warme, diepe vrouwenstem (mezzo/alt). Zingt typisch in Am, Bbm, Bb, Cm.
 | Karakter | Warm, vol, diep maar niet te |
 | Toonsoorten | Am, Bbm, Bb, Cm |
 | Grondtoon bereik | ~200-450Hz |
+| Referentie | Vergelijkbaar met [Paula Hriscu](https://open.spotify.com/artist/1ZswKwEayUiVnSwkrfh9Yg) |
+
+**Over de stemtype:** Claudia's stem heeft van nature de juiste balans tussen warmte en helderheid - vergelijkbaar met Paula Hriscu (Roemeense folk). Geen extra high-frequency boost nodig; de highs zijn al aanwezig.
 
 ### EQ Settings
 
