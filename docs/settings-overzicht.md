@@ -576,6 +576,72 @@ Typische problemen grote kerk:
 
 ---
 
+### Akoestische Panelen Plaatsen met REW
+
+Met een meetmic kun je de ideale positie voor akoestische panelen vinden.
+
+#### Wat REW toont
+
+**ETC (Energy Time Curve)** laat reflecties zien:
+
+```
+Direct geluid     Eerste reflectie    Late reflecties (reverb)
+     |                  |                  |||||||
+     ▼                  ▼                  ▼▼▼▼▼▼▼
+─────█─────────────────█──────────────────██████████────
+     0ms              20-40ms            80ms+
+
+     ↑                  ↑
+   Goed!           Dit dempen met panelen
+```
+
+#### Reflectie → Muur afstand berekenen
+
+```
+Reflectie timing (ms) × 0.343 (m/ms) ÷ 2 = afstand tot muur
+
+Voorbeeld: 25ms × 0.343 ÷ 2 = 4.3 meter
+```
+
+#### Prioriteit plaatsing (beperkt aantal panelen)
+
+| Prioriteit | Locatie | Effect |
+|------------|---------|--------|
+| 1 | Achter spreekplek/podium | Minder reflectie in mics, minder feedback |
+| 2 | Eerste reflectiepunt zijmuren | Grootste impact op helderheid |
+| 3 | Achterwand | Slapback echo dempen |
+| 4 | Plafond boven podium | Als bereikbaar |
+
+#### Eerste reflectiepunt vinden (zonder meten)
+
+Simpele methode met spiegel:
+1. Zit op luisterpositie
+2. Laat iemand spiegel langs zijmuur schuiven
+3. Waar je de speaker ZIET in de spiegel = eerste reflectiepunt
+4. Daar paneel plaatsen
+
+#### Meetprocedure voor paneel plaatsing
+
+1. **Baseline meting** - Meet zonder panelen, sla op
+2. **Analyseer ETC** - Vind sterkste reflectie, bereken welke muur
+3. **Plaats paneel** - Op berekende locatie
+4. **Meet opnieuw** - Vergelijk met baseline
+5. **Check verbetering** - Is die reflectie gedaald?
+6. **Herhaal** - Voor elk volgend paneel
+
+#### Realistische verwachtingen (4 panelen)
+
+| Aspect | Verbetering |
+|--------|-------------|
+| RT60 (reverb tijd) | ❌ Minimaal (te weinig m²) |
+| Eerste reflecties | ✅ Meetbaar verschil |
+| Spraakverstaanbaarheid | ✅ Hoorbaar beter |
+| Bas problemen | ❌ Niet (veel meer m² nodig) |
+
+**Vuistregel:** 4 panelen slim geplaatst > 8 panelen willekeurig.
+
+---
+
 ### Monitor Mixing
 
 #### Gouden Regel
