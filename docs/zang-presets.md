@@ -328,6 +328,101 @@ Oplossing: Meer van haarzelf in haar monitor/in-ear. Ze overcompenseert (te krac
 
 ---
 
+## David (Lead / Harmony - Beste Zanger)
+
+Warme bariton-tenor met veel lows. Beste zanger, zingt niet continu. Doel: Italiaanse romantische stijl ("Ti Amo").
+
+### Stem karakteristieken
+
+| Eigenschap | Waarde |
+|------------|--------|
+| Type | Man, bariton-tenor (kan hoge noten) |
+| Karakter | Warm, veel body, soms te veel lows |
+| Probleem | Klinkt "retro"/ouderwets door teveel body |
+| Niveau | Beste zanger van de groep |
+| Rol | Lead of harmony (niet continu) |
+
+### Doel: Italiaanse romantische stem
+
+**"Ti Amo" stijl** = warm maar helder, emotioneel, gepolijst, niet modderig.
+
+| Huidige stem | Doel |
+|--------------|------|
+| Te veel lows/body | Warm maar gecontroleerd |
+| Klinkt "retro"/bas | Modern, romantisch |
+| Veel potentieel | Italiaanse ballade kwaliteit |
+
+### Aanpak
+
+Het probleem is te veel body zonder helderheid = klinkt ouderwets.
+Italiaanse zangers hebben warmte + presence + lucht = modern romantisch.
+
+| Probleem | Frequentie | Oplossing |
+|----------|------------|-----------|
+| Te veel bas/body | 100-200Hz | Cut (body controleren) |
+| "Retro" klank | 300-500Hz | Cut (oude radio freq weg) |
+| Mist moderniteit | 3-4kHz | Boost (presence/helderheid) |
+| Mist "lucht" | 8-10kHz | Boost (adem/romantiek) |
+
+### EQ Settings
+
+| Band | Freq | Gain | Q | Waarom |
+|------|------|------|---|--------|
+| HPF | **80Hz** | - | steep | Lage stem, maar niet té laag |
+| 1 | 150Hz | **-3dB** | 1.5 | Te veel bas controleren |
+| 2 | 400Hz | **-2dB** | 2.0 | "Retro" / oude radio freq weg |
+| 3 | 800Hz | **0dB** | - | Flat - hier zit zijn warmte |
+| 4 | 3kHz | **+2dB** | 2.0 | Presence - moderne helderheid |
+| 5 | 8kHz | **+1.5dB** | 1.5 | "Lucht" - Italiaanse romantiek |
+
+### Visuele EQ curve
+
+```
+     +3dB |
+     +2dB |                        /\
+     +1dB |                       /  \    /\
+      0dB |          ____        /    \  /  \
+     -1dB |         /    \      /      \/
+     -2dB |    __  /      \____/
+     -3dB |___/  \/
+          80  150 400  800  2k   3k   8k   Hz
+              ↑   ↑             ↑    ↑
+            bas retro       presence lucht
+            cut  cut         boost  boost
+```
+
+### Compressie (licht - hij is goed)
+
+| Parameter | Waarde | Waarom |
+|-----------|--------|--------|
+| Threshold | -16dB | Hoger - laat dynamiek door |
+| Ratio | **2.5:1** | Zacht - natuurlijk |
+| Attack | 20ms | Langzaam - emotie behouden |
+| Release | 120ms | Langzaam - smooth |
+| Makeup | +1dB | Minimaal |
+
+**Waarom lichte compressie:** Hij is de beste zanger. Laat zijn dynamiek en emotie door. Niet "platdrukken" zoals bij minder ervaren zangers.
+
+### Het "Ti Amo" effect
+
+| Element | Hoe |
+|---------|-----|
+| Warmte | 800Hz flat laten (niet cutten) |
+| Helderheid | +2dB @ 3kHz |
+| Romantische "lucht" | +1.5dB @ 8kHz |
+| Geen modder | Cut @ 150Hz en 400Hz |
+
+### Mix niveau
+
+| Situatie | Fader |
+|----------|-------|
+| David zingt lead | **0dB** (gelijk aan Claudia) |
+| David zingt harmony | **-3dB** (iets onder lead) |
+
+Hij is goed genoeg om op gelijke hoogte met Claudia te zitten wanneer hij lead zingt.
+
+---
+
 ## Vocal Mix Overzicht
 
 ### Fader balans
@@ -335,6 +430,7 @@ Oplossing: Meer van haarzelf in haar monitor/in-ear. Ze overcompenseert (te krac
 | Stem | Rol | Fader | Compressie |
 |------|-----|-------|------------|
 | Claudia | Lead | **0dB** (referentie) | 3:1, natuurlijk |
+| David | Lead/harmony | **0dB** of **-3dB** | 2.5:1, licht |
 | Ina | Backup | **-5dB** | 4:1, strak |
 | Lidia | Backup | **-5dB** | 5:1, zeer strak |
 | Carmen | Hoge harmony | **-4dB** | 4:1, strak |
@@ -344,21 +440,25 @@ Oplossing: Meer van haarzelf in haar monitor/in-ear. Ze overcompenseert (te krac
 | Stem | Presence boost @ 2.5-3kHz | Reden |
 |------|---------------------------|-------|
 | Claudia | **+2dB** | Lead - snijdt door mix |
+| David | **+2dB** | Lead kwaliteit - mag presence hebben |
 | Ina | **0dB** | Zou spanning benadrukken |
 | Lidia | **+1dB** | Helpt met projectie |
 | Carmen | **0dB** | Zou irritante highs versterken |
 
-**Waarom dit werkt:** Claudia heeft de presence boost, dus zij "leidt". Backups vullen aan zonder te concurreren.
+**Waarom dit werkt:** Claudia en David hebben presence boost (lead niveau). Backups vullen aan zonder te concurreren.
 
 ### Harmony posities
 
 | Zanger | Positie t.o.v. lead |
 |--------|---------------------|
-| Carmen | **Boven** Claudia (hoge harmony) |
-| Ina | **Onder of gelijk** aan Claudia |
-| Lidia | **Onder of gelijk** aan Claudia |
+| David | **Lead of harmony** (flexibel - kan beide) |
+| Carmen | **Boven** lead (hoge harmony) |
+| Ina | **Onder of gelijk** aan lead |
+| Lidia | **Onder of gelijk** aan lead |
 
-**Regel:** Carmen nooit onder de lead laten zingen - haar stem is daar niet voor gemaakt.
+**Regels:**
+- Carmen nooit onder de lead - haar stem is daar niet voor gemaakt
+- David kan lead overnemen of harmony zingen - beste zanger, meest flexibel
 
 ---
 
