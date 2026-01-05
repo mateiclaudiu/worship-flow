@@ -244,6 +244,90 @@ Keelstem met ongecontroleerde lows. Geen projectie, "komt van ver".
 
 ---
 
+## Carmen (Hoge Harmony / 2de Stem)
+
+Hoge sopraan, zingt harmony boven lead. Schraal, diffuus, soms irritante highs.
+
+### Stem karakteristieken
+
+| Eigenschap | Waarde |
+|------------|--------|
+| Type | Vrouw, sopraan |
+| Karakter | Schraal, diffuus, geen body |
+| Probleem | Irritante highs, soms te krachtig, vals met muziek |
+| Rol | Hoge 2de stem / harmony |
+
+### Arrangement regel (BELANGRIJK)
+
+| Carmen moet zingen | Carmen moet NIET zingen |
+|-------------------|------------------------|
+| Hoge harmony (boven lead) | Laagste noot van akkoord |
+| 2de stem boven Claudia | Basnoten / lage tertsen |
+| Dezelfde noot als lead (versterking) | Tegenstem onder lead |
+
+**Waarom:** Haar hoge dunne stem is niet gemaakt voor lage noten. Klinkt scheef en onnatuurlijk.
+
+**Regel:** Carmen altijd **boven of gelijk** aan lead, nooit eronder.
+
+### Aanpak
+
+| Probleem | Frequentie | Oplossing |
+|----------|------------|-----------|
+| Schraal/geen body | 300-400Hz | Boost (body toevoegen) |
+| Diffuus/ongecontroleerd | 600-800Hz | Cut (focus toevoegen) |
+| Irritante highs | 4-6kHz | Cut (onnodige scherpte weg) |
+| Te krachtig | - | Strakke compressie |
+
+### EQ Settings
+
+| Band | Freq | Gain | Q | Waarom |
+|------|------|------|---|--------|
+| HPF | 120Hz | - | steep | Hoge stem, geen lows nodig |
+| 1 | 350Hz | **+2dB** | 1.5 | Body toevoegen |
+| 2 | 700Hz | **-2dB** | 2.0 | Focus toevoegen (diffuus weg) |
+| 3 | 2kHz | **0dB** | - | Flat laten |
+| 4 | 5kHz | **-3dB** | 1.5 | Irritante highs dempen |
+| 5 | 10kHz | **-1dB** | 1.0 | Scherpte verzachten |
+
+### Visuele EQ curve
+
+```
+     +3dB |
+     +2dB |    /\
+     +1dB |   /  \
+      0dB |__/    \____    ____
+     -1dB |            \  /    \____
+     -2dB |             \/
+     -3dB |                  \/
+          120 350  700  2k   5k   10k  Hz
+               ↑    ↑        ↑     ↑
+             body focus   irritant zacht
+             toe- toe-     cut    cut
+             voeg voeg
+```
+
+### Compressie (strak - ze is soms te krachtig)
+
+| Parameter | Waarde | Waarom |
+|-----------|--------|--------|
+| Threshold | -20dB | Vang de te krachtige momenten |
+| Ratio | **4:1** | Strak genoeg voor controle |
+| Attack | 8ms | Snel - vang pieken |
+| Release | 80ms | Snel herstel |
+| Makeup | +2dB | Compenseer |
+
+### Monitor tip
+
+**Vals zingen met muziek** = ze hoort zichzelf niet.
+
+Oplossing: Meer van haarzelf in haar monitor/in-ear. Ze overcompenseert (te krachtig, vals) omdat ze haar eigen stem niet hoort boven de muziek.
+
+### Mix niveau
+
+**-4 tot -5dB** onder Claudia. Harmony ondersteunt, domineert niet.
+
+---
+
 ## Vocal Mix Overzicht
 
 ### Fader balans
@@ -253,16 +337,28 @@ Keelstem met ongecontroleerde lows. Geen projectie, "komt van ver".
 | Claudia | Lead | **0dB** (referentie) | 3:1, natuurlijk |
 | Ina | Backup | **-5dB** | 4:1, strak |
 | Lidia | Backup | **-5dB** | 5:1, zeer strak |
+| Carmen | Hoge harmony | **-4dB** | 4:1, strak |
 
 ### Presence strategie
 
-| Stem | Presence boost @ 2.5-3kHz |
-|------|---------------------------|
-| Claudia | **+2dB** (snijdt door mix) |
-| Ina | **0dB** (zou spanning benadrukken) |
-| Lidia | **+1dB** (helpt met projectie, voorzichtig) |
+| Stem | Presence boost @ 2.5-3kHz | Reden |
+|------|---------------------------|-------|
+| Claudia | **+2dB** | Lead - snijdt door mix |
+| Ina | **0dB** | Zou spanning benadrukken |
+| Lidia | **+1dB** | Helpt met projectie |
+| Carmen | **0dB** | Zou irritante highs versterken |
 
 **Waarom dit werkt:** Claudia heeft de presence boost, dus zij "leidt". Backups vullen aan zonder te concurreren.
+
+### Harmony posities
+
+| Zanger | Positie t.o.v. lead |
+|--------|---------------------|
+| Carmen | **Boven** Claudia (hoge harmony) |
+| Ina | **Onder of gelijk** aan Claudia |
+| Lidia | **Onder of gelijk** aan Claudia |
+
+**Regel:** Carmen nooit onder de lead laten zingen - haar stem is daar niet voor gemaakt.
 
 ---
 
