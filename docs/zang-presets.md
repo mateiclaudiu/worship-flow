@@ -113,6 +113,159 @@ Warme, diepe vrouwenstem (mezzo/alt). Zingt typisch in Am, Bbm, Bb, Cm.
 
 ---
 
+## Ina (Backup Vocal)
+
+Keelstem, dun in de highs, weinig warmte. Geen getrainde zangeres.
+
+### Stem karakteristieken
+
+| Eigenschap | Waarde |
+|------------|--------|
+| Type | Vrouw, backup |
+| Karakter | Dun, keelklank, gespannen highs |
+| Probleem | Zingt vanuit keel, niet vanuit buik |
+| Rol | Backup voor Claudia |
+
+### Aanpak
+
+**Doel:** Blenden met lead, zwaktes verbergen - NIET als lead laten klinken.
+
+| Probleem | Frequentie | Oplossing |
+|----------|------------|-----------|
+| Dun/schraal | 200-300Hz | Boost (warmte toevoegen) |
+| Keelklank/spanning | 1-2kHz | Cut (nasaal/spanning weg) |
+| Scherpe highs | 4-6kHz | Cut (scherpte dempen) |
+
+### EQ Settings
+
+| Band | Freq | Gain | Q | Waarom |
+|------|------|------|---|--------|
+| HPF | 100Hz | - | steep | Standaard |
+| 1 | 250Hz | **+2dB** | 1.5 | Warmte toevoegen die ontbreekt |
+| 2 | 1.5kHz | **-3dB** | 2.0 | Keelklank/nasaal dempen |
+| 3 | 3kHz | **0dB** | - | NIET boosten (zou spanning benadrukken) |
+| 4 | 5kHz | **-2dB** | 1.5 | Scherpte dempen |
+
+### Visuele EQ curve
+
+```
+     +3dB |
+     +2dB |  /\
+     +1dB | /  \
+      0dB |/    \__________
+     -1dB |               \      __
+     -2dB |                \    /  \
+     -3dB |                 \__/    \
+          80  200  400  800  1.5k 3k  5k  8k  Hz
+               ↑             ↑       ↑
+            warmte        nasaal  scherpte
+            toevoegen      cut      cut
+```
+
+### Compressie (strakker dan lead)
+
+| Parameter | Waarde | Waarom |
+|-----------|--------|--------|
+| Threshold | -22dB | Lager - vang meer inconsistenties |
+| Ratio | **4:1** | Strakker - meer controle |
+| Attack | 10ms | Snel |
+| Release | 80ms | Sneller - houdt volume consistent |
+| Makeup | +3dB | Compenseer |
+
+### Mix niveau
+
+**-4 tot -6dB** onder Claudia. Ondersteunt, concurreert niet.
+
+---
+
+## Lidia (Backup Vocal)
+
+Keelstem met ongecontroleerde lows. Geen projectie, "komt van ver".
+
+### Stem karakteristieken
+
+| Eigenschap | Waarde |
+|------------|--------|
+| Type | Vrouw, backup |
+| Karakter | Keelklank, sterke maar slechte lows, geen focus |
+| Probleem | Ongecontroleerde borstresonantie, geen projectie |
+| Rol | Backup voor Claudia |
+
+### Aanpak
+
+**Doel:** Slechte lows verwijderen, focus toevoegen, blenden met mix.
+
+| Probleem | Frequentie | Oplossing |
+|----------|------------|-----------|
+| Ongecontroleerde lows | 100-200Hz | Cut + hogere HPF |
+| Keelklank | 1-2kHz | Cut |
+| "Komt van ver" / geen focus | 3-4kHz | Kleine boost (projectie helpen) |
+
+### EQ Settings
+
+| Band | Freq | Gain | Q | Waarom |
+|------|------|------|---|--------|
+| HPF | **150Hz** | - | steep | Hoger dan normaal - slechte lows eruit |
+| 1 | 200Hz | **-3dB** | 1.5 | Boominess/ongecontroleerde lows dempen |
+| 2 | 400Hz | **+1dB** | 2.0 | Beetje body terugbrengen |
+| 3 | 1.5kHz | **-3dB** | 2.0 | Nasaal/keelklank dempen |
+| 4 | 3.5kHz | **+1dB** | 2.0 | Helpt met projectie/focus |
+| 5 | 6kHz | **-2dB** | 1.5 | Scherpte dempen |
+
+### Visuele EQ curve
+
+```
+     +3dB |
+     +2dB |
+     +1dB |        /\              /\
+      0dB |____   /  \            /  \
+     -1dB |    \ /    \          /    \
+     -2dB |     X      \        /      \____
+     -3dB |             \______/
+          80  200  400  800  1.5k 3.5k 6k  8k  Hz
+          ↑    ↑    ↑        ↑    ↑    ↑
+         HPF  boom body   nasaal focus scherp
+         hoog cut  terug   cut  boost  cut
+```
+
+### Compressie (strakst)
+
+| Parameter | Waarde | Waarom |
+|-----------|--------|--------|
+| Threshold | -24dB | Nog lager - alles vangen |
+| Ratio | **5:1** | Strak - veel controle nodig |
+| Attack | 8ms | Zeer snel |
+| Release | 60ms | Snel |
+| Makeup | +4dB | Compenseer |
+
+### Mix niveau
+
+**-4 tot -6dB** onder Claudia. Ondersteunt, concurreert niet.
+
+---
+
+## Vocal Mix Overzicht
+
+### Fader balans
+
+| Stem | Rol | Fader | Compressie |
+|------|-----|-------|------------|
+| Claudia | Lead | **0dB** (referentie) | 3:1, natuurlijk |
+| Ina | Backup | **-5dB** | 4:1, strak |
+| Lidia | Backup | **-5dB** | 5:1, zeer strak |
+
+### Presence strategie
+
+| Stem | Presence boost @ 2.5-3kHz |
+|------|---------------------------|
+| Claudia | **+2dB** (snijdt door mix) |
+| Ina | **0dB** (zou spanning benadrukken) |
+| Lidia | **+1dB** (helpt met projectie, voorzichtig) |
+
+**Waarom dit werkt:** Claudia heeft de presence boost, dus zij "leidt". Backups vullen aan zonder te concurreren.
+
+---
+
 ## Template: Nieuwe Zanger Toevoegen
 
 Kopieer dit template voor nieuwe zangers:
