@@ -179,6 +179,16 @@ Keelstem, dun in de highs, weinig warmte. Geen getrainde zangeres.
 
 **-4 tot -6dB** onder Claudia. Ondersteunt, concurreert niet.
 
+### Troubleshooting
+
+| Situatie | Aanpassing |
+|----------|------------|
+| Klinkt nog steeds dun | 250Hz boost verhogen naar +3dB |
+| Keelklank nog hoorbaar | 1.5kHz cut verhogen naar -4dB |
+| Te scherp/irritant | 5kHz cut verhogen naar -3dB |
+| Verdwijnt in mix | Volume omhoog, NIET presence boosten |
+| Oneven volume | Threshold verlagen naar -24dB |
+
 ---
 
 ## Lidia (Backup Vocal)
@@ -244,6 +254,17 @@ Keelstem met ongecontroleerde lows. Geen projectie, "komt van ver".
 ### Mix niveau
 
 **-4 tot -6dB** onder Claudia. Ondersteunt, concurreert niet.
+
+### Troubleshooting
+
+| Situatie | Aanpassing |
+|----------|------------|
+| Lows nog steeds hoorbaar/slecht | HPF verhogen naar 180Hz |
+| Klinkt boomend | 200Hz cut verhogen naar -4dB |
+| Geen projectie/focus | 3.5kHz boost verhogen naar +2dB |
+| Keelklank nog hoorbaar | 1.5kHz cut verhogen naar -4dB |
+| Klinkt nog steeds "van ver" | Meer van haarzelf in monitor |
+| Zeer oneven volume | Ratio verhogen naar 6:1 |
 
 ---
 
@@ -328,6 +349,18 @@ Oplossing: Meer van haarzelf in haar monitor/in-ear. Ze overcompenseert (te krac
 ### Mix niveau
 
 **-4 tot -5dB** onder Claudia. Harmony ondersteunt, domineert niet.
+
+### Troubleshooting
+
+| Situatie | Aanpassing |
+|----------|------------|
+| Klinkt nog steeds schraal | 350Hz boost verhogen naar +3dB |
+| Nog steeds diffuus | 700Hz cut verhogen naar -3dB |
+| Irritante highs nog aanwezig | 5kHz cut verhogen naar -4dB |
+| Te krachtig / overstemt lead | Threshold verlagen naar -22dB |
+| Zingt vals met muziek | MEER van haarzelf in monitor! |
+| Zingt lage noten (klinkt scheef) | Arrangement aanpassen - zij alleen BOVEN lead |
+| Blend niet met anderen | 2kHz licht cut -1dB |
 
 ---
 
@@ -423,6 +456,19 @@ Italiaanse zangers hebben warmte + presence + lucht = modern romantisch.
 | David zingt harmony | **-3dB** (iets onder lead) |
 
 Hij is goed genoeg om op gelijke hoogte met Claudia te zitten wanneer hij lead zingt.
+
+### Troubleshooting
+
+| Situatie | Aanpassing |
+|----------|------------|
+| Klinkt nog steeds "retro"/oud | 400Hz cut verhogen naar -3dB |
+| Te veel bas/body | 150Hz cut verhogen naar -4dB |
+| Mist helderheid | 3kHz boost verhogen naar +3dB |
+| Mist "lucht"/romantiek | 8kHz boost verhogen naar +2dB |
+| Klinkt te dun (teveel gecut) | 150Hz cut verminderen naar -2dB |
+| Overstemt Claudia als lead | Fader -2dB of presence -1dB |
+| Klinkt "nasaal" | 800Hz cut toevoegen -2dB |
+| Verliest warmte | 800Hz NIET cutten - daar zit zijn warmte |
 
 ---
 
