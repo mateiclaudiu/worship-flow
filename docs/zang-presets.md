@@ -186,6 +186,7 @@ Keelstem, dun in de highs, weinig warmte. Geen getrainde zangeres.
 | Klinkt nog steeds dun | 250Hz boost verhogen naar +3dB |
 | Keelklank nog hoorbaar | 1.5kHz cut verhogen naar -4dB |
 | Te scherp/irritant | 5kHz cut verhogen naar -3dB |
+| Extreme highs nog aanwezig | LPF toevoegen @ 12-14kHz |
 | Verdwijnt in mix | Volume omhoog, NIET presence boosten |
 | Oneven volume | Threshold verlagen naar -24dB |
 
@@ -263,6 +264,7 @@ Keelstem met ongecontroleerde lows. Geen projectie, "komt van ver".
 | Klinkt boomend | 200Hz cut verhogen naar -4dB |
 | Geen projectie/focus | 3.5kHz boost verhogen naar +2dB |
 | Keelklank nog hoorbaar | 1.5kHz cut verhogen naar -4dB |
+| Extreme highs/ruis | LPF toevoegen @ 12-14kHz |
 | Klinkt nog steeds "van ver" | Meer van haarzelf in monitor |
 | Zeer oneven volume | Ratio verhogen naar 6:1 |
 
@@ -357,6 +359,7 @@ Oplossing: Meer van haarzelf in haar monitor/in-ear. Ze overcompenseert (te krac
 | Klinkt nog steeds schraal | 350Hz boost verhogen naar +3dB |
 | Nog steeds diffuus | 700Hz cut verhogen naar -3dB |
 | Irritante highs nog aanwezig | 5kHz cut verhogen naar -4dB |
+| Extreme highs blijven irritant | LPF toevoegen @ 10-12kHz |
 | Te krachtig / overstemt lead | Threshold verlagen naar -22dB |
 | Zingt vals met muziek | MEER van haarzelf in monitor! |
 | Zingt lage noten (klinkt scheef) | Arrangement aanpassen - zij alleen BOVEN lead |
