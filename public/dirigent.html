@@ -3203,6 +3203,7 @@ And grace my fears relieved..."
             <h3>${sl.pinned ? '📌 ' : ''}${sl.name}</h3>
             <span class="date">${sl.date || 'Geen datum'}</span>
           </div>
+          <button class="icon-btn" onclick="event.stopPropagation(); openSetlistModal('${sl.id}')" title="Bewerken" style="margin-right: 0.5rem;">✏️</button>
           <span class="status-badge ${sl.status}">${sl.status}</span>
         </div>
       `).join('');
@@ -3482,10 +3483,51 @@ And grace my fears relieved..."
     }
 
     // Setlist Modal
-    function openSetlistModal() {
-      document.getElementById('setlist-form').reset();
-      document.getElementById('setlist-id').value = '';
-      document.getElementById('setlist-modal').classList.add('active');
+    // Get next Sunday date in YYYY-MM-DD format
+    function getNextSunday() {
+      const today = new Date();
+      const dayOfWeek = today.getDay(); // 0 = Sunday
+      const daysUntilSunday = dayOfWeek === 0 ? 0 : 7 - dayOfWeek;
+      const nextSunday = new Date(today);
+      nextSunday.setDate(today.getDate() + daysUntilSunday);
+      return nextSunday.toISOString().split('T')[0];
+    }
+
+    // Format date for display in name suggestion
+    function formatDateForName(dateStr) {
+      const date = new Date(dateStr);
+      return date.toLocaleDateString('nl-NL', { weekday: 'long', day: 'numeric', month: 'long' });
+    }
+
+    function openSetlistModal(setlistId = null) {
+      const modal = document.getElementById('setlist-modal');
+      const form = document.getElementById('setlist-form');
+      const title = modal.querySelector('.modal-header h2');
+      const submitBtn = form.querySelector('button[type="submit"]');
+
+      form.reset();
+      document.getElementById('setlist-id').value = setlistId || '';
+
+      if (setlistId) {
+        // Edit mode - load existing setlist data
+        const setlist = setlists.find(s => s.id === setlistId);
+        if (setlist) {
+          title.textContent = 'Setlist Bewerken';
+          submitBtn.textContent = 'Opslaan';
+          document.getElementById('setlist-name').value = setlist.name || '';
+          document.getElementById('setlist-date').value = setlist.date || '';
+          document.getElementById('setlist-notes').value = setlist.notes || '';
+        }
+      } else {
+        // Create mode - set defaults
+        title.textContent = 'Nieuwe Setlist';
+        submitBtn.textContent = 'Aanmaken';
+        const nextSunday = getNextSunday();
+        document.getElementById('setlist-date').value = nextSunday;
+        document.getElementById('setlist-name').placeholder = formatDateForName(nextSunday);
+      }
+
+      modal.classList.add('active');
     }
 
     function closeSetlistModal() {
@@ -3569,22 +3611,34 @@ And grace my fears relieved..."
     async function saveSetlist(event) {
       event.preventDefault();
 
+      const setlistId = document.getElementById('setlist-id').value;
       const data = {
         name: document.getElementById('setlist-name').value,
         date: document.getElementById('setlist-date').value,
         notes: document.getElementById('setlist-notes').value
       };
 
-      const res = await fetch('/api/setlists', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      });
-
-      const { id } = await res.json();
-      closeSetlistModal();
-      loadSetlists();
-      openSetlistEditor(id);
+      if (setlistId) {
+        // Update existing setlist
+        await fetch(`/api/setlists/${setlistId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        closeSetlistModal();
+        loadSetlists();
+      } else {
+        // Create new setlist
+        const res = await fetch('/api/setlists', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        const { id } = await res.json();
+        closeSetlistModal();
+        loadSetlists();
+        openSetlistEditor(id);
+      }
     }
 
     // Setlist Editor
