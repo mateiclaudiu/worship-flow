@@ -1307,18 +1307,30 @@
     }
 
     // Load setlist
-    async function loadSetlist() {
+    async function loadSetlist(updateUrl = true) {
       const setlistId = document.getElementById('setlist-select').value;
 
       if (!setlistId) {
         document.getElementById('song-chips').innerHTML = '';
         currentSetlist = null;
+        if (updateUrl) {
+          const url = new URL(window.location);
+          url.searchParams.delete('setlist');
+          window.history.replaceState({}, '', url);
+        }
         return;
       }
 
       const res = await fetch(`/api/setlists/${setlistId}`);
       currentSetlist = await res.json();
       renderSongChips();
+
+      // Save setlist to URL
+      if (updateUrl) {
+        const url = new URL(window.location);
+        url.searchParams.set('setlist', setlistId);
+        window.history.replaceState({}, '', url);
+      }
     }
 
     // Render song chips
@@ -1698,9 +1710,9 @@
     }
 
     // Initialize
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
       // connectWebSocket(); // Disabled for now
-      loadSetlists();
+      await loadSetlists();
       showHeader(); // Show header on load
 
       // Apply light theme by default
@@ -1711,12 +1723,57 @@
         setView('zanger');
       }
 
+      // Load setlist from URL parameter
+      const setlistId = params.get('setlist');
+      if (setlistId) {
+        document.getElementById('setlist-select').value = setlistId;
+        await loadSetlist(false); // false = don't update URL (already has it)
+      }
+
       // Load song from URL parameter
       const songId = params.get('song');
       if (songId) {
-        loadSongFromUrl(songId);
+        // If we have a setlist loaded, try to find the song in it
+        if (currentSetlist?.songs) {
+          const songInSetlist = currentSetlist.songs.find(s => s.id === songId);
+          if (songInSetlist) {
+            selectSongFromUrl(songId, songInSetlist.title);
+          } else {
+            loadSongFromUrl(songId);
+          }
+        } else {
+          loadSongFromUrl(songId);
+        }
       }
     });
+
+    // Select song from setlist context (called from URL restore)
+    function selectSongFromUrl(songId, songTitle) {
+      currentSongId = songId;
+      currentSong = currentSetlist?.songs?.find(s => s.id === songId);
+      resetAmenButton();
+
+      // Update chips
+      document.querySelectorAll('.song-chip').forEach(chip => {
+        chip.classList.toggle('active', chip.dataset.songId === songId);
+      });
+
+      // Update header center with key/tempo
+      document.getElementById('header-center').style.display = 'flex';
+      document.getElementById('header-song-key').textContent = currentSong?.key || '-';
+      document.getElementById('header-song-tempo').textContent = currentSong?.tempo ? `${currentSong.tempo} BPM` : '-';
+
+      // Parse and render
+      if (currentSong) {
+        parseSong(currentSong);
+        renderCurrentView();
+        document.getElementById('nav-buttons').style.display = 'flex';
+        document.getElementById('waiting').style.display = 'none';
+      }
+
+      // Start auto-hide timer
+      showHeader();
+    }
 
     // Load song directly from URL parameter
     async function loadSongFromUrl(songId) {
