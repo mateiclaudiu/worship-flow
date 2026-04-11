@@ -1399,8 +1399,8 @@
     // Font size override (failover) — stores offset applied after every autoFit
     function adjustFontSize(delta) {
       fontSizeOffset = Math.max(-4, Math.min(4, fontSizeOffset + delta));
-      document.querySelectorAll('.current-section .lyrics-text, .next-section .lyrics-text').forEach(el => {
-        const current = parseFloat(el.style.fontSize) || 2.75;
+      document.querySelectorAll('.current-section .lyrics-text, .next-section .lyrics-text, .singer-section .lyrics-text').forEach(el => {
+        const current = parseFloat(el.style.fontSize) || parseFloat(getComputedStyle(el).fontSize) / 16;
         el.style.fontSize = Math.max(1, current + delta) + 'rem';
       });
     }
