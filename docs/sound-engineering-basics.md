@@ -309,4 +309,112 @@ EQ op bron:     FLAT
 
 ---
 
+## Audio Analyse: Frequentie Meting met ffmpeg
+
+Om EQ beslissingen te onderbouwen kun je audio bestanden analyseren per frequentieband.
+
+### Methode
+
+**Benodigdheden:**
+- ffmpeg (command line tool)
+- WAV of MP3 bestand
+
+**Bash Script:**
+
+```bash
+#!/bin/bash
+# audio-analyze.sh - Frequentie analyse per band
+
+file="$1"
+
+echo "=== FREQUENTIE ANALYSE ==="
+echo "Bestand: $file"
+echo ""
+
+# Overall stats
+echo "Overall:"
+ffmpeg -i "$file" -af "astats=metadata=1:reset=0" -f null - 2>&1 | \
+    grep -E "(RMS level|Peak level)" | head -2
+
+echo ""
+echo "Per frequentieband:"
+
+# Analyseer per band
+for band in \
+    "20:80:SUB" \
+    "80:150:LOW" \
+    "150:300:BODY" \
+    "300:500:LOW-MID" \
+    "500:1000:MID" \
+    "1000:2000:UPPER-MID" \
+    "2000:4000:PRESENCE" \
+    "4000:6000:BRILLIANCE" \
+    "6000:8000:SIBILANCE" \
+    "8000:12000:AIR"
+do
+    IFS=':' read -r low high name <<< "$band"
+    rms=$(ffmpeg -i "$file" -af \
+        "highpass=f=$low,lowpass=f=$high,astats=metadata=1:reset=0" \
+        -f null - 2>&1 | grep "RMS level dB" | awk '{print $NF}')
+    printf "%-15s %s dB\n" "$name:" "$rms"
+done
+```
+
+**Gebruik:**
+
+```bash
+chmod +x audio-analyze.sh
+./audio-analyze.sh "path/to/audio.wav"
+```
+
+### Interpretatie
+
+| Band | Frequentie | Wat het betekent |
+|------|------------|------------------|
+| SUB | 20-80Hz | Rommel, subwoofer |
+| LOW | 80-150Hz | Kick/bass fundament |
+| BODY | 150-300Hz | Warmte, volheid |
+| LOW-MID | 300-500Hz | Vaak "mud", boxy |
+| MID | 500-1kHz | Stem fundamentals |
+| UPPER-MID | 1-2kHz | Nasaal gebied |
+| PRESENCE | 2-4kHz | Verstaanbaarheid, helderheid |
+| BRILLIANCE | 4-6kHz | Air, consonanten |
+| SIBILANCE | 6-8kHz | S, T klanken |
+| AIR | 8-12kHz | Shimmer, lucht |
+
+### Probleem Detectie
+
+**Richtlijnen:**
+
+| Conditie | Betekenis | Actie |
+|----------|-----------|-------|
+| LOW-MID > BODY | Muddy/boxy geluid | Cut @ 300-500Hz |
+| PRESENCE < MID -10dB | Klinkt ver weg, dof | Boost @ 2-4kHz |
+| SIBILANCE > PRESENCE | Scherp, sissen | Cut @ 6-8kHz of de-esser |
+| SUB > -40dB | Rommel/handling noise | HPF verhogen |
+
+### Voorbeeld Output
+
+```
+=== FREQUENTIE ANALYSE ===
+Bestand: samples/0019/06 KEYS.wav
+
+Overall:
+Peak level dB: -2.541380
+RMS level dB: -24.803839
+
+Per frequentieband:
+SUB:            -47.3 dB
+LOW:            -40.1 dB
+BODY:           -31.8 dB
+LOW-MID:        -29.1 dB   ← DOMINANT (probleem!)
+MID:            -29.2 dB   ← DOMINANT
+PRESENCE:       -41.8 dB   ← TE LAAG (12dB verschil!)
+BRILLIANCE:     -50.6 dB
+```
+
+**Conclusie:** Cut nodig @ 400Hz, boost nodig @ 3kHz.
+
+---
+
 *Gemaakt voor Worship Flow - Live Worship Management*

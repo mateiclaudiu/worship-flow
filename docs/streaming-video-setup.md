@@ -184,20 +184,252 @@ UI24 → AUX 2 → Processing → COMP
 
 ### Stap 3: EQ op AUX 2 Master
 
+**Let op:** Kies het juiste preset voor de situatie!
+
+#### A. Spraak/Preek EQ (primair)
+
 ```
 UI24 → AUX 2 → Processing → EQ
 
-├── HPF:         80-100 Hz     (rommel weg)
-├── Low shelf:   -2 dB @ 150Hz (minder modder)
-├── Mid boost:   +2 dB @ 2-3kHz (spraak helderheid)
-├── High shelf:  +1 dB @ 8kHz  (lucht, niet te scherp)
-└── LPF:         12-14 kHz     (optioneel, vermindert ruis)
+┌────────────────────────────────────────────────────────────────┐
+│  HPF     1       2       3       4      LPF                    │
+└────────────────────────────────────────────────────────────────┘
+
+├── HPF:         100 Hz        (rommel weg)
+├── Band 1:      +2 dB @ 250Hz, Q=1.5  (body/warmte toevoegen)
+├── Band 2:      +1 dB @ 800Hz, Q=2.0  (borst/volheid)
+├── Band 3:      -2 dB @ 5kHz, Q=2.0   (sibilance "S" dempen)
+├── Band 4:      -1 dB @ 8kHz, Q=1.5   (harshness weg)
+└── LPF:         12 kHz        (hoge ruis weg)
 ```
 
-**Waarom?**
-- Stream kijkers gebruiken laptop speakers, earbuds, telefoon
-- Die kunnen geen 40Hz weergeven → cut het weg
-- Helderheid in mid-highs = verstaanbaarheid
+**Visueel:**
+```
+        HPF  1      2      3      4     LPF
+         │   │      │      │      │      │
+      +3 ─┼───┼──────┼──────┼──────┼──────┼─────
+         │   ●      │      │      │      │
+      +2 ─┼─(250)───┼──────┼──────┼──────┼─────
+         │  +2dB    ●      │      │      │
+      +1 ─┼───┼──(800)─────┼──────┼──────┼─────
+         │   │   +1dB      │      │      │
+       0 ═╪═══╪══════╪══════╪══════╪══════╪═════
+         │   │      │      │      ●      │
+      -1 ─┼───┼──────┼──────┼───(8kHz)───┼─────
+         │   │      │      ●   -1dB      │
+      -2 ─┼───┼──────┼───(5kHz)──────────┼─────
+         │   │      │   -2dB             │
+         └───┴──────┴──────┴──────┴──────┴─────
+           100   250  800   5k    8k   12k
+                  ↑           ↑
+              body          sibilance cut
+```
+
+**Waarom deze settings:**
+- **+2dB @ 250Hz** = geeft warmte en body terug
+- **+1dB @ 800Hz** = voegt "borst" toe aan de stem
+- **-2dB @ 5kHz** = dempt de scherpe "S" en "T" klanken
+- **-1dB @ 8kHz** = vermindert harshness
+- **LPF @ 12kHz** = hoge frequentie ruis weg
+
+#### B. Muziek/Worship EQ (alternatief)
+
+**Parametric EQ:**
+```
+├── HPF:         80 Hz
+├── Band 1:      0 dB @ 200Hz (flat)
+├── Band 2:      +1 dB @ 2kHz, Q=2.0 (zang duidelijkheid)
+├── Band 3:      -1 dB @ 5kHz, Q=2.0 (minder scherp)
+├── Band 4:      +1 dB @ 10kHz, Q=1.5 (shimmer)
+└── LPF:         14 kHz
+```
+
+**Graphic EQ voor Muziek/Worship:**
+```
+UI24 → AUX 2 → GEQ
+
+Frequentie:  Fader:   Doel:
+─────────────────────────────────────
+  63 Hz       0 dB
+  80 Hz       0 dB
+ 100 Hz      +1 dB    ← kick/bass fundament
+ 125 Hz      +1 dB    ← kick/bass body
+ 160 Hz       0 dB
+ 200 Hz       0 dB    ← flat (ruimte voor keys)
+ 250 Hz      -1 dB    ← mud verminderen
+ 315 Hz      -1 dB    ← mud verminderen
+ 400 Hz       0 dB
+ 500 Hz       0 dB
+ 630 Hz       0 dB
+ 800 Hz       0 dB
+  1k Hz       0 dB
+1.25k Hz      0 dB
+ 1.6k Hz     +1 dB    ← zang presence
+  2k Hz      +1 dB    ← zang presence
+2.5k Hz      +1 dB    ← zang clarity
+3.15k Hz     +1 dB    ← attack keys/gitaar
+  4k Hz       0 dB
+  5k Hz      -1 dB    ← sibilance dempen
+6.3k Hz      -1 dB    ← sibilance dempen
+  8k Hz       0 dB
+ 10k Hz      +1 dB    ← shimmer/air
+12.5k Hz     +1 dB    ← shimmer/air
+ 16k Hz       0 dB
+─────────────────────────────────────
+```
+
+**Visueel profiel Muziek:**
+```
+      +2 ────────────────────────────────────────
+      +1 ──●●─────────────────●●●●──────────●●──
+       0 ══════●●●●●●●●●●●●●●══════●●══●●●●════●
+      -1 ────────●●────────────────────●●───────
+      -2 ────────────────────────────────────────
+         63 100 200 400 800 2k 3k 5k 8k 10k 16k
+              ↑   ↑       ↑       ↑     ↑
+            kick mud   zang   sibilance shimmer
+           BOOST CUT  BOOST     CUT    BOOST
+```
+
+---
+
+#### B2. Korg PA4X Kanalen voor Stream
+
+De Korg heeft aparte outputs → aparte mixer kanalen:
+
+```
+Korg PA4X                    Soundcraft UI24R
+───────────────────────      ───────────────────────
+LEFT/RIGHT  ──────────────►  Keys kanaal (CH?)
+OUT 1/2     ──────────────►  Drums+Bass kanaal (CH?)
+```
+
+**AUX 2 Send levels per kanaal (relatief t.o.v. FOH):**
+
+| Mixer Kanaal | Bron | AUX 2 Send | Reden |
+|--------------|------|------------|-------|
+| Keys (L/R) | Korg L/R | 0 dB | Basis niveau, pads vullen mix |
+| Drums+Bass | Korg OUT 1/2 | -3 tot -6 dB | Kleine speakers, bleed in mics |
+| Zang | Mics | +2 dB | Moet duidelijk doorkomen |
+| Preek | Mic | +3 dB | Belangrijkste bij spraak |
+
+**Let op:** AUX EQ is master → geldt voor ALLES. Je kunt alleen:
+- Per kanaal: **send level** aanpassen
+- Op AUX bus: **master EQ** (geldt voor alle kanalen)
+
+**Tips:**
+- Drums/bass bloeden al in zang mics → extra dempen op AUX 2
+- Keys/pads vullen de mix → normaal niveau houden
+- Stream heeft geen subwoofer → lage bas nutteloos
+- Bij twijfel: test met laptop speaker of telefoon
+
+---
+
+#### C. De-esser voor Spraak (optioneel, extra effectief)
+
+Als EQ niet genoeg is, voeg de-esser toe op het spraak kanaal zelf:
+
+```
+UI24 → Preek kanaal → Processing → DE-ESSER
+
+├── Frequency:   5-6 kHz
+├── Threshold:   -25 tot -20 dB
+├── Range:       -4 tot -6 dB
+└── Attack:      Fast
+```
+
+**Tip:** De-esser werkt beter per kanaal dan op de AUX master.
+
+---
+
+#### D. Graphic EQ voor Spraak (alternatief voor parametric)
+
+Als je de uitgebreide/grafische EQ gebruikt ipv parametric:
+
+```
+UI24 → AUX 2 → GEQ
+
+Frequentie:  Fader:   Doel:
+─────────────────────────────────────
+  63 Hz       0 dB
+  80 Hz      -2 dB    ← plosives dempen
+ 100 Hz      -2 dB    ← plosives dempen
+ 125 Hz       0 dB
+ 160 Hz      +1 dB    ← body
+ 200 Hz      +2 dB    ← body
+ 250 Hz      +2 dB    ← body (warmte)
+ 315 Hz      +1 dB
+ 400 Hz       0 dB
+ 500 Hz       0 dB
+ 630 Hz      +1 dB
+ 800 Hz      +1 dB    ← borst/volheid
+  1k Hz       0 dB
+1.25k Hz      0 dB
+ 1.6k Hz      0 dB
+  2k Hz       0 dB
+2.5k Hz      -1 dB    ← snijdend dempen
+3.15k Hz     -2 dB    ← snijdend dempen
+  4k Hz      -2 dB    ← snijdend dempen
+  5k Hz      -3 dB    ← sibilance (S)
+6.3k Hz      -2 dB    ← sibilance (S)
+  8k Hz      -1 dB    ← harshness
+ 10k Hz      -1 dB
+12.5k Hz     -2 dB
+ 16k Hz      -3 dB
+─────────────────────────────────────
+```
+
+**Visueel profiel:**
+```
+      +2 ──────●●─────────────────────────────
+      +1 ────●────●─────●●────────────────────
+       0 ══●══════●●══●════●●●●●══════════════
+      -1 ──────────────────────●──────●●──────
+      -2 ●●─────────────────────●●─────────●──
+      -3 ─────────────────────────●─────────●─
+         63 100 200 400 800 2k 4k 6k 8k 12k 16k
+              ↑       ↑       ↑
+           plosives  body  snijdend/S
+            CUT      BOOST    CUT
+```
+
+---
+
+#### E. Compressor Aanpassing voor Plosives
+
+Als je "phhfff" plosives hoort op de stream (maar niet in de zaal):
+
+```
+UI24 → AUX 2 → Processing → COMP
+
+├── Attack:   30-50 ms    (was 10-15 ms)
+│             ↑
+│             Langzamer = plosive glipt erdoor
+│
+├── Ratio:    3:1         (was 4:1, optioneel verlagen)
+└── Rest:     ongewijzigd
+```
+
+**Waarom helpt dit?**
+```
+Snelle attack (10ms):     Langzame attack (40ms):
+
+    phhff                     phhff
+    ████  ← gepakt!           ░░██  ← glipt door
+    ████                      ████
+
+= plosive versterkt       = plosive ontsnapt
+```
+
+**Extra:** Zet HPF op het preek KANAAL zelf op 150-180 Hz.
+
+---
+
+**Algemene tips voor stream audio:**
+- Stream kijkers gebruiken laptop speakers, earbuds, telefoons
+- Die kunnen geen 40Hz weergeven → HPF gebruiken
+- Spraak moet WARM klinken, niet scherp
+- Test altijd met oortjes én laptop speaker
 
 ---
 
@@ -217,50 +449,121 @@ UI24 → AUX 2 → Processing → LIMITER
 
 ---
 
-### Stap 5: Reverb (alleen voor Stream)
+### Stap 5: FX voor Stream (Reverb + Delay)
 
-Reverb maakt de stream minder "droog" en steriel. Maar: **niet alle kanalen krijgen reverb!**
+FX op de stream heeft twee doelen:
+1. **Minder droog/steriel** - stream klinkt professioneler
+2. **Fouten maskeren** - kleine zangfouten worden verhuld
+
+**Waarom werkt dit?**
+```
+DROOG:                    MET FX:
+
+  ♪ valse noot            ♪ valse noot
+  │                       │░░░░░░░  ← reverb tail
+  │                       │░░░░░░░
+  ▼                       ▼░░░░░░░
+
+= fout duidelijk          = fout vervaagt in reverb
+```
+
+---
 
 #### A. FX Send per kanaal instellen
 
 ```
-UI24 → Per kanaal → FX1 SEND
+UI24 → Per kanaal → FX1 SEND (reverb) + FX2 SEND (delay)
 
-                        FX Send
-Preek (CH1):        ████████░░  70-80%   ← veel
-Zang 1 (CH2):       ██████░░░░  50-60%   ← normaal
-Zang 2 (CH3):       ██████░░░░  50-60%   ← normaal
-Zang 3 (CH4):       ██████░░░░  50-60%   ← normaal
-Keys (CH5):         ░░░░░░░░░░  0%       ← GEEN (heeft eigen FX)
-Gitaar (CH6):       ████░░░░░░  30-40%   ← beetje
-Bas (CH7):          ░░░░░░░░░░  0%       ← geen
-Drums (CH8+):       ██░░░░░░░░  10-20%   ← subtiel
+                        FX1 (Reverb)    FX2 (Delay)
+                        ────────────    ───────────
+Preek:                  ████████░░ 70%  ░░░░░░░░░░ 0%
+Lead zang (Claudia):    ██████░░░░ 50%  ████░░░░░░ 30%
+Backup zang:            ████████░░ 70%  ██████░░░░ 50%  ← MEER voor fouten
+Keys:                   ░░░░░░░░░░ 0%   ░░░░░░░░░░ 0%
+Drums+Bass:             ██░░░░░░░░ 10%  ░░░░░░░░░░ 0%
 ```
 
-#### B. Reverb Settings (FX1)
+**Let op:** Backup zangers krijgen MEER FX dan lead → maskeert fouten beter.
+
+---
+
+#### B. Reverb Settings (FX1) - Voor Stemmen
 
 ```
 UI24 → FX → FX1 → Hall Reverb
 
 ├── Pre-delay:  20-30 ms
-├── Decay:      1.2-1.8 sec
+├── Decay:      1.2-1.8 sec      ← langer = meer maskering
 ├── Damping:    Medium-high (hoge freq sterven sneller)
 └── Mix:        100% wet (het is een send-return setup)
 ```
 
-#### C. FX Return routing (BELANGRIJK!)
+**Tip voor fouten maskeren:** Langere decay (1.5-2.0 sec) verbergt meer.
+
+---
+
+#### B2. Delay Settings (FX2) - Voor Fouten Maskeren
+
+Delay is ZEER effectief voor het maskeren van timing- en toonhoogtefouten.
 
 ```
-UI24 → MIXER → FX1 RETURN kanaal
+UI24 → FX → FX2 → Delay
+
+├── Type:       Stereo Delay (of Ping-Pong)
+├── Time:       Dotted 8th (of 300-400 ms)
+├── Feedback:   20-30%        ← niet te veel herhalingen
+├── Mix:        100% wet
+├── HPF:        200 Hz        ← houdt delay helder
+└── LPF:        4-5 kHz       ← delay niet te scherp
+```
+
+**Waarom dotted 8th?**
+```
+Origineel:  ♪───────────────────
+Delay:          ♪.──────────────   (dotted 8th later)
+
+= vult gaten, maskeert timing fouten
+```
+
+**Sync met tempo (optioneel):**
+
+| BPM | Dotted 8th (ms) |
+|-----|-----------------|
+| 70  | 643 ms |
+| 80  | 563 ms |
+| 90  | 500 ms |
+| 100 | 450 ms |
+| 120 | 375 ms |
+
+---
+
+#### C. FX Return routing (BELANGRIJK!)
+
+Beide FX returns gaan ALLEEN naar stream, NIET naar PA:
+
+```
+UI24 → MIXER → FX1 RETURN + FX2 RETURN
 
 ┌─────────────────────────────────────────┐
-│  FX1 RETURN                             │
+│  FX1 RETURN (Reverb)                    │
 │                                         │
 │  MAIN FADER:  -∞ (of MUTE)             │  ← Geen reverb naar PA!
 │                                         │
 │  AUX SENDS:                             │
 │  ├── AUX 1:   -∞                       │
-│  ├── AUX 2:   0 dB  ✓                  │  ← Reverb ALLEEN naar stream
+│  ├── AUX 2:   0 dB  ✓                  │  ← Reverb naar stream
+│  └── AUX 3:   -∞                       │
+│                                         │
+└─────────────────────────────────────────┘
+
+┌─────────────────────────────────────────┐
+│  FX2 RETURN (Delay)                     │
+│                                         │
+│  MAIN FADER:  -∞ (of MUTE)             │  ← Geen delay naar PA!
+│                                         │
+│  AUX SENDS:                             │
+│  ├── AUX 1:   -∞                       │
+│  ├── AUX 2:   0 dB  ✓                  │  ← Delay naar stream
 │  └── AUX 3:   -∞                       │
 │                                         │
 └─────────────────────────────────────────┘
@@ -269,19 +572,21 @@ UI24 → MIXER → FX1 RETURN kanaal
 #### Resultaat
 
 ```
-Zang ───┬──────────────────────────► MAIN PA (droog)
+Zang ───┬────────────────────────────────────► MAIN PA (droog)
         │
-        └──► FX SEND ──► REVERB ──► FX RETURN
-                                        │
-                         MAIN: -∞ ──────┤ (geen reverb naar PA)
-                                        │
-                         AUX 2: 0dB ────┴──► STREAM (met reverb)
+        ├──► FX1 SEND ──► REVERB ──► FX1 RETURN ──┐
+        │                                         │
+        └──► FX2 SEND ──► DELAY ──► FX2 RETURN ──┤
+                                                  │
+                              MAIN: beide -∞ ─────┤ (niets naar PA)
+                                                  │
+                              AUX 2: beide 0dB ───┴──► STREAM (met FX)
 ```
 
 | Bestemming | Krijgt |
 |------------|--------|
-| PA Speakers | Droge mix (geen reverb) |
-| Stream | Mix + reverb (gepolijst) |
+| PA Speakers | Droge mix (geen FX) |
+| Stream | Mix + reverb + delay (gepolijst, fouten gemaskeerd) |
 
 ---
 
@@ -300,7 +605,7 @@ AUX 2 Bus (droog + wet gecombineerd)
        │
        ▼
 ┌──────────────┐
-│     EQ       │  HPF 80Hz, +2dB @ 3kHz
+│     EQ       │  Spraak: +2dB@250Hz, -2dB@5kHz (zie boven)
 └──────────────┘
        │
        ▼
@@ -474,6 +779,10 @@ GEBED:
 | Telefoon oververhit | Lang streamen | Hoesje eraf, koeling, pauze |
 | Zwart beeld op camera | Auto-lock | Disable auto-lock op telefoon |
 | Geen geluid in stream | Audio input verkeerd | Check ATEM audio tab, MIC 1 ON |
+| **"Koekendoos" geluid** | Te weinig lows, te veel highs | GEQ: +2dB @ 200-250Hz, -2dB @ 4-5kHz |
+| **Te veel "S" (sibilance)** | Scherpe highs | GEQ: -3dB @ 5kHz, -2dB @ 6.3kHz |
+| **Snijdend/scherp geluid** | Te veel presence | GEQ: -2dB @ 2.5-4kHz |
+| **"Phhfff" plosives** | Compressor pakt lows | Attack naar 40ms, HPF 150Hz op kanaal |
 
 ---
 

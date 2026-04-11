@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f39c12">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="/manifest.json">
+  <title>Vocal Presets - Worship Flow</title>
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --card: #16161e;
+      --border: #2a2a35;
+      --text: #ffffff;
+      --text-muted: #888;
+      --green: #27ae60;
+      --orange: #f39c12;
+      --red: #e74c3c;
+      --blue: #3498db;
+      --purple: #9b59b6;
+      --gold: #d4a853;
+      --pink: #e91e63;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 0 0 2rem;
+      line-height: 1.4;
+    }
+
+    .header {
+      text-align: center;
+      padding: 1.5rem 1rem 0.5rem;
+    }
+    .header h1 { font-size: 1.5rem; color: var(--orange); margin-bottom: 0.25rem; }
+    .header .back { color: var(--text-muted); text-decoration: none; font-size: 0.85rem; }
+    .header .back:hover { color: var(--orange); }
+
+    /* Sticky selector */
+    .selector {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      padding: 0.75rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      align-items: center;
+    }
+    .selector label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      text-align: center;
+    }
+    .selector-row {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .person-btn {
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 0.5rem 0.9rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.1rem;
+    }
+    .person-btn:hover { border-color: var(--gold); color: var(--text); }
+    .person-btn.active {
+      background: var(--orange);
+      color: #000;
+      border-color: var(--orange);
+      font-weight: 600;
+    }
+    .person-btn .role {
+      font-size: 0.65rem;
+      opacity: 0.7;
+    }
+
+    .content {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem;
+    }
+    .card h2 {
+      font-size: 0.9rem;
+      color: var(--orange);
+      margin-bottom: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.5rem;
+    }
+
+    /* Info grid */
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+    }
+    .info-item {
+      background: rgba(255,255,255,0.03);
+      border-radius: 8px;
+      padding: 0.6rem 0.75rem;
+    }
+    .info-item .label {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .info-item .value {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-top: 0.15rem;
+    }
+    .info-item.full { grid-column: 1 / -1; }
+
+    /* SVG curve */
+    .eq-curve-container svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    /* EQ table */
+    .eq-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+    .eq-table th {
+      text-align: left;
+      color: var(--text-muted);
+      font-weight: 500;
+      padding: 0.4rem 0.5rem;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+    }
+    .eq-table td {
+      padding: 0.5rem;
+      border-bottom: 1px solid rgba(42,42,53,0.5);
+    }
+    .eq-table .band-dot {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-right: 0.4rem;
+      vertical-align: middle;
+    }
+    .eq-table .gain-positive { color: var(--green); }
+    .eq-table .gain-negative { color: var(--red); }
+    .eq-table .gain-zero { color: var(--text-muted); }
+    .eq-table .why { color: var(--text-muted); font-size: 0.8rem; }
+
+    /* Compressor */
+    .comp-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+    }
+
+    /* Mix level bar */
+    .mix-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin: 0.5rem 0;
+    }
+    .mix-bar .bar-track {
+      flex: 1;
+      height: 20px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 4px;
+      position: relative;
+    }
+    .mix-bar .bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.3s;
+    }
+    .mix-bar .bar-label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      min-width: 55px;
+      text-align: right;
+    }
+
+    /* Troubleshooting */
+    details summary {
+      cursor: pointer;
+      color: var(--orange);
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 0.5rem 0;
+      list-style: none;
+    }
+    details summary::before { content: '+ '; }
+    details[open] summary::before { content: '- '; }
+
+    .trouble-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+      margin-top: 0.5rem;
+    }
+    .trouble-table th {
+      text-align: left;
+      color: var(--text-muted);
+      font-weight: 500;
+      padding: 0.3rem 0.5rem;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+    }
+    .trouble-table td {
+      padding: 0.4rem 0.5rem;
+      border-bottom: 1px solid rgba(42,42,53,0.5);
+      vertical-align: top;
+    }
+
+    /* Overview card */
+    .overview-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+    }
+    .overview-table th {
+      text-align: left;
+      color: var(--text-muted);
+      font-weight: 500;
+      padding: 0.4rem 0.5rem;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+    }
+    .overview-table td {
+      padding: 0.4rem 0.5rem;
+      border-bottom: 1px solid rgba(42,42,53,0.5);
+    }
+    .overview-table tr.highlight td {
+      background: rgba(243,156,18,0.08);
+    }
+
+    .note {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      padding: 0.5rem 0.75rem;
+      background: rgba(255,255,255,0.03);
+      border-radius: 8px;
+      border-left: 3px solid var(--orange);
+      margin-top: 0.5rem;
+    }
+
+    @media (max-width: 480px) {
+      .info-grid, .comp-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <a href="/" class="back">&larr; Terug naar Worship Flow</a>
+  <h1>Vocal Presets</h1>
+</div>
+
+<div class="selector">
+  <div>
+    <label>Zang</label>
+    <div class="selector-row" id="singersRow"></div>
+  </div>
+  <div>
+    <label>Spraak</label>
+    <div class="selector-row" id="speakersRow"></div>
+  </div>
+</div>
+
+<div class="content">
+  <!-- Character card -->
+  <div class="card" id="charCard">
+    <h2 id="charTitle">Profiel</h2>
+    <div class="info-grid" id="charInfo"></div>
+  </div>
+
+  <!-- EQ Curve -->
+  <div class="card eq-curve-container">
+    <h2>EQ Curve</h2>
+    <svg id="eqCurve" viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg"></svg>
+  </div>
+
+  <!-- EQ Settings Table -->
+  <div class="card">
+    <h2>EQ Settings</h2>
+    <table class="eq-table">
+      <thead>
+        <tr><th>Band</th><th>Freq</th><th>Gain</th><th>Q</th><th>Waarom</th></tr>
+      </thead>
+      <tbody id="eqTableBody"></tbody>
+    </table>
+  </div>
+
+  <!-- Compressor -->
+  <div class="card">
+    <h2>Compressie</h2>
+    <div class="comp-grid" id="compGrid"></div>
+    <div id="compNote"></div>
+  </div>
+
+  <!-- Mix Level -->
+  <div class="card" id="mixCard">
+    <h2>Mix Niveau</h2>
+    <div id="mixContent"></div>
+  </div>
+
+  <!-- Tips / Notes -->
+  <div class="card" id="tipsCard" style="display:none">
+    <h2 id="tipsTitle">Tips</h2>
+    <div id="tipsContent"></div>
+  </div>
+
+  <!-- Troubleshooting -->
+  <div class="card">
+    <details>
+      <summary>Troubleshooting</summary>
+      <table class="trouble-table">
+        <thead><tr><th>Situatie</th><th>Aanpassing</th></tr></thead>
+        <tbody id="troubleBody"></tbody>
+      </table>
+    </details>
+  </div>
+
+  <!-- Overview -->
+  <div class="card">
+    <details>
+      <summary>Alle Stemmen - Overzicht</summary>
+      <table class="overview-table" id="overviewTable"></table>
+    </details>
+  </div>
+</div>
+
+<script>
+// ─── DATA ─────────────────────────────────────────────────────────
+const BAND_COLORS = ['#27ae60', '#e74c3c', '#9b59b6', '#d4a853'];
+const BAND_NAMES = ['Groen', 'Rood', 'Paars', 'Goud'];
+
+const PEOPLE = {
+  claudia: {
+    name: 'Claudia',
+    role: 'Lead',
+    type: 'singer',
+    char: {
+      Type: 'Vrouw, mezzo-sopraan/alt',
+      Karakter: 'Warm, vol, diep',
+      Toonsoorten: 'Am, Bbm, Bb, Cm',
+      Grondtoon: '~200-450Hz',
+    },
+    bands: [
+      { freq: 250, label: '250Hz', gain: -2.5, q: 1.5, why: 'Galm accumuleert hier, body controleren' },
+      { freq: 500, label: '500Hz', gain: -2, q: 2.0, why: 'Te veel body, ruimte maken' },
+      { freq: 2500, label: '2.5kHz', gain: 3, q: 2.0, why: 'Presence - moet door galm snijden!' },
+      { freq: 5000, label: '5kHz', gain: 1.5, q: 1.5, why: 'Articulatie in galm' },
+    ],
+    hpf: 100,
+    lpf: null,
+    comp: { threshold: '-18dB', ratio: '3:1', attack: '15ms', release: '100ms', makeup: '+2dB' },
+    compNote: 'Zacht genoeg voor natuurlijke dynamiek',
+    mix: '0dB (referentie)',
+    mixDb: 0,
+    trouble: [
+      ['Stem klinkt dun/koud', '250Hz cut verminderen naar -1.5dB'],
+      ['Stem klinkt modderig', '250Hz cut naar -3.5dB + HPF naar 120Hz'],
+      ['Moeilijk verstaanbaar', '2.5kHz boost naar +3.5dB'],
+      ['Stem "verdwijnt" in keyboard', '3kHz boost naar +3.5dB + keyboard 3kHz cut'],
+      ['Klinkt te "dark"/dof', '8kHz +1.5dB'],
+      ['Galm maskeert stem', '400Hz cut -3dB toevoegen, presence naar +3.5dB'],
+    ],
+  },
+  david: {
+    name: 'David',
+    role: 'Lead/Harmony',
+    type: 'singer',
+    char: {
+      Type: 'Man, bariton-tenor',
+      Karakter: 'Warm, veel body, "Ti Amo" stijl',
+      Niveau: 'Beste zanger',
+      Probleem: 'Te veel lows, klinkt "retro"',
+    },
+    bands: [
+      { freq: 150, label: '150Hz', gain: -4, q: 1.5, why: 'Bas + galm = boomend' },
+      { freq: 400, label: '400Hz', gain: -3, q: 2.0, why: '"Retro" freq + galm = erger' },
+      { freq: 3000, label: '3kHz', gain: 3, q: 2.0, why: 'Moet door galm snijden!' },
+      { freq: 8000, label: '8kHz', gain: 2, q: 1.5, why: 'Lucht voor Italiaans effect' },
+    ],
+    hpf: 100,
+    lpf: null,
+    comp: { threshold: '-16dB', ratio: '2.5:1', attack: '20ms', release: '120ms', makeup: '+1dB' },
+    compNote: 'Licht - beste zanger, laat dynamiek en emotie door',
+    mix: '0dB (lead) / -3dB (harmony)',
+    mixDb: 0,
+    tips: [
+      { title: '"Ti Amo" Effect', items: ['Warmte behouden (niet te agressief cutten)', '+3dB @ 3kHz = helderheid', '+2dB @ 8kHz = romantische "lucht"', 'Cut @ 150Hz en 400Hz = geen modder'] },
+    ],
+    trouble: [
+      ['Klinkt nog steeds "retro"', '400Hz cut naar -4dB'],
+      ['Te veel bas/body', '150Hz cut naar -5dB + HPF naar 120Hz'],
+      ['Mist helderheid', '3kHz boost naar +3.5dB'],
+      ['Mist "lucht"/romantiek', '8kHz boost naar +2.5dB'],
+      ['Klinkt te dun', '150Hz cut naar -3dB (galm voegt body toe)'],
+      ['Galm maakt retro erger', '400Hz cut naar -4dB, HPF naar 120Hz'],
+    ],
+  },
+  naomi: {
+    name: 'Naomi',
+    role: 'Lead/Harmony',
+    type: 'singer',
+    char: {
+      Type: 'Vrouw, mezzo-sopraan',
+      Karakter: 'Vol, warm, goed vibrato',
+      Niveau: 'Top zangeres - alles aanwezig',
+      Probleem: 'Mic (Sennheiser XSW 1-835) verliest presence',
+    },
+    bands: [
+      { freq: 400, label: '400Hz', gain: -3, q: 1.5, why: 'Boxy/mud weg' },
+      { freq: 800, label: '800Hz', gain: -2, q: 2.0, why: 'Nasaal range dempen' },
+      { freq: 2500, label: '2.5kHz', gain: 4, q: 2.0, why: 'Presence terughalen (mic verliest dit!)' },
+      { freq: 5000, label: '5kHz', gain: 3, q: 1.5, why: 'Brilliance/lucht toevoegen' },
+    ],
+    hpf: 100,
+    lpf: null,
+    comp: { threshold: '-16dB', ratio: '2.5:1', attack: '15ms', release: '100ms', makeup: '+1dB' },
+    compNote: 'Licht - top zangeres met goede controle, niet "platdrukken"',
+    mix: '0dB (lead) / -3dB (harmony)',
+    mixDb: 0,
+    tips: [
+      { title: 'Mic Compensatie', items: ['Sennheiser XSW 1-835 (dynamisch) verliest presence/brilliance', 'Haar stem klinkt live uitstekend - mic veroorzaakt het "doffe" geluid', 'Alternatief: High shelf +4dB @ 2kHz'] },
+    ],
+    trouble: [
+      ['Klinkt nog steeds dof', '2.5kHz boost naar +5dB, 5kHz naar +4dB'],
+      ['Klinkt boxy/nasaal', '400Hz cut naar -4dB, 800Hz naar -3dB'],
+      ['Te scherp na boost', '2.5kHz Q verbreden naar 1.5'],
+      ['Verdwijnt in mix', 'Presence naar +5dB'],
+      ['Mic verliest haar kwaliteit', 'High shelf +4dB @ 2kHz'],
+    ],
+  },
+  ina: {
+    name: 'Ina',
+    role: 'Backup',
+    type: 'singer',
+    char: {
+      Type: 'Vrouw, backup',
+      Karakter: 'Dun, keelklank, gespannen highs',
+      Probleem: 'Zingt vanuit keel, niet vanuit buik',
+      Doel: 'Blenden met lead, zwaktes verbergen',
+    },
+    bands: [
+      { freq: 250, label: '250Hz', gain: 1.5, q: 1.5, why: 'Warmte toevoegen (galm voegt al wat toe)' },
+      { freq: 1500, label: '1.5kHz', gain: -2, q: 2.0, why: 'Keelklank dempen' },
+      { freq: 3000, label: '3kHz', gain: 1, q: 2.0, why: 'Lichte presence boost door galm' },
+      { freq: 5000, label: '5kHz', gain: -2, q: 1.5, why: 'Scherpte dempen' },
+    ],
+    hpf: 120,
+    lpf: null,
+    comp: { threshold: '-22dB', ratio: '4:1', attack: '10ms', release: '80ms', makeup: '+3dB' },
+    compNote: 'Strakker dan lead - meer controle nodig',
+    mix: '-4 tot -6dB onder Claudia',
+    mixDb: -5,
+    trouble: [
+      ['Klinkt nog steeds dun', '250Hz boost naar +2dB'],
+      ['Keelklank nog hoorbaar', '1.5kHz cut naar -3dB'],
+      ['Te scherp/irritant', '5kHz cut naar -3dB'],
+      ['Verdwijnt in mix', '3kHz boost naar +2dB'],
+      ['Oneven volume', 'Threshold naar -24dB, ratio naar 5:1'],
+      ['Blend niet met Claudia', 'Match HPF (beide 120Hz)'],
+      ['Galm maakt haar onhoorbaar', '3kHz boost naar +2dB, NIET meer warmte'],
+    ],
+  },
+  lidia: {
+    name: 'Lidia',
+    role: 'Backup',
+    type: 'singer',
+    char: {
+      Type: 'Vrouw, backup',
+      Karakter: 'Keelklank, sterke maar slechte lows',
+      Probleem: 'Ongecontroleerde borstresonantie, geen projectie',
+      Doel: 'Slechte lows verwijderen, focus toevoegen',
+    },
+    bands: [
+      { freq: 200, label: '200Hz', gain: -4, q: 1.5, why: 'Boominess + galm = veel erger' },
+      { freq: 1500, label: '1.5kHz', gain: -3, q: 2.0, why: 'Nasaal/keelklank dempen' },
+      { freq: 3500, label: '3.5kHz', gain: 1.5, q: 2.0, why: 'Projectie door galm' },
+      { freq: 6000, label: '6kHz', gain: -2, q: 1.5, why: 'Scherpte dempen' },
+    ],
+    hpf: 180,
+    lpf: null,
+    comp: { threshold: '-24dB', ratio: '5:1', attack: '8ms', release: '60ms', makeup: '+4dB' },
+    compNote: 'Strakst van iedereen - veel controle nodig',
+    mix: '-4 tot -6dB onder Claudia',
+    mixDb: -5,
+    trouble: [
+      ['Lows nog steeds hoorbaar/slecht', 'HPF naar 200Hz'],
+      ['Klinkt boomend', '200Hz cut naar -5dB'],
+      ['Geen projectie/focus', '3.5kHz boost naar +2.5dB'],
+      ['Keelklank nog hoorbaar', '1.5kHz cut naar -4dB'],
+      ['Klinkt nog steeds "van ver"', 'Presence naar +2.5dB + meer monitor'],
+      ['Zeer oneven volume', 'Ratio naar 6:1'],
+      ['Galm maakt lows oncontroleerbaar', 'HPF naar 200Hz, 200Hz cut naar -5dB'],
+    ],
+  },
+  carmen: {
+    name: 'Carmen',
+    role: 'Hoge Harmony',
+    type: 'singer',
+    char: {
+      Type: 'Vrouw, sopraan',
+      Karakter: 'Schraal, diffuus, geen body',
+      Probleem: 'Irritante highs, soms te krachtig, vals met muziek',
+      Regel: 'Altijd BOVEN of gelijk aan lead, nooit eronder',
+    },
+    bands: [
+      { freq: 350, label: '350Hz', gain: 1, q: 1.5, why: 'Body toevoegen (galm compenseert deels)' },
+      { freq: 1200, label: '1.2kHz', gain: -2.5, q: 2.0, why: 'Nasaal resoneert in galm' },
+      { freq: 3000, label: '3kHz', gain: -2, q: 2.0, why: 'Haar presence is teveel + galm' },
+      { freq: 5000, label: '5kHz', gain: -2.5, q: 1.5, why: 'Highs + galm = schril' },
+    ],
+    hpf: 140,
+    lpf: null,
+    comp: { threshold: '-18dB', ratio: '5:1', attack: '5ms', release: '80ms', makeup: '+2dB' },
+    compNote: 'STRAK - pieken tot -8.2dBFS gemeten! Vang pieken direct.',
+    mix: '-4 tot -5dB onder Claudia',
+    mixDb: -4.5,
+    tips: [
+      { title: 'Arrangement Regel', items: ['Carmen ALTIJD boven of gelijk aan lead', 'Nooit lage noten of basnoten laten zingen', 'Hoge dunne stem is niet gemaakt voor lage noten'] },
+      { title: 'Monitor Tip', items: ['Vals zingen met muziek = ze hoort zichzelf niet', 'Meer van haarzelf in haar monitor/in-ear', 'Overcompenseert (te krachtig, vals) zonder monitoring'] },
+    ],
+    trouble: [
+      ['Klinkt nog steeds schraal', '350Hz boost naar +1.5dB'],
+      ['Nog steeds diffuus', '700Hz cut naar -2.5dB + 1.2kHz naar -3dB'],
+      ['Irritant in presence zone', '3kHz cut naar -2.5dB'],
+      ['Irritante highs nog aanwezig', '5kHz cut naar -3dB'],
+      ['Te krachtig / overstemt lead', 'Threshold naar -20dB, ratio naar 6:1'],
+      ['Zingt vals met muziek', 'MEER van haarzelf in monitor!'],
+      ['Galm versterkt irritante freq', 'Alle cuts +0.5dB agressiever'],
+    ],
+  },
+  pastoor: {
+    name: 'Pastoor',
+    role: 'Preek/Amvon',
+    type: 'speaker',
+    char: {
+      Type: 'Man',
+      Karakter: 'Boomend, vol, lage stem',
+      Volume: 'Normaal',
+      Probleem: 'Te veel 300-500Hz (boomend), te weinig presence',
+    },
+    bands: [
+      { freq: 200, label: '200Hz', gain: -2, q: 1.5, why: 'Body + galm = boomend' },
+      { freq: 400, label: '400Hz', gain: -4, q: 2.0, why: 'Boominess + galm = veel erger!' },
+      { freq: 2500, label: '2.5kHz', gain: 3.5, q: 2.0, why: 'KRITIEK: verstaanbaarheid door galm!' },
+      { freq: 5000, label: '5kHz', gain: 2, q: 1.5, why: 'Consonanten door galm laten snijden' },
+    ],
+    hpf: 120,
+    lpf: null,
+    comp: { threshold: '-20dB', ratio: '4:1', attack: '10ms', release: '80ms', makeup: '+3dB' },
+    compNote: 'Consistente spraak in galmende zaal',
+    mix: 'Unity (0dB)',
+    mixDb: 0,
+    trouble: [
+      ['Nog steeds boomend', '400Hz cut naar -5dB + HPF naar 140Hz'],
+      ['Niet verstaanbaar', '2.5kHz boost naar +4dB'],
+      ['Mompelend', '3-4kHz boost +2dB toevoegen'],
+      ['Wisselend volume', 'Threshold naar -22dB, ratio naar 5:1'],
+      ['Klinkt "ver weg"', '2.5kHz naar +4dB + 400Hz naar -5dB'],
+      ['Galm maskeert woorden', '300-500Hz cut naar -5dB, presence naar +4dB'],
+      ['Woorden lopen in elkaar', 'Compressie release naar 60ms'],
+    ],
+  },
+  gastspreker: {
+    name: 'Gastspreker',
+    role: 'Onbekend',
+    type: 'speaker',
+    char: {
+      Type: 'Onbekend (man of vrouw)',
+      Karakter: 'Veilig startpunt voor onbekende sprekers',
+      Doel: 'Verstaanbaarheid in galmende zaal',
+    },
+    bands: [
+      { freq: 300, label: '300Hz', gain: -2.5, q: 1.5, why: 'Boominess + galm dempen' },
+      { freq: 800, label: '800Hz', gain: 0, q: 1.0, why: 'Flat - onbekende stem' },
+      { freq: 3000, label: '3kHz', gain: 2.5, q: 2.0, why: 'Verstaanbaarheid door galm' },
+      { freq: 5000, label: '5kHz', gain: 1, q: 1.5, why: 'Articulatie hulp' },
+    ],
+    hpf: 120,
+    lpf: null,
+    comp: { threshold: '-18dB', ratio: '4:1', attack: '10ms', release: '80ms', makeup: '+3dB' },
+    compNote: 'Medium-strak voor consistente spraak',
+    mix: 'Unity (0dB)',
+    mixDb: 0,
+    trouble: [
+      ['Niet verstaanbaar', '3kHz boost verhogen'],
+      ['Boomend', '300Hz cut verhogen of HPF naar 140Hz'],
+      ['Te veel S-klanken', 'De-esser overwegen'],
+      ['Wisselend volume', 'Ratio naar 5:1'],
+    ],
+  },
+};
+
+// ─── STATE ────────────────────────────────────────────────────────
+let currentPerson = 'claudia';
+
+function setPerson(key) {
+  currentPerson = key;
+  document.querySelectorAll('.person-btn').forEach(b => b.classList.toggle('active', b.dataset.person === key));
+  render();
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────
+function initButtons() {
+  const singersRow = document.getElementById('singersRow');
+  const speakersRow = document.getElementById('speakersRow');
+  Object.entries(PEOPLE).forEach(([key, p]) => {
+    const btn = document.createElement('button');
+    btn.className = 'person-btn' + (key === currentPerson ? ' active' : '');
+    btn.dataset.person = key;
+    btn.innerHTML = `${p.name}<span class="role">${p.role}</span>`;
+    btn.onclick = () => setPerson(key);
+    (p.type === 'singer' ? singersRow : speakersRow).appendChild(btn);
+  });
+}
+
+// ─── RENDER ───────────────────────────────────────────────────────
+function render() {
+  const p = PEOPLE[currentPerson];
+  renderChar(p);
+  renderCurve(p);
+  renderTable(p);
+  renderComp(p);
+  renderMix(p);
+  renderTips(p);
+  renderTrouble(p);
+}
+
+function renderChar(p) {
+  document.getElementById('charTitle').textContent = `${p.name} - ${p.role}`;
+  let html = '';
+  Object.entries(p.char).forEach(([k, v]) => {
+    html += `<div class="info-item"><div class="label">${k}</div><div class="value">${v}</div></div>`;
+  });
+  document.getElementById('charInfo').innerHTML = html;
+}
+
+// ─── SVG EQ CURVE ─────────────────────────────────────────────────
+function freqToX(f) {
+  const minLog = Math.log10(20);
+  const maxLog = Math.log10(20000);
+  return 60 + (Math.log10(f) - minLog) / (maxLog - minLog) * 680;
+}
+
+function dbToY(db) {
+  return 200 - (db / 18) * 320 + 40;
+}
+
+function renderCurve(p) {
+  const gridFreqs = [50, 100, 200, 500, 1000, 2000, 5000, 10000];
+  const gridLabels = ['50', '100', '200', '500', '1k', '2k', '5k', '10k'];
+  const gridDBs = [-12, -9, -6, -3, 0, 3, 6];
+
+  let svg = '';
+  svg += `<rect x="0" y="0" width="800" height="400" fill="#0d0d14"/>`;
+
+  gridFreqs.forEach((f, i) => {
+    const x = freqToX(f);
+    svg += `<line x1="${x}" y1="30" x2="${x}" y2="370" stroke="#1a1a24" stroke-width="1"/>`;
+    svg += `<text x="${x}" y="390" fill="#555" font-size="11" text-anchor="middle">${gridLabels[i]}</text>`;
+  });
+
+  gridDBs.forEach(db => {
+    const y = dbToY(db);
+    const color = db === 0 ? '#333' : '#1a1a24';
+    const width = db === 0 ? 1.5 : 1;
+    svg += `<line x1="55" y1="${y}" x2="745" y2="${y}" stroke="${color}" stroke-width="${width}"/>`;
+    svg += `<text x="48" y="${y + 4}" fill="#555" font-size="11" text-anchor="end">${db > 0 ? '+' : ''}${db}</text>`;
+  });
+
+  svg += `<text x="400" y="15" fill="#666" font-size="12" text-anchor="middle">Hz</text>`;
+  svg += `<text x="12" y="200" fill="#666" font-size="12" text-anchor="middle" transform="rotate(-90,12,200)">dB</text>`;
+
+  // Build curve
+  const points = [];
+  const numPoints = 300;
+
+  for (let i = 0; i <= numPoints; i++) {
+    const logF = Math.log10(20) + (i / numPoints) * (Math.log10(20000) - Math.log10(20));
+    const freq = Math.pow(10, logF);
+    let totalGain = 0;
+
+    // HPF
+    if (p.hpf && freq < p.hpf * 4) {
+      const ratio = freq / p.hpf;
+      if (ratio < 1) totalGain += Math.max(-18, 18 * Math.log2(ratio));
+    }
+
+    // Parametric bands
+    p.bands.forEach(band => {
+      if (band.gain !== 0) {
+        const logRatio = Math.log2(freq / band.freq);
+        const bell = band.gain * Math.exp(-0.5 * Math.pow(logRatio * band.q * 2, 2));
+        totalGain += bell;
+      }
+    });
+
+    // LPF
+    if (p.lpf && freq > p.lpf * 0.25) {
+      const ratio = freq / p.lpf;
+      if (ratio > 1) totalGain += Math.max(-18, -18 * Math.log2(ratio));
+    }
+
+    const x = freqToX(freq);
+    const y = dbToY(Math.max(-12, Math.min(6, totalGain)));
+    points.push(`${x},${y}`);
+  }
+
+  const firstX = freqToX(20);
+  const lastX = freqToX(20000);
+  const zeroY = dbToY(0);
+  svg += `<polygon points="${firstX},${zeroY} ${points.join(' ')} ${lastX},${zeroY}" fill="rgba(243,156,18,0.08)" />`;
+  svg += `<polyline points="${points.join(' ')}" fill="none" stroke="#f39c12" stroke-width="2.5" stroke-linejoin="round"/>`;
+
+  // Band dots
+  p.bands.forEach((band, i) => {
+    const x = freqToX(band.freq);
+    const y = dbToY(band.gain);
+    const color = BAND_COLORS[i];
+    svg += `<circle cx="${x}" cy="${y}" r="7" fill="${color}" stroke="#fff" stroke-width="1.5"/>`;
+    svg += `<text x="${x}" y="${y - 14}" fill="${color}" font-size="11" font-weight="600" text-anchor="middle">${band.gain > 0 ? '+' : ''}${band.gain}dB</text>`;
+  });
+
+  // HPF marker
+  if (p.hpf) {
+    const hx = freqToX(p.hpf);
+    svg += `<line x1="${hx}" y1="35" x2="${hx}" y2="365" stroke="#3498db" stroke-width="1" stroke-dasharray="4,3"/>`;
+    svg += `<text x="${hx}" y="48" fill="#3498db" font-size="10" text-anchor="middle">HPF ${p.hpf}Hz</text>`;
+  }
+
+  document.getElementById('eqCurve').innerHTML = svg;
+}
+
+// ─── EQ TABLE ─────────────────────────────────────────────────────
+function renderTable(p) {
+  let html = '';
+  // HPF
+  html += `<tr>
+    <td><span class="band-dot" style="background:#3498db"></span>HPF</td>
+    <td>${p.hpf}Hz</td>
+    <td class="gain-zero">18dB/oct</td>
+    <td>steep</td>
+    <td class="why">Galmende zaal - bas buildup voorkomen</td>
+  </tr>`;
+
+  p.bands.forEach((band, i) => {
+    const cls = band.gain > 0 ? 'gain-positive' : band.gain < 0 ? 'gain-negative' : 'gain-zero';
+    const gStr = band.gain > 0 ? `+${band.gain} dB` : band.gain === 0 ? '0 dB' : `${band.gain} dB`;
+    html += `<tr>
+      <td><span class="band-dot" style="background:${BAND_COLORS[i]}"></span>${BAND_NAMES[i]}</td>
+      <td>${band.label}</td>
+      <td class="${cls}">${gStr}</td>
+      <td>${band.q}</td>
+      <td class="why">${band.why}</td>
+    </tr>`;
+  });
+
+  if (p.lpf) {
+    html += `<tr>
+      <td><span class="band-dot" style="background:#8b6914"></span>LPF</td>
+      <td>${p.lpf / 1000}kHz</td>
+      <td class="gain-zero">18dB/oct</td>
+      <td>-</td>
+      <td class="why">Bovengrens</td>
+    </tr>`;
+  }
+
+  document.getElementById('eqTableBody').innerHTML = html;
+}
+
+// ─── COMPRESSOR ───────────────────────────────────────────────────
+function renderComp(p) {
+  const c = p.comp;
+  let html = '';
+  html += `<div class="info-item"><div class="label">Threshold</div><div class="value">${c.threshold}</div></div>`;
+  html += `<div class="info-item"><div class="label">Ratio</div><div class="value">${c.ratio}</div></div>`;
+  html += `<div class="info-item"><div class="label">Attack</div><div class="value">${c.attack}</div></div>`;
+  html += `<div class="info-item"><div class="label">Release</div><div class="value">${c.release}</div></div>`;
+  html += `<div class="info-item"><div class="label">Makeup Gain</div><div class="value">${c.makeup}</div></div>`;
+  document.getElementById('compGrid').innerHTML = html;
+  document.getElementById('compNote').innerHTML = p.compNote ? `<div class="note">${p.compNote}</div>` : '';
+}
+
+// ─── MIX LEVEL ────────────────────────────────────────────────────
+function renderMix(p) {
+  const width = Math.max(10, 50 + p.mixDb * 8);
+  const color = p.mixDb >= 0 ? '#27ae60' : p.mixDb >= -3 ? '#f39c12' : '#e74c3c';
+  document.getElementById('mixContent').innerHTML = `
+    <div class="mix-bar">
+      <div class="bar-track"><div class="bar-fill" style="width:${width}%;background:${color}"></div></div>
+      <div class="bar-label">${p.mix.split(' ')[0]}</div>
+    </div>
+    <div class="note">${p.mix}</div>
+  `;
+}
+
+// ─── TIPS ─────────────────────────────────────────────────────────
+function renderTips(p) {
+  const card = document.getElementById('tipsCard');
+  if (!p.tips || p.tips.length === 0) {
+    card.style.display = 'none';
+    return;
+  }
+  card.style.display = '';
+  let html = '';
+  p.tips.forEach(tip => {
+    html += `<h3 style="font-size:0.85rem;color:var(--blue);margin:0.5rem 0 0.3rem">${tip.title}</h3>`;
+    html += '<ul style="padding-left:1.2rem;font-size:0.85rem;color:var(--text-muted)">';
+    tip.items.forEach(item => html += `<li style="margin:0.2rem 0">${item}</li>`);
+    html += '</ul>';
+  });
+  document.getElementById('tipsContent').innerHTML = html;
+}
+
+// ─── TROUBLESHOOTING ──────────────────────────────────────────────
+function renderTrouble(p) {
+  let html = '';
+  p.trouble.forEach(([situation, fix]) => {
+    html += `<tr><td>${situation}</td><td>${fix}</td></tr>`;
+  });
+  document.getElementById('troubleBody').innerHTML = html;
+}
+
+// ─── OVERVIEW ─────────────────────────────────────────────────────
+function renderOverview() {
+  const singers = ['claudia', 'david', 'naomi', 'ina', 'lidia', 'carmen'];
+  let html = '<thead><tr><th>Stem</th><th>Rol</th><th>Fader</th><th>Compressie</th><th>HPF</th></tr></thead><tbody>';
+  singers.forEach(key => {
+    const p = PEOPLE[key];
+    const hl = key === currentPerson ? ' class="highlight"' : '';
+    html += `<tr${hl}>
+      <td><strong>${p.name}</strong></td>
+      <td>${p.role}</td>
+      <td>${p.mix.split(' ')[0]}</td>
+      <td>${p.comp.ratio}</td>
+      <td>${p.hpf}Hz</td>
+    </tr>`;
+  });
+  html += '</tbody>';
+  document.getElementById('overviewTable').innerHTML = html;
+}
+
+// Init
+initButtons();
+render();
+renderOverview();
+</script>
+</body>
+</html>

@@ -223,6 +223,38 @@ Vuistregel: Kies sounds met **snelle attack** en **minder lage harmonics**.
 
 #### Piano Sounds
 
+##### Yamaha C5 Set van Ruben (Main Piano)
+
+**Download:** [Korg Forums - Yamaha C5 Set](http://www.korgforums.com/forum/phpBB3/viewtopic.php?t=113029)
+
+| Eigenschap | Waarde |
+|------------|--------|
+| Grootte | 116MB (232MB uitgepakt) |
+| Sounds | 24 totaal: 15 piano varianten + 9 E-piano's |
+| Velocity layers | 6 |
+| Locatie | User 2 Sounds (eerste 3 pagina's) |
+| Compatibiliteit | Pa3x, Pa4x, Pa700, Pa1000 |
+
+**Waarom deze set:**
+- Factory piano's klinken "troebel in midden- en laagfrequentiegebied"
+- Yamaha C5 samples zijn helderder en snijden beter door de mix
+- 15 helderheidsgraden - kies wat past bij de zaal
+- Inclusief Korg effecten: resonantie, pedal effects, key-off
+
+**Installatie:**
+1. Download en pak uit naar USB-stick
+2. `MEDIA` knop → USB-drive
+3. Navigeer naar map en laad in User 2 Sounds
+
+**Aanbevolen varianten voor kerk:**
+| Variant | Gebruik |
+|---------|---------|
+| Helder/Bright | Uptempo, vol arrangement |
+| Medium | Algemeen gebruik |
+| Warm | Solo piano, intiem |
+
+##### Factory Sounds (Backup)
+
 | Sound | Live? | Reden |
 |-------|-------|-------|
 | Grand Piano (Natural) | ✅ | Helder, snijdt door mix |
@@ -346,14 +378,542 @@ OUT 1/2     →  Drums + Bass
 
 ---
 
-## 7. Xvive In-Ear (Draadloos)
+## 7. Xvive In-Ear Monitor Systeem
 
-| Setting | Waarde |
+**Alleen voor:** Claudia (lead zangeres)
+
+> De IEM is specifiek voor de lead zangeres zodat zij zichzelf goed kan horen
+> en zuiver kan zingen. Backup zangers gebruiken het open oor + floor wedge.
+
+### Hardware
+
+| Component | Model | Gebruiker |
+|-----------|-------|-----------|
+| Zender/Ontvanger | Xvive U4 | Claudia |
+| Oordoppen | **KZ ZSN Pro** | Claudia (1 oor) |
+
+---
+
+### Waarom Alleen Lead?
+
+| Reden | Uitleg |
+|-------|--------|
+| **Lead bepaalt de toon** | Zij moet 100% zuiver zijn, anderen volgen haar |
+| **Backup volgt lead** | Zij horen Claudia via zaal + wedge |
+| **Eenvoudiger setup** | 1 IEM mix ipv 5 verschillende |
+| **Minder apparatuur** | 1 Xvive systeem is genoeg |
+
+---
+
+### KZ ZSN Pro Karakteristieken
+
+De ZSN Pro is een hybride IEM (1 BA + 1 DD) met een **V-shaped** geluidsprofiel:
+
+```
+Freq response:
+      │
+  +3dB│\                    /
+      │ \                  /
+   0dB│  \________________/
+      │
+  -3dB│
+      └──────────────────────────
+        100Hz  500Hz  2kHz  8kHz
+
+        "V-shape" = boost bas + highs, dip mids
+```
+
+| Eigenschap | Effect | Compensatie in mix |
+|------------|--------|-------------------|
+| **Boosted bas** (<200Hz) | Kan boomy klinken | IEM mix: less bass |
+| **Recessed mids** (500Hz-2kHz) | Stem kan wegvallen | IEM mix: +2dB @ 1-2kHz |
+| **Boosted highs** (>6kHz) | Kan scherp/vermoeiend zijn | IEM mix: -2dB @ 8kHz |
+
+---
+
+### Één Oor Gebruik
+
+**Setup:** ZSN Pro in **één oor**, ander oor **open**.
+
+| Voordeel | Uitleg |
+|----------|--------|
+| Hoor de zaal | Connectie met gemeente behouden |
+| Hoor andere zangers | Niet alleen je eigen stem |
+| Natuurlijker gevoel | Niet afgesloten van omgeving |
+| Minder gehoorschade | Lager volume nodig |
+
+#### Welk oor?
+
+| Situatie | Aanbeveling |
+|----------|-------------|
+| Rechthandig + keyboard rechts | IEM in **linker** oor (weg van keyboard) |
+| Keyboard links | IEM in **rechter** oor |
+| Geen voorkeur | Test beide, kies comfortabelst |
+
+---
+
+### Probleem: 1 Oor Klinkt Minder Duidelijk
+
+**Klacht:** "Met 2 oortjes klinkt het helder, met 1 klinkt het dof/onduidelijk"
+
+#### Waarom Dit Gebeurt
+
+| Oorzaak | Uitleg |
 |---------|--------|
-| Volume | Start 50%, pas aan op gehoor |
-| Kanaal | Vrij van interferentie |
+| **Geen stereo** | Mono in 1 oor mist "ruimte" |
+| **Bas overheerst** | Lage freq voelen sterker in 1 oor |
+| **Omgeving maskeert** | Open oor vangt zaalgeluid dat IEM maskeert |
+| **Volume te laag** | Compenseer niet genoeg voor open oor |
 
-**Tip:** Gebruik 1 oor in, 1 oor uit voor ruimtegevoel.
+#### Oplossingen voor 1-Oor Helderheid
+
+**1. EQ aanpassen (agressiever voor 1 oor)**
+
+| Band | 2 oren | 1 oor aanpassing |
+|------|--------|------------------|
+| 100Hz | -3dB | **-5dB** (meer bas weg) |
+| 250Hz | -2dB | **-3dB** (minder boomy) |
+| 1.5kHz | +2dB | **+3dB** (meer helderheid) |
+| 3kHz | 0dB | **+2dB** (meer presence) |
+| 8kHz | -2dB | **0dB** (minder cut) |
+
+**2. Volume iets hoger**
+
+Met 1 oor moet je iets harder om boven zaalgeluid uit te komen:
+- Start: 40% → voor 1 oor: **50-55%**
+- Maar nooit boven 70%!
+
+**3. Oordop dieper inbrengen**
+
+Betere seal = betere isolatie = helderder geluid:
+```
+Te ondiep:        Goed:
+   ◯──            ◯══──
+   │              │
+ Oor            Oor
+
+Lekt geluid     Goede seal
+```
+
+**4. Ander oortip proberen**
+
+| Tip type | Effect |
+|----------|--------|
+| Foam tips | Beste isolatie, warmste geluid |
+| Silicone (meegeleverd) | Minder isolatie, meer omgeving |
+| Comply tips | Beste van beide |
+
+---
+
+### IEM + Floor Monitor Combinatie
+
+**Situatie:** Claudia heeft IEM (1 oor) + floor wedge beschikbaar.
+
+#### Waarom Beide?
+
+| IEM alleen | Wedge alleen | **Beide samen** |
+|------------|--------------|-----------------|
+| Kan te geïsoleerd voelen | Geen eigen stem | ✓ Balans |
+| Mist "gevoel" van bas | Feedback risico | ✓ IEM = stem, Wedge = band |
+| Geen stage presence | Niet zuiver genoeg | ✓ Beste van beide |
+
+#### Hoe Te Balanceren
+
+**Strategie:** IEM voor **stem**, Wedge voor **band gevoel**
+
+| Bron | In IEM | In Wedge | Waarom |
+|------|--------|----------|--------|
+| **Claudia's stem** | **LUID** | **UIT!** | Anders echo/dubbel |
+| Keyboard | Medium | Medium | Pitch in beide ok |
+| Andere stemmen | Zacht | Medium | Blend via wedge |
+| Drums/bas | Uit/minimaal | **Voelbaar** | Feel via wedge |
+
+**BELANGRIJK:** Claudia's eigen stem = **ALLEEN in IEM, NIET in wedge!**
+
+```
+IEM (in oor):              Wedge (op vloer):
+┌──────────────────┐       ┌──────────────────┐
+│ ████████ STEM    │       │    (GEEN stem!)  │
+│ ████ Keyboard    │       │ ████ Keyboard    │
+│ ██ Anderen       │       │ ████ Anderen     │
+│ █ Drums          │       │ ██████ Drums/bas │
+└──────────────────┘       └──────────────────┘
+   Stem + pitch               Band feel ONLY
+```
+
+#### Waarom Stem UIT in Wedge?
+
+| Stem in beide | Probleem |
+|---------------|----------|
+| IEM + Wedge | Hoort zichzelf 2x met kleine delay |
+| Resultaat | Echo, verwarring, vals zingen |
+
+```
+FOUT:                      GOED:
+IEM ──► stem               IEM ──► stem ✓
+         +
+Wedge ──► stem (delay)     Wedge ──► band only ✓
+         ↓                          ↓
+      "Echo!"                  "Helder!"
+```
+
+#### Volume Verhouding
+
+| Component | Level | Reden |
+|-----------|-------|-------|
+| IEM | **Primair** (50-60%) | Stem + pitch referentie |
+| Wedge | **Secundair** (laag) | Band feel + bas |
+
+**Regel:** Als je de wedge uitzet, moet je nog steeds kunnen zingen. IEM = primair.
+
+#### Fase/Timing Problemen Voorkomen
+
+| Probleem | Oorzaak | Oplossing |
+|----------|---------|-----------|
+| "Echo" gevoel | IEM + wedge + zaal | Wedge zachter |
+| Timing verwarrend | Verschillende delays | IEM = primair, wedge = feel only |
+| Stem klinkt dubbel | Stem in beide | Stem UIT in wedge |
+
+#### Setup Procedure (IEM + Wedge)
+
+**Stap 1: IEM eerst**
+1. Wedge UIT
+2. IEM instellen tot Claudia zichzelf goed hoort
+3. Keyboard toevoegen tot pitch referentie ok
+
+**Stap 2: Wedge erbij**
+1. IEM blijft zoals ingesteld
+2. Wedge langzaam omhoog
+3. Alleen drums/bas/band feel
+4. **Stem UIT in wedge!**
+
+**Stap 3: Check**
+- "Hoor je jezelf duidelijk?" (moet via IEM)
+- "Voel je de band?" (moet via wedge)
+- "Is er echo/verwarring?" (wedge zachter)
+
+#### Claudia's Keuze
+
+| Situatie | Aanbeveling |
+|----------|-------------|
+| Rustig nummer (ballad) | IEM alleen, wedge uit |
+| Energiek nummer | IEM + wedge voor feel |
+| Spraak/gebed | IEM uit, wedge uit |
+| Onzeker/nerveus | Wat zij prefereert |
+
+**Uiteindelijk:** Claudia kiest wat voor haar werkt. Jij zorgt dat beide opties beschikbaar en goed ingesteld zijn.
+
+---
+
+### Monitor Setup Per Zanger
+
+#### Overzicht
+
+| Zanger | Monitor Type | Waarom |
+|--------|--------------|--------|
+| **Claudia** | **IEM (1 oor) + Wedge** | Lead moet zuiver zijn |
+| Carmen | Wedge alleen | Volgt Claudia |
+| Ina | Wedge alleen | Volgt Claudia |
+| Lidia | Wedge alleen | Volgt Claudia |
+| David | Wedge alleen | Volgt Claudia (of lead wanneer hij zingt) |
+
+#### Wedge Mix voor Backup Zangers (Carmen, Ina, Lidia, David)
+
+**Doel:** Claudia (lead) duidelijk horen zodat ze kunnen volgen.
+
+| Bron | Level in Wedge | Waarom |
+|------|----------------|--------|
+| **Claudia** | **LUID** | Zij is de referentie |
+| Eigen stem | Medium | Zichzelf horen |
+| Keyboard | Medium | Toonhoogte |
+| Andere backups | Zacht | Blend check |
+| Drums/bas | Voelbaar | Energie/timing |
+
+```
+Backup Wedge Mix:
+┌──────────────────────────────────┐
+│ ████████████ CLAUDIA (lead)      │  ← Belangrijkst!
+│ ██████ Eigen stem                │
+│ ████ Keyboard                    │
+│ ██ Andere backups                │
+│ ████ Drums/bas (feel)            │
+└──────────────────────────────────┘
+```
+
+#### Waarom Backups Claudia Moeten Horen
+
+| Situatie | Als ze Claudia NIET horen | Als ze Claudia WEL horen |
+|----------|---------------------------|--------------------------|
+| Timing | Lopen achter/voor | ✓ Synchroon |
+| Toonhoogte | Vals (eigen interpretatie) | ✓ Volgen haar pitch |
+| Dynamiek | Te hard/zacht | ✓ Matchen haar level |
+| Inzetten | Missen cues | ✓ Volgen haar inzet |
+
+#### Wedge Troubleshooting (Backup Zangers)
+
+| Probleem | Oorzaak | Oplossing |
+|----------|---------|-----------|
+| "Ik hoor Claudia niet" | Te zacht in wedge | Claudia omhoog in AUX |
+| "Ik hoor mezelf niet" | Eigen stem te zacht | Eigen kanaal omhoog |
+| "Het is een chaos" | Alles even luid | Claudia = loudest, rest zachter |
+| Carmen zingt vals | Hoort Claudia niet | Claudia VEEL luider in haar wedge |
+| Feedback | Wedge te luid | Zachter + HPF omhoog |
+
+#### Verschil Claudia vs Backup Monitoring
+
+| Aspect | Claudia (IEM) | Backups (Wedge) |
+|--------|---------------|-----------------|
+| **Primaire focus** | Eigen stem | Claudia's stem |
+| **Secundair** | Keyboard | Eigen stem |
+| **Tertiair** | David/anderen | Keyboard |
+| **Doel** | Zuiver leiden | Zuiver volgen |
+
+```
+Claudia (lead):           Backups:
+
+"Ik moet MEZELF           "Ik moet CLAUDIA
+ perfect horen"            perfect horen"
+      ↓                         ↓
+   IEM: eigen stem          Wedge: Claudia luid
+```
+
+---
+
+### Claudia's IEM Mix
+
+#### Wat in haar IEM:
+
+| Bron | Level | Waarom |
+|------|-------|--------|
+| **Haar eigen stem** | **Loudest (0dB)** | Moet zichzelf horen om zuiver te zingen |
+| Keyboard/piano | **-6dB** | Toonhoogte referentie voor haar |
+| David (als hij zingt) | -10dB | Harmony check |
+| Andere stemmen | -15dB | Minimaal - zij leidt |
+
+#### Wat NIET in Claudia's IEM:
+
+| Bron | Waarom |
+|------|--------|
+| Drums/bas | Hoort ze via open oor + vloer |
+| Main mix | Verwarrend, latency |
+| Reverb | Maskeert haar zuiverheid |
+| Backup vocals luid | Zij moet LEIDEN, niet volgen |
+
+#### Claudia's IEM Balans Diagram
+
+```
+Claudia's IEM mix:
+
+[============================] Claudia stem (loudest)
+[================]             Keyboard
+[========]                     David (harmony)
+[====]                         Andere stemmen
+[  ]                           Drums/bas (minimaal)
+```
+
+---
+
+### IEM AUX Processing (EQ + Compressor + Limiter)
+
+Pas dit toe op de **AUX bus naar IEM** (niet op main mix):
+
+#### EQ (voor ZSN Pro V-shape compensatie)
+
+| Band | Freq | Gain | Waarom |
+|------|------|------|--------|
+| HPF | 80Hz | - | Rommel eruit |
+| 1 | 100Hz | **-3dB** | Compenseer ZSN Pro bas boost |
+| 2 | 250Hz | **-2dB** | Minder boomy in oor |
+| 3 | 1.5kHz | **+2dB** | Compenseer ZSN Pro mid dip |
+| 4 | 8kHz | **-2dB** | Compenseer ZSN Pro high boost |
+
+#### Compressor op IEM AUX (als Limiter)
+
+De Ui24R heeft geen aparte limiter - gebruik de **compressor met hoge ratio** als limiter:
+
+| Parameter | Waarde | Waarom |
+|-----------|--------|--------|
+| Threshold | **-10dB** | Vroeg ingrijpen voor comfort |
+| Ratio | **10:1** | Bijna-limiter (beschermt gehoor) |
+| Attack | **1ms** | Zeer snel - vang pieken direct |
+| Release | **80ms** | Snel herstel |
+| Makeup | **0dB** | NOOIT verhogen! |
+| Knee | **Hard** | Geen zachte overgang |
+
+**Waarom deze settings:**
+
+| Keuze | Reden |
+|-------|-------|
+| Threshold -10dB | Grijpt in vóór het te luid wordt |
+| Ratio 10:1 | Hoog genoeg om als limiter te werken |
+| Attack 1ms | Pieken worden direct gevangen |
+| Makeup 0dB | We willen NIET harder, alleen beschermd |
+
+#### Signaalflow IEM AUX
+
+```
+Claudia's stem ──┐
+Keyboard ────────┼──► AUX Bus ──► EQ ──► Compressor (10:1) ──► Xvive
+Andere bronnen ──┘                            │
+                                              ▼
+                                   Pieken afgetopt = gehoor safe
+```
+
+#### Verschil Compressor vs Limiter Gebruik
+
+| Doel | Threshold | Ratio | Attack |
+|------|-----------|-------|--------|
+| Compressor (dynamiek) | -18dB | 3:1 - 4:1 | 10-20ms |
+| **Limiter (bescherming)** | **-10dB** | **10:1+** | **<2ms** |
+
+Voor IEM gebruiken we **limiter-settings** = hoge ratio + snelle attack.
+
+#### Wat Dit Doet
+
+| Zonder | Met comp als limiter |
+|--------|----------------------|
+| Plotse pieken = schrikken | ✓ Pieken afgetopt |
+| Keyboard akkoord = te luid | ✓ Gecontroleerd |
+| Feedback burst = gehoorschade | ✓ Direct beperkt |
+| Volume varieert veel | ✓ Stabiel
+
+---
+
+### Volume & Gehoorbescherming
+
+| Regel | Waarom |
+|-------|--------|
+| **Start op 30%** | Je kunt altijd verhogen |
+| **Max 70%** | Gehoorbescherming |
+| **Als je schreeuwt = te luid** | Teken van te hoog volume |
+| **Oor rust na dienst** | 15 min stilte helpt |
+
+#### Teken van te luid IEM:
+
+- Je praat harder dan normaal
+- Oren tuiten na gebruik
+- Je hoort de zaal niet meer met open oor
+- Andere zangers klagen dat je te hard zingt
+
+---
+
+### Troubleshooting Claudia's IEM
+
+| Claudia zegt... | Oorzaak | Oplossing |
+|-----------------|---------|-----------|
+| "Ik hoor mezelf niet" | Haar stem te laag in AUX | Verhoog haar kanaal in IEM AUX |
+| "Het klinkt boomy" | ZSN Pro bas + haar warme stem | -3dB @ 100-200Hz in AUX |
+| "Het is scherp/vermoeiend" | ZSN Pro high boost | -2dB @ 6-8kHz in AUX |
+| "Ik zing vals" | Hoort keyboard niet goed | Keyboard omhoog in haar AUX |
+| "Ik hoor de zaal niet" | IEM te luid of beide oren | Volume omlaag, check 1 oor |
+| "De anderen zijn te luid" | Backup te hoog in mix | Backup vocals omlaag in AUX |
+| "Ik hoor mezelf dubbel" | Main mix + IEM conflict | Main mix UIT in haar AUX |
+
+#### Als Claudia Klaagt Over Zuiverheid Anderen
+
+Dit is NIET een IEM probleem - dit is een backup probleem:
+- Carmen hoort zichzelf niet → meer monitor wedge
+- Ina/Lidia te luid → fader omlaag in main
+- Claudia moet de referentie zijn, niet volgen
+
+---
+
+### IEM Training & Gewenning (voor Claudia)
+
+#### Waarom IEM Vreemd Voelt
+
+| Gevoel | Oorzaak | Dit is normaal |
+|--------|---------|----------------|
+| "Ik klink raar" | Hoort eigen stem anders (binnen hoofd) | Ja, went na 2-3x |
+| "Ik voel me afgesloten" | Één oor dicht | Daarom 1 oor open |
+| "Ik zing te hard/zacht" | Geen feedback van ruimte | Went na 3-4x |
+| "Het voelt onnatuurlijk" | Nieuwe manier van horen | Went na 1-2 weken |
+
+#### Gefaseerde Introductie (4 Weken Plan)
+
+**Week 1: Thuis Oefenen**
+| Dag | Oefening | Duur |
+|-----|----------|------|
+| Ma | IEM in, muziek luisteren (Spotify) | 15 min |
+| Wo | IEM in, meezingen met opname | 15 min |
+| Vr | IEM in, eigen stem opnemen en terugluisteren | 15 min |
+
+**Week 2: Soundcheck Alleen**
+| Sessie | Wat doen |
+|--------|----------|
+| 1 | IEM aansluiten, alleen Claudia's stem + keyboard |
+| 2 | Volume instellen tot comfortabel |
+| 3 | Paar nummers doorzingen, NIET tijdens dienst |
+
+**Week 3: Halve Dienst**
+| Moment | IEM status |
+|--------|------------|
+| Eerste 2 liedjes | IEM IN |
+| Rest van dienst | IEM UIT (terug naar wedge) |
+| Evaluatie na afloop | Wat ging goed/fout? |
+
+**Week 4: Volledige Dienst**
+| Moment | IEM status |
+|--------|------------|
+| Hele muziek deel | IEM IN |
+| Noodplan | IEM eruit als het niet gaat |
+
+---
+
+#### Tips Voor Claudia
+
+| Tip | Waarom |
+|-----|--------|
+| **Start met laag volume** | Je kunt altijd verhogen |
+| **Geef het 3 diensten** | Eerste keer is ALTIJD raar |
+| **Communiceer tijdens soundcheck** | "Meer van mezelf" / "Minder keyboard" |
+| **Niet opgeven na 1x** | Iedereen heeft gewenningstijd nodig |
+| **1 oor = essentieel** | Nooit beide oren dicht |
+
+#### Wat Te Verwachten
+
+```
+Week 1: "Dit is raar, ik wil stoppen"
+         ↓
+Week 2: "Het went een beetje..."
+         ↓
+Week 3: "Ok, ik snap het nu"
+         ↓
+Week 4: "Ik wil niet meer zonder!"
+```
+
+#### Claudia's Checklist Vóór Dienst
+
+- [ ] IEM opgeladen / batterij ok
+- [ ] ZSN Pro schoon (oortips)
+- [ ] Xvive ontvanger aan riem/broekband
+- [ ] Test: "Hoor ik mezelf?"
+- [ ] Test: "Hoor ik keyboard?"
+- [ ] Volume comfortabel (niet te luid!)
+- [ ] Open oor naar zaal gericht
+
+---
+
+#### Noodplan: Als Het Niet Werkt
+
+| Situatie | Actie |
+|----------|-------|
+| IEM valt uit | Haal eruit, gebruik wedge |
+| Claudia raakt in paniek | Haal eruit, kalmeer, probeer later |
+| Geluid is verkeerd | Soundperson past AUX aan |
+| Claudia wil stoppen | OK - wedge is altijd backup |
+
+**Belangrijkste regel:** IEM moet HELPEN, niet stressen. Als het niet werkt, terug naar wedge - geen schande.
+
+---
+
+### Xvive U4 Settings
+
+| Setting | Waarde | Reden |
+|---------|--------|-------|
+| Volume (ontvanger) | **40-60%** | Start laag |
+| Kanaal | Test vrij van interferentie | Vermijd WiFi kanalen |
+| Limiter | **AAN** | Bescherm gehoor |
 
 ---
 

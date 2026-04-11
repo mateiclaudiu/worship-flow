@@ -986,6 +986,112 @@
       background: var(--accent);
       color: var(--bg);
     }
+
+    /* ===================== */
+    /* Projector Mode        */
+    /* ===================== */
+    .projector-mode .header,
+    .projector-mode .nav-buttons,
+    .projector-mode .quick-access-overlay,
+    .projector-mode .quick-access-drawer,
+    .projector-mode .quick-access-btn,
+    .projector-mode .monitor-btn,
+    .projector-mode .monitor-panel,
+    .projector-mode .notification,
+    .projector-mode .singer-view {
+      display: none !important;
+    }
+
+    .projector-mode .main {
+      padding-top: 0;
+    }
+
+    .projector-mode .current-section {
+      flex: 1;
+      padding: 3rem;
+      padding-bottom: 3rem;
+    }
+
+    .projector-mode .next-section {
+      display: none;
+    }
+
+    .projector-mode.show-preview .next-section {
+      display: flex;
+    }
+
+    .projector-mode .lyrics-text {
+      line-height: 2.4;
+      letter-spacing: 0.06em;
+    }
+
+    .projector-mode .waiting .icon {
+      font-size: 5rem;
+    }
+
+    .projector-mode .waiting p {
+      display: none;
+    }
+
+    .projector-mode {
+      cursor: none;
+    }
+
+    .projector-mode.show-cursor {
+      cursor: default;
+    }
+
+    /* Projector settings overlay */
+    .projector-settings {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      background: var(--bg-section);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0.75rem;
+      z-index: 300;
+      display: flex;
+      gap: 0.5rem;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(10px);
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    }
+
+    .projector-settings.visible {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .projector-settings button {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+    }
+
+    .projector-settings button:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .projector-settings button.active {
+      background: var(--accent);
+      color: var(--bg);
+      border-color: var(--accent);
+    }
   </style>
 </head>
 <body>
@@ -1115,12 +1221,22 @@
     </div>
   </div>
 
+  <!-- Projector Settings Overlay -->
+  <div class="projector-settings" id="projector-settings">
+    <button onclick="adjustFontSize(-0.5)" title="Kleiner">A-</button>
+    <button onclick="adjustFontSize(0.5)" title="Groter">A+</button>
+    <button onclick="toggleTheme()" title="Thema">◐</button>
+    <button id="projector-preview-btn" onclick="toggleProjectorPreview()" title="Preview">⧉</button>
+    <button onclick="toggleFullscreen()" title="Fullscreen">⛶</button>
+  </div>
+
   <script>
     // State
     let currentView = 'presentatie';
     let isLeader = true; // Always leader mode now
     let isDarkTheme = false; // Light theme by default
     let baseFontSize = 2.75;
+    let isProjectorMode = false;
 
     let setlists = [];
     let currentSetlist = null;
@@ -1154,8 +1270,9 @@
 
       ws.onclose = () => {
         console.log('WebSocket closed');
-        // Reconnect disabled - live page works standalone
-        // reconnectTimeout = setTimeout(connectWebSocket, 3000);
+        if (isProjectorMode) {
+          reconnectTimeout = setTimeout(connectWebSocket, 3000);
+        }
       };
 
       ws.onmessage = (event) => {
@@ -1182,8 +1299,12 @@
           }
           break;
         case 'state':
-          if (msg.data.currentSongId && !currentSongId) {
+          if (msg.data.currentSongId && msg.data.currentSongId !== currentSongId) {
             loadSongById(msg.data.currentSongId);
+          }
+          if (msg.data.sectionIndex !== undefined && msg.data.currentSongId === currentSongId) {
+            currentSectionIndex = msg.data.sectionIndex;
+            renderCurrentView();
           }
           break;
       }
@@ -1406,8 +1527,9 @@
         document.getElementById('header-song-key').textContent = currentSong.key || '-';
         document.getElementById('header-song-tempo').textContent = currentSong.tempo ? `${currentSong.tempo} BPM` : '-';
 
-        // Update song dropdown
-        document.getElementById('song-select').value = songId;
+        // Update song dropdown (if element exists)
+        const songSelect = document.getElementById('song-select');
+        if (songSelect) songSelect.value = songId;
 
         parseSong(currentSong);
         currentSectionIndex = 0;
@@ -1557,7 +1679,7 @@
         container.innerHTML = `
           <div class="waiting" id="waiting">
             <div class="icon">🎵</div>
-            <h2>Wachten op liedje</h2>
+            <h2>${isProjectorMode ? 'Wachten op dirigent...' : 'Wachten op liedje'}</h2>
             <p>Hover bovenaan voor instellingen</p>
           </div>
         `;
@@ -1591,10 +1713,11 @@
       const text = container?.querySelector('.lyrics-text');
       if (!container || !text) return;
 
+      const fillRatio = isProjectorMode ? 0.90 : 0.85;
       let size = baseFontSize;
       text.style.fontSize = size + 'rem';
 
-      while (text.scrollHeight > container.clientHeight * 0.85 && size > 1) {
+      while (text.scrollHeight > container.clientHeight * fillRatio && size > 1) {
         size -= 0.1;
         text.style.fontSize = size + 'rem';
       }
@@ -1711,14 +1834,27 @@
 
     // Initialize
     document.addEventListener('DOMContentLoaded', async () => {
-      // connectWebSocket(); // Disabled for now
-      await loadSetlists();
-      showHeader(); // Show header on load
-
-      // Apply light theme by default
-      document.body.classList.add('light');
-
       const params = new URLSearchParams(window.location.search);
+
+      // Projector mode detection
+      if (params.get('mode') === 'projector') {
+        isProjectorMode = true;
+        isLeader = false;
+        baseFontSize = 4;
+        document.documentElement.style.setProperty('--lyrics-size', baseFontSize + 'rem');
+        document.body.classList.add('projector-mode');
+        // Dark theme by default for projector (no 'light' class)
+        isDarkTheme = true;
+        connectWebSocket();
+        document.querySelector('#waiting h2').textContent = 'Wachten op dirigent...';
+      } else {
+        // Apply light theme by default for normal mode
+        document.body.classList.add('light');
+        showHeader();
+      }
+
+      await loadSetlists();
+
       if (params.get('view') === 'zanger') {
         setView('zanger');
       }
@@ -1808,6 +1944,7 @@
 
     // Keyboard shortcuts
     document.addEventListener('keydown', (e) => {
+      if (isProjectorMode) return;
       if (e.key === 'ArrowRight' || e.key === ' ') {
         e.preventDefault();
         nextSection();
@@ -1824,6 +1961,7 @@
     });
 
     document.addEventListener('touchend', (e) => {
+      if (isProjectorMode) return;
       const touchEndX = e.changedTouches[0].clientX;
       const diff = touchStartX - touchEndX;
       if (Math.abs(diff) > 50) {
@@ -2101,6 +2239,56 @@
     // Initialize monitor sliders
     updateMonitorSlider('vocals', 75);
     updateMonitorSlider('instruments', 75);
+
+    // =====================
+    // Projector Settings
+    // =====================
+    let projectorSettingsTimeout;
+
+    function toggleProjectorPreview() {
+      document.body.classList.toggle('show-preview');
+      const btn = document.getElementById('projector-preview-btn');
+      btn.classList.toggle('active', document.body.classList.contains('show-preview'));
+      renderCurrentView();
+    }
+
+    // Show settings when mouse approaches bottom-right corner
+    document.addEventListener('mousemove', (e) => {
+      if (!isProjectorMode) return;
+
+      const threshold = 100;
+      const nearCorner = e.clientX > window.innerWidth - threshold &&
+                         e.clientY > window.innerHeight - threshold;
+
+      // Show cursor temporarily
+      document.body.classList.add('show-cursor');
+      clearTimeout(projectorSettingsTimeout);
+
+      const settings = document.getElementById('projector-settings');
+      if (nearCorner || settings.matches(':hover')) {
+        settings.classList.add('visible');
+      }
+
+      projectorSettingsTimeout = setTimeout(() => {
+        if (!settings.matches(':hover')) {
+          settings.classList.remove('visible');
+        }
+        document.body.classList.remove('show-cursor');
+      }, 5000);
+    });
+
+    // Keep settings open while hovering them
+    document.getElementById('projector-settings').addEventListener('mouseenter', () => {
+      clearTimeout(projectorSettingsTimeout);
+      document.body.classList.add('show-cursor');
+    });
+
+    document.getElementById('projector-settings').addEventListener('mouseleave', () => {
+      projectorSettingsTimeout = setTimeout(() => {
+        document.getElementById('projector-settings').classList.remove('visible');
+        document.body.classList.remove('show-cursor');
+      }, 2000);
+    });
 
   </script>
 <script>

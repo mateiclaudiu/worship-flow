@@ -72,6 +72,8 @@ app.get('/dirigent', (req, res) => res.sendFile(path.join(__dirname, 'public', '
 app.get('/live', (req, res) => res.sendFile(path.join(__dirname, 'public', 'live.html')));
 app.get('/mixer', (req, res) => res.sendFile(path.join(__dirname, 'public', 'mixer.html')));
 app.get('/monitor', (req, res) => res.sendFile(path.join(__dirname, 'public', 'monitor.html')));
+app.get('/eq', (req, res) => res.sendFile(path.join(__dirname, 'public', 'eq.html')));
+app.get('/vocals', (req, res) => res.sendFile(path.join(__dirname, 'public', 'vocals.html')));
 
 // Start server
 const PORT = process.env.PORT || 3000;

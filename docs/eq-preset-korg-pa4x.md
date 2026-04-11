@@ -3,7 +3,8 @@
 Geoptimaliseerd voor:
 - **Ruimte:** Grote katholieke zaal met veel echo
 - **Speakers:** Yamaha DZR 15" + 1 subwoofer
-- **Stijlen:** Country, schlager, ballad, pop, waltz, piano
+- **Stijlen:** Country, schlager, ballad, pop, waltz, piano, **worship**
+- **Afgestemd op:** Zang presets (zie [zang-presets.md](zang-presets.md))
 
 ---
 
@@ -43,6 +44,67 @@ Sub Level: -3 tot -6 dB tov tops
 | Veel echo/reverb | Mud buildup, onduidelijkheid | Reduce low-mids, less internal FX |
 | Harde oppervlakken | Harsh reflecties | Tame high-mids |
 | DZR + Sub | Veel low-end headroom | HPF keyboard hoger, sub level laag |
+
+---
+
+## Korg PA4X Frequentie Karakteristiek (Gemeten)
+
+**Gebaseerd op analyse van multitrack opnames (06 KEYS.wav, 09/10 KEYS L/R.wav)**
+
+### Meting Resultaten
+
+```
+Band            Gemeten      Beoordeling
+─────────────────────────────────────────────────────
+SUB (20-80Hz)   -47 tot -52 dB   ✓ Normaal
+LOW (80-150Hz)  -40 tot -44 dB   ✓ Normaal
+BODY (150-300)  -32 tot -38 dB   ✓ Goed
+LOW-MID (300-500) -29 tot -37 dB ⚠️ DOMINANT (mud!)
+MID (500-1k)    -29 tot -37 dB   ⚠️ DOMINANT
+UPPER-MID (1-2k) -35 tot -43 dB
+PRESENCE (2-4k) -42 tot -51 dB   ⚠️ TE ZWAK (12-15dB lager dan mids!)
+BRILLIANCE (4-6k) -50 tot -58 dB ⚠️ LAAG
+AIR (8k+)       -60 tot -68 dB   Zeer laag
+```
+
+### Visueel Profiel (onbewerkt)
+
+```
+dB
+-30 ─────────────████████───────────────────────────
+-35 ────────████████████████────────────────────────
+-40 ────████████████████████████────────────────────
+-45 ─███████████████████████████████────────────────
+-50 ████████████████████████████████████████────────
+-55 ████████████████████████████████████████████────
+-60 ████████████████████████████████████████████████
+    SUB  LOW  BODY L-MID MID  U-MID PRES BRIL AIR
+         80   150  300  500  1k   2k   4k   8k
+                   ↑              ↑
+              TE VEEL         TE WEINIG
+              (mud)          (presence)
+```
+
+### Conclusie
+
+| Probleem | Frequentie | Impact | Oplossing |
+|----------|------------|--------|-----------|
+| **MUD** | 300-500Hz | Klinkt "boxy", modderig | Cut -3 tot -4dB @ 400Hz |
+| **GEEN PRESENCE** | 2-4kHz | Klinkt ver weg, dof | Boost +2dB @ 3kHz |
+| **DONKER** | 4kHz+ | Geen lucht/helderheid | Boost +1dB @ 8kHz |
+
+**Dit is een eigenschap van de Korg PA4X zelf**, niet van specifieke styles. Alle presets hebben daarom dezelfde basis-correctie nodig.
+
+### Basis EQ Correctie (alle stijlen)
+
+```
+| Band | Freq | Gain | Waarom |
+|------|------|------|--------|
+| 1 | 400Hz | -3dB | Mud zit hier (gemeten) |
+| 2 | 800Hz | 0dB | Flat |
+| 3 | 3kHz | +2dB | Presence toevoegen (gemeten 12dB te laag) |
+| 4 | 8kHz | +1dB | Air/helderheid |
+```
 
 ---
 
@@ -108,9 +170,9 @@ Band 2 (Rood) - MID CLARITY
 
 Band 3 (Paars) - PRESENCE
 ├── Frequency: 3 kHz
-├── Gain: +1 dB (voorzichtig - drums hebben hier ook content)
+├── Gain: -1 dB
 ├── Q: 2.0
-└── Waarom: Keys presence zonder drums te hard te maken
+└── Waarom: Ruimte maken voor zang! Claudia/David boosten hier +3dB
 
 Band 4 (Goud) - HIGH / AIR
 ├── Frequency: 8 kHz
@@ -148,9 +210,9 @@ Band 2 (Rood) - MID CLARITY
 
 Band 3 (Paars) - PRESENCE
 ├── Frequency: 3 kHz
-├── Gain: +1.5 dB
+├── Gain: -1 dB
 ├── Q: 2.0
-└── Waarom: Helpt door mix snijden. Voorzichtig in galmende zaal!
+└── Waarom: Ruimte maken voor zang! Claudia/David boosten hier +3dB
 
 Band 4 (Goud) - HIGH / AIR
 ├── Frequency: 8 kHz
@@ -174,16 +236,18 @@ DE-ESSER
          │   │      │      │      │      │
       +6 ─┼───┼──────┼──────┼──────┼──────┼─────
          │   │      │      │      │      │
-      +3 ─┼───┼──────┼──────●──────┼──────┼─────
-         │   │      │   (3kHz)    │      │
-       0 ═╪═══╪══════╪══+1.5dB════╪══════╪═════
-         │   ●      │      │      ●      │
-      -3 ─┼─(200)───┼──────┼───(8kHz)────┼─────
-         │  -3dB    │      │   -1.5dB    │
+      +3 ─┼───┼──────┼──────┼──────┼──────┼─────
+         │   │      │      │      │      │
+       0 ═╪═══╪══════╪══════╪══════╪══════╪═════
+         │   ●      │      ●      ●      │
+      -3 ─┼─(200)───┼───(3kHz)─(8kHz)────┼─────
+         │  -3dB    │   -1dB  -1.5dB     │
       -6 ─┼───┼──────┼──────┼──────┼──────┼─────
          │   │      │      │      │      │
          └───┴──────┴──────┴──────┴──────┴─────
             80    200  800   3k    8k   16k
+                           ↑
+                    ruimte voor zang
 ```
 
 ### Scenario B: Drums+Bass kanaal (OUT 1/2)
@@ -233,43 +297,67 @@ Band 4 (Goud) - HIGH
 
 | Band | Freq | Scenario A | Scenario B | Q |
 |------|------|------------|------------|---|
-| 1 | 200Hz | -2 dB | -3 dB | 1.5 |
+| 1 | 400Hz | -2 dB | -3 dB | 1.5 |
 | 2 | 800Hz | 0 dB | 0 dB | 1.0 |
-| 3 | 3kHz | +0.5 dB | +1 dB | 2.0 |
-| 4 | 8kHz | 0 dB | 0 dB | 1.0 |
+| 3 | 3kHz | +1 dB | +2 dB | 2.0 |
+| 4 | 8kHz | 0 dB | +1 dB | 1.0 |
+
+Acoustic piano/gitaar stapelen @ 400Hz. Presence boost voor definitie.
 
 ### Schlager / Waltz
 
 | Band | Freq | Scenario A | Scenario B | Q |
 |------|------|------------|------------|---|
-| 1 | 200Hz | -2 dB | -4 dB | 1.2 |
+| 1 | 400Hz | -3 dB | -4 dB | 1.2 |
 | 2 | 800Hz | -1 dB | -2 dB | 1.0 |
-| 3 | 3kHz | 0 dB | 0 dB | 2.0 |
-| 4 | 8kHz | -2 dB | -2 dB | 0.8 |
+| 3 | 3kHz | +1 dB | +1 dB | 2.0 |
+| 4 | 8kHz | -1 dB | -1 dB | 0.8 |
 
-Dense arrangements → bredere Q (0.8-1.2) voor meer cut. 800Hz cut voor accordeon/brass ruimte.
+Dense arrangements → bredere Q (0.8-1.2) voor meer cut. 800Hz cut voor accordeon/brass ruimte. Presence boost voor helderheid.
 
 ### Ballad / E-Piano
 
 | Band | Freq | Scenario A | Scenario B | Q |
 |------|------|------------|------------|---|
-| 1 | 200Hz | -1 dB | -2 dB | 2.0 |
-| 2 | 800Hz | +1 dB | +1 dB | 1.5 |
-| 3 | 3kHz | 0 dB | 0 dB | 2.0 |
-| 4 | 8kHz | -1 dB | -1 dB | 1.0 |
+| 1 | 400Hz | -2 dB | -3 dB | 1.5 |
+| 2 | 800Hz | 0 dB | 0 dB | 1.0 |
+| 3 | 3kHz | +1 dB | +2 dB | 2.0 |
+| 4 | 8kHz | 0 dB | +1 dB | 1.0 |
 
-Warmte behouden → smallere Q (2.0) bij 200Hz. 800Hz boost voor piano body. Korg interne tremolo/chorus laag houden.
+**Gebaseerd op meting:** Piano + ac. gitaar + strings stapelen @ 300-500Hz → cut daar, niet @ 200Hz. Presence (2-4kHz) was 12dB te laag → boost nodig. Korg interne tremolo/chorus laag houden.
 
 ### Pop / Uptempo
 
 | Band | Freq | Scenario A | Scenario B | Q |
 |------|------|------------|------------|---|
-| 1 | 200Hz | -2 dB | -3 dB | 1.5 |
+| 1 | 400Hz | -2 dB | -3 dB | 1.5 |
 | 2 | 800Hz | 0 dB | -1 dB | 1.0 |
-| 3 | 3kHz | +1 dB | +2 dB | 2.5 |
-| 4 | 8kHz | 0 dB | 0 dB | 1.0 |
+| 3 | 3kHz | +1 dB | +1 dB | 2.0 |
+| 4 | 8kHz | 0 dB | +1 dB | 1.0 |
 
-Presence boost → smallere Q (2.5) voor punch zonder harsh. 800Hz flat of lichte cut voor ruimte.
+Mud cut @ 400Hz. Presence boost voor keys helderheid. Ruimte voor zang komt via zang-EQ boost @ 2.5kHz (niet keys cut).
+
+### Worship / Hillsong
+
+| Band | Freq | Scenario A | Scenario B | Q |
+|------|------|------------|------------|---|
+| 1 | 400Hz | -3 dB | -4 dB | 1.2 |
+| 2 | 800Hz | 0 dB | 0 dB | 1.0 |
+| 3 | 3kHz | **0 dB** | **0 dB** | 2.0 |
+| 4 | 8kHz | 0 dB | +1 dB | 1.0 |
+
+**Worship-specifiek:**
+- Mud cut @ 400Hz - pads/synths stapelen hier
+- 3kHz FLAT (niet cut!) - keys hebben presence nodig, zang krijgt ruimte via eigen EQ boost
+- 8kHz lichte boost voor "shimmer" (alleen Scenario B - bij A zitten cymbals erin)
+- Korg reverb naar **20%** max - de zaal doet de rest
+
+**Korg Pa4X tips voor worship:**
+```
+Pads/Strings: Volume -3dB t.o.v. piano
+Delay: UIT of sync'd dotted 8th, zeer laag (10-15%)
+Reverb: 20-30% max (Hall, NIET Cathedral)
+```
 
 ---
 
@@ -286,6 +374,7 @@ Presence boost → smallere Q (2.5) voor punch zonder harsh. 800Hz flat of licht
 | **Country** | -1dB | 0dB | Drums/bass dragen het ritme |
 | **Schlager** | -2dB | 0dB | Stevige ritme sectie |
 | **Pop/Rock** | -2dB | +1dB | Drums vooraan |
+| **Worship** | -2dB | -2dB | Zang centraal, keys+drums ondersteunen |
 | **Piano Solo** | 0dB | -∞ (mute) | Alleen keys |
 
 ### Monitor Send (AUX 3) - Drums+Bass
@@ -295,6 +384,7 @@ Presence boost → smallere Q (2.5) voor punch zonder harsh. 800Hz flat of licht
 | Ballad | Laag (zangers volgen keys) |
 | Waltz/Country | Medium |
 | Pop/Schlager | Hoog (tempo kritisch) |
+| Worship | Medium (zangers moeten tempo voelen, maar keys dominant) |
 
 ### Tips
 
@@ -343,13 +433,18 @@ Makeup Gain: +1 dB
 ### Mixer - Scenario A (alles via L/R)
 - [ ] HPF @ 40Hz of UIT (bass behouden!)
 - [ ] 200Hz cut: -2dB
-- [ ] 3kHz presence: +1dB (voorzichtig)
+- [ ] 3kHz: **-1dB** (ruimte voor zang!)
 - [ ] 8kHz: -1.5dB
 
 ### Mixer - Scenario B (split outputs)
-- [ ] L/R kanaal: HPF @ 80Hz, 200Hz -3dB
+- [ ] L/R kanaal: HPF @ 80Hz, 200Hz -3dB, **3kHz -1dB**
 - [ ] OUT 1/2 kanaal: HPF @ 40Hz of UIT
 - [ ] Drums+Bass extra naar monitors
+
+### Extra voor Worship
+- [ ] 3kHz: **-2dB** (zang is prioriteit!)
+- [ ] Korg reverb: max 20%
+- [ ] Pads volume: -3dB t.o.v. piano
 
 ### Algemeen
 - [ ] Faders op 0dB (unity)
