@@ -2040,7 +2040,7 @@
       let songs = currentTab === 'recent' ? recentSongs : allSongs;
 
       // Strip diacritics for accent-insensitive search (î→i, ș→s, ă→a, etc.)
-      const norm = (s) => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/đ/g, 'd').replace(/ț/g, 't').replace(/ș/g, 's');
+      const norm = (s) => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/đ/g, 'd').replace(/ț/g, 't').replace(/ș/g, 's').replace(/[-,]/g, '');
 
       // Filter by search query
       if (query && query.length >= 1) {
