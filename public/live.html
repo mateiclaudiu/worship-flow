@@ -1464,6 +1464,7 @@
     function selectSong(songId, songTitle) {
       currentSongId = songId;
       currentSong = currentSetlist?.songs?.find(s => s.id === songId);
+      fontSizeOffset = 0;
       resetAmenButton();
 
       // Update URL to persist song on refresh
@@ -1884,6 +1885,7 @@
     function selectSongFromUrl(songId, songTitle) {
       currentSongId = songId;
       currentSong = currentSetlist?.songs?.find(s => s.id === songId);
+      fontSizeOffset = 0;
       resetAmenButton();
 
       // Update chips
@@ -1917,6 +1919,7 @@
 
         currentSongId = songId;
         currentSong = song;
+        fontSizeOffset = 0;
         resetAmenButton();
 
         document.getElementById('header-center').style.display = 'flex';
