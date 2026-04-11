@@ -1229,7 +1229,6 @@
     let isLeader = true; // Always leader mode now
     let isDarkTheme = false; // Light theme by default
     let isProjectorMode = false;
-    let maxFontSize = 8;
 
     let setlists = [];
     let currentSetlist = null;
@@ -1396,10 +1395,12 @@
       clearTimeout(headerTimeout);
     }
 
-    // Font size override (failover)
+    // Font size override (failover) — directly adjusts current text, no re-render
     function adjustFontSize(delta) {
-      maxFontSize = Math.max(2, Math.min(12, maxFontSize + delta));
-      renderCurrentView();
+      document.querySelectorAll('.current-section .lyrics-text, .next-section .lyrics-text').forEach(el => {
+        const current = parseFloat(el.style.fontSize) || 2.75;
+        el.style.fontSize = Math.max(1, current + delta) + 'rem';
+      });
     }
 
     // Load setlists
@@ -1704,8 +1705,9 @@
       const text = container?.querySelector('.lyrics-text');
       if (!container || !text) return;
 
+      const maxSize = 8;
       const minSize = 1;
-      let size = maxFontSize;
+      let size = maxSize;
       text.style.fontSize = size + 'rem';
 
       while (text.scrollHeight > container.clientHeight * fillRatio && size > minSize) {
