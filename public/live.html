@@ -2039,15 +2039,18 @@
       const container = document.getElementById('songs-list');
       let songs = currentTab === 'recent' ? recentSongs : allSongs;
 
+      // Strip diacritics for accent-insensitive search (î→i, ș→s, ă→a, etc.)
+      const norm = (s) => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/đ/g, 'd').replace(/ț/g, 't').replace(/ș/g, 's');
+
       // Filter by search query
       if (query && query.length >= 1) {
-        const q = query.toLowerCase();
-        songs = songs.filter(s => s.title.toLowerCase().includes(q));
+        const q = norm(query);
+        songs = songs.filter(s => norm(s.title).includes(q));
 
         // Sort: starts with query first
         songs.sort((a, b) => {
-          const aStarts = a.title.toLowerCase().startsWith(q);
-          const bStarts = b.title.toLowerCase().startsWith(q);
+          const aStarts = norm(a.title).startsWith(q);
+          const bStarts = norm(b.title).startsWith(q);
           if (aStarts && !bStarts) return -1;
           if (!aStarts && bStarts) return 1;
           return a.title.localeCompare(b.title);
