@@ -283,7 +283,6 @@
     }
 
     .next-section .lyrics-text {
-      font-size: calc(var(--lyrics-size) * 0.55);
       line-height: 1.6;
       font-weight: 400;
       overflow: hidden;
@@ -1108,8 +1107,8 @@
     <div class="header-right">
       <button class="live-btn" id="live-btn" onclick="broadcastSong()" title="Zet live voor andere schermen">📡 Live</button>
       <div class="font-controls">
-        <button class="icon-btn" onclick="adjustFontSize(-0.25)">A-</button>
-        <button class="icon-btn" onclick="adjustFontSize(0.25)">A+</button>
+        <button class="icon-btn" onclick="adjustFontSize(-0.5)">A-</button>
+        <button class="icon-btn" onclick="adjustFontSize(0.5)">A+</button>
       </div>
       <button class="icon-btn" onclick="toggleTheme()" title="Thema">◐</button>
       <button class="icon-btn" onclick="toggleFullscreen()" title="Volledig scherm">⛶</button>
@@ -1229,8 +1228,8 @@
     let currentView = 'presentatie';
     let isLeader = true; // Always leader mode now
     let isDarkTheme = false; // Light theme by default
-    let baseFontSize = 2.75;
     let isProjectorMode = false;
+    let maxFontSize = 8;
 
     let setlists = [];
     let currentSetlist = null;
@@ -1397,16 +1396,9 @@
       clearTimeout(headerTimeout);
     }
 
-    // Font size
+    // Font size override (failover)
     function adjustFontSize(delta) {
-      baseFontSize = Math.max(1.5, Math.min(5, baseFontSize + delta));
-      document.documentElement.style.setProperty('--lyrics-size', baseFontSize + 'rem');
-      renderCurrentView();
-    }
-
-    function resetFontSize() {
-      baseFontSize = 2.75;
-      document.documentElement.style.setProperty('--lyrics-size', baseFontSize + 'rem');
+      maxFontSize = Math.max(2, Math.min(12, maxFontSize + delta));
       renderCurrentView();
     }
 
@@ -1703,14 +1695,17 @@
 
     // Auto-fit text to container — always maximize size
     function autoFitText() {
-      const container = document.querySelector('.current-section');
+      fitSection('.current-section', isProjectorMode ? 0.90 : 0.85);
+      fitSection('.next-section', 0.85);
+    }
+
+    function fitSection(selector, fillRatio) {
+      const container = document.querySelector(selector);
       const text = container?.querySelector('.lyrics-text');
       if (!container || !text) return;
 
-      const fillRatio = isProjectorMode ? 0.90 : 0.85;
-      const maxSize = 8;
       const minSize = 1;
-      let size = maxSize;
+      let size = maxFontSize;
       text.style.fontSize = size + 'rem';
 
       while (text.scrollHeight > container.clientHeight * fillRatio && size > minSize) {
@@ -1836,8 +1831,6 @@
       if (params.get('mode') === 'projector') {
         isProjectorMode = true;
         isLeader = false;
-        baseFontSize = 4;
-        document.documentElement.style.setProperty('--lyrics-size', baseFontSize + 'rem');
         document.body.classList.add('projector-mode');
         // Dark theme by default for projector (no 'light' class)
         isDarkTheme = true;
