@@ -1229,6 +1229,7 @@
     let isLeader = true; // Always leader mode now
     let isDarkTheme = false; // Light theme by default
     let isProjectorMode = false;
+    let fontSizeOffset = 0;
 
     let setlists = [];
     let currentSetlist = null;
@@ -1395,8 +1396,9 @@
       clearTimeout(headerTimeout);
     }
 
-    // Font size override (failover) — directly adjusts current text, no re-render
+    // Font size override (failover) — stores offset applied after every autoFit
     function adjustFontSize(delta) {
+      fontSizeOffset = Math.max(-4, Math.min(4, fontSizeOffset + delta));
       document.querySelectorAll('.current-section .lyrics-text, .next-section .lyrics-text').forEach(el => {
         const current = parseFloat(el.style.fontSize) || 2.75;
         el.style.fontSize = Math.max(1, current + delta) + 'rem';
@@ -1713,6 +1715,10 @@
       while (text.scrollHeight > container.clientHeight * fillRatio && size > minSize) {
         size -= 0.15;
         text.style.fontSize = size + 'rem';
+      }
+
+      if (fontSizeOffset) {
+        text.style.fontSize = Math.max(minSize, size + fontSizeOffset) + 'rem';
       }
     }
 
