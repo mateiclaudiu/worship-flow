@@ -1492,8 +1492,10 @@
       if (currentSong) {
         parseSong(currentSong);
         renderCurrentView();
-        document.getElementById('nav-buttons').style.display = 'flex';
-        document.getElementById('waiting').style.display = 'none';
+        const navBtns = document.getElementById('nav-buttons');
+        if (navBtns) navBtns.style.display = 'flex';
+        const waitingEl = document.getElementById('waiting');
+        if (waitingEl) waitingEl.style.display = 'none';
       }
 
       // Broadcast
@@ -1532,8 +1534,10 @@
         parseSong(currentSong);
         currentSectionIndex = 0;
         renderCurrentView();
-        document.getElementById('nav-buttons').style.display = 'flex';
-        document.getElementById('waiting').style.display = 'none';
+        const navBtns = document.getElementById('nav-buttons');
+        if (navBtns) navBtns.style.display = 'flex';
+        const waitingEl = document.getElementById('waiting');
+        if (waitingEl) waitingEl.style.display = 'none';
       }
 
       // Update chips if visible
@@ -1911,8 +1915,10 @@
       if (currentSong) {
         parseSong(currentSong);
         renderCurrentView();
-        document.getElementById('nav-buttons').style.display = 'flex';
-        document.getElementById('waiting').style.display = 'none';
+        const navBtns = document.getElementById('nav-buttons');
+        if (navBtns) navBtns.style.display = 'flex';
+        const waitingEl = document.getElementById('waiting');
+        if (waitingEl) waitingEl.style.display = 'none';
       }
 
       // Start auto-hide timer
@@ -1937,8 +1943,10 @@
 
         parseSong(song);
         renderCurrentView();
-        document.getElementById('nav-buttons').style.display = 'flex';
-        document.getElementById('waiting').style.display = 'none';
+        const navBtns = document.getElementById('nav-buttons');
+        if (navBtns) navBtns.style.display = 'flex';
+        const waitingEl = document.getElementById('waiting');
+        if (waitingEl) waitingEl.style.display = 'none';
       } catch (e) {
         console.error('Failed to load song from URL:', e);
       }
@@ -2114,8 +2122,10 @@
         // Parse and render
         parseSong(song);
         renderCurrentView();
-        document.getElementById('nav-buttons').style.display = 'flex';
-        document.getElementById('waiting').style.display = 'none';
+        const navBtns = document.getElementById('nav-buttons');
+        if (navBtns) navBtns.style.display = 'flex';
+        const waitingEl = document.getElementById('waiting');
+        if (waitingEl) waitingEl.style.display = 'none';
 
         // Broadcast to other screens
         sendSelectSong(songId, songTitle);
