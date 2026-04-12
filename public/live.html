@@ -1293,12 +1293,15 @@
           }
           break;
         case 'state':
-          if (msg.data.currentSongId && msg.data.currentSongId !== currentSongId) {
-            loadSongById(msg.data.currentSongId);
-          }
-          if (msg.data.sectionIndex !== undefined && msg.data.currentSongId === currentSongId) {
-            currentSectionIndex = msg.data.sectionIndex;
-            renderCurrentView();
+          if (!isLeader) {
+            if (msg.data.currentSongId && msg.data.currentSongId !== currentSongId) {
+              loadSongById(msg.data.currentSongId);
+            }
+            if (msg.data.currentSectionIndex !== undefined && msg.data.currentSongId === currentSongId) {
+              currentSectionIndex = msg.data.currentSectionIndex;
+              renderCurrentView();
+              if (currentView === 'zanger') scrollToSection(currentSectionIndex);
+            }
           }
           break;
       }
