@@ -1500,6 +1500,8 @@
     // Load song by ID (when receiving from leader)
     async function loadSongById(songId, songTitle) {
       currentSongId = songId;
+      currentSong = null;
+      fontSizeOffset = 0;
       resetAmenButton();
 
       if (currentSetlist?.songs) {
