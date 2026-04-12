@@ -206,6 +206,26 @@
       color: var(--bg);
     }
 
+    /* Connection status dot */
+    .conn-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #22c55e;
+      transition: background 0.3s;
+      flex-shrink: 0;
+    }
+
+    .conn-dot.offline {
+      background: #ef4444;
+      animation: pulse-dot 1.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
     /* Main content */
     .main {
       height: 100%;
@@ -1105,6 +1125,7 @@
       <span class="song-info-item"><span class="label">Tempo:</span> <span class="value" id="header-song-tempo">-</span></span>
     </div>
     <div class="header-right">
+      <div class="conn-dot" id="conn-dot" title="Verbonden"></div>
       <button class="live-btn" id="live-btn" onclick="broadcastSong()" title="Zet live voor andere schermen">📡 Live</button>
       <div class="font-controls">
         <button class="icon-btn" onclick="adjustFontSize(-0.5)">A-</button>
@@ -1242,6 +1263,18 @@
     let ws;
     let reconnectTimeout;
 
+    function setConnectionStatus(connected) {
+      const dot = document.getElementById('conn-dot');
+      if (!dot) return;
+      dot.classList.toggle('offline', !connected);
+      dot.title = connected ? 'Verbonden' : 'Geen verbinding — wijzigingen worden niet gesynchroniseerd';
+    }
+
+    window.addEventListener('online', () => {
+      if (!ws || ws.readyState !== WebSocket.OPEN) connectWebSocket();
+    });
+    window.addEventListener('offline', () => setConnectionStatus(false));
+
     function connectWebSocket() {
       // Clear any pending reconnect
       if (reconnectTimeout) {
@@ -1259,13 +1292,17 @@
 
       ws.onopen = () => {
         console.log('[WS] connected, isLeader=', isLeader, 'isProjector=', isProjectorMode);
+        setConnectionStatus(true);
       };
 
       ws.onclose = () => {
         console.log('WebSocket closed');
-        if (isProjectorMode) {
-          reconnectTimeout = setTimeout(connectWebSocket, 3000);
-        }
+        setConnectionStatus(false);
+        reconnectTimeout = setTimeout(connectWebSocket, 3000);
+      };
+
+      ws.onerror = () => {
+        setConnectionStatus(false);
       };
 
       ws.onmessage = (event) => {
