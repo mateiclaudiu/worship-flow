@@ -1258,7 +1258,7 @@
       ws = new WebSocket(`${protocol}//${window.location.host}?type=live`);
 
       ws.onopen = () => {
-        console.log('WebSocket connected');
+        console.log('[WS] connected, isLeader=', isLeader, 'isProjector=', isProjectorMode);
       };
 
       ws.onclose = () => {
@@ -1270,6 +1270,7 @@
 
       ws.onmessage = (event) => {
         const msg = JSON.parse(event.data);
+        console.log('[WS] received:', msg.type, msg.data);
         handleMessage(msg);
       };
     }
@@ -1304,15 +1305,20 @@
     }
 
     function sendSelectSong(songId, songTitle) {
+      console.log('[WS] sendSelectSong called', { ws: !!ws, readyState: ws?.readyState, isLeader, songId });
       if (ws && ws.readyState === WebSocket.OPEN && isLeader) {
         ws.send(JSON.stringify({
           type: 'selectSong',
           data: { setlistId: currentSetlist?.id, songId, songTitle }
         }));
+        console.log('[WS] sent selectSong');
+      } else {
+        console.warn('[WS] NOT sending selectSong - conditions not met');
       }
     }
 
     function sendNavigate(sectionIndex) {
+      console.log('[WS] sendNavigate', { ws: !!ws, readyState: ws?.readyState, isLeader, sectionIndex });
       if (ws && ws.readyState === WebSocket.OPEN && isLeader) {
         ws.send(JSON.stringify({
           type: 'navigate',
