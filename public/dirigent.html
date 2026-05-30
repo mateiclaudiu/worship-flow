@@ -2643,9 +2643,7 @@ And grace my fears relieved..."
       const params = new URLSearchParams();
       params.set('setlist', setlistId);
       if (songId) params.set('song', songId);
-      const w = Math.min(screen.availWidth, 1400);
-      const h = Math.min(screen.availHeight, 900);
-      window.open(`/live?${params}`, '_blank', `width=${w},height=${h}`);
+      window.location.href = `/live?${params}`;
     }
 
     // View Management
