@@ -1910,11 +1910,14 @@
         setView('zanger');
       }
 
-      // Load setlist from URL parameter
+      // Load setlist from URL parameter, or fall back to the latest setlist
       const setlistId = params.get('setlist');
       if (setlistId) {
         document.getElementById('setlist-select').value = setlistId;
         await loadSetlist(false); // false = don't update URL (already has it)
+      } else if (setlists.length > 0) {
+        document.getElementById('setlist-select').value = setlists[0].id;
+        await loadSetlist(false); // keep URL clean so next visit picks the then-latest
       }
 
       // Load song from URL parameter
