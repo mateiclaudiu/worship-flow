@@ -48,7 +48,6 @@ router.post('/', (req, res) => {
     name,
     date,
     notes,
-    status: 'voorbereiding',
     songs: [],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
@@ -61,7 +60,7 @@ router.post('/', (req, res) => {
 
 // Update setlist
 router.put('/:id', (req, res) => {
-  const { name, date, status, notes } = req.body;
+  const { name, date, notes } = req.body;
   const data = db.get();
   const index = data.setlists.findIndex(s => s.id === req.params.id);
 
@@ -70,7 +69,6 @@ router.put('/:id', (req, res) => {
       ...data.setlists[index],
       name,
       date,
-      status,
       notes,
       updatedAt: new Date().toISOString()
     };

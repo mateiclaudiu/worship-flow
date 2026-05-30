@@ -222,72 +222,6 @@
       height: calc(100vh - 60px);
     }
 
-    /* Sidebar */
-    .sidebar {
-      width: 320px;
-      background: var(--bg-card);
-      border-right: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-
-    .sidebar-header {
-      padding: 1rem;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .sidebar-header h2 {
-      font-size: 1rem;
-      font-weight: 500;
-      color: var(--text-secondary);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .sidebar-content {
-      flex: 1;
-      overflow-y: auto;
-      padding: 0.5rem;
-    }
-
-    /* Song List */
-    .song-item {
-      padding: 0.75rem 1rem;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.15s;
-      margin-bottom: 0.25rem;
-    }
-
-    .song-item:hover {
-      background: var(--bg-elevated);
-    }
-
-    .song-item.active {
-      background: var(--accent-gold);
-      color: var(--bg-deep);
-    }
-
-    .song-item .title {
-      font-weight: 500;
-      margin-bottom: 0.25rem;
-    }
-
-    .song-item .meta {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      display: flex;
-      gap: 0.75rem;
-    }
-
-    .song-item.active .meta {
-      color: var(--bg-elevated);
-    }
-
     /* Content Area */
     .content {
       flex: 1;
@@ -559,280 +493,6 @@
       font-weight: 600;
       color: var(--accent-gold);
       font-size: 1.1rem;
-    }
-
-    /* Live View */
-    .live-view {
-      display: grid;
-      grid-template-columns: 1fr 350px;
-      grid-template-rows: 1fr auto;
-      height: 100%;
-    }
-
-    .live-main {
-      padding: 2rem;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .current-song-header {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      margin-bottom: 1.5rem;
-    }
-
-    .current-song-info h2 {
-      font-family: 'Playfair Display', serif;
-      font-size: 2rem;
-      margin-bottom: 0.5rem;
-    }
-
-    .current-song-meta {
-      display: flex;
-      gap: 1.5rem;
-      color: var(--text-secondary);
-    }
-
-    .meta-item {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .meta-label {
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      color: var(--text-muted);
-    }
-
-    .meta-value {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 1.1rem;
-      color: var(--accent-gold);
-    }
-
-    /* Lyrics Display */
-    .lyrics-container {
-      flex: 1;
-      background: var(--bg-card);
-      border-radius: 12px;
-      padding: 2rem;
-      overflow-y: auto;
-    }
-
-    .lyrics-section {
-      margin-bottom: 2rem;
-    }
-
-    .section-label {
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      color: var(--accent-gold);
-      margin-bottom: 0.75rem;
-      letter-spacing: 0.1em;
-    }
-
-    .lyrics-text {
-      font-size: 1.4rem;
-      line-height: 2;
-      white-space: pre-wrap;
-    }
-
-    .lyrics-text .accent {
-      font-weight: 600;
-      color: var(--accent-gold);
-    }
-
-    .section-active {
-      background: var(--bg-elevated);
-      border-radius: 8px;
-      padding: 1rem;
-      margin: -1rem;
-    }
-
-    /* Structure Navigator */
-    .structure-nav {
-      display: flex;
-      gap: 0.5rem;
-      flex-wrap: wrap;
-      margin-bottom: 1.5rem;
-    }
-
-    .structure-btn {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      color: var(--text-secondary);
-      padding: 0.5rem 1rem;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 0.85rem;
-      transition: all 0.15s;
-    }
-
-    .structure-btn:hover {
-      border-color: var(--accent-gold-dim);
-      color: var(--text-primary);
-    }
-
-    .structure-btn.active {
-      background: var(--accent-gold);
-      border-color: var(--accent-gold);
-      color: var(--bg-deep);
-    }
-
-    /* Cue Panel */
-    .cue-panel {
-      background: var(--bg-card);
-      border-left: 1px solid var(--border);
-      padding: 1.5rem;
-      display: flex;
-      flex-direction: column;
-      gap: 1.5rem;
-    }
-
-    .cue-section h3 {
-      font-size: 0.85rem;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      margin-bottom: 0.75rem;
-      letter-spacing: 0.05em;
-    }
-
-    .cue-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 0.5rem;
-    }
-
-    .cue-btn {
-      background: var(--bg-elevated);
-      border: 2px solid var(--border);
-      color: var(--text-primary);
-      padding: 1rem;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 1rem;
-      font-weight: 500;
-      transition: all 0.1s;
-    }
-
-    .cue-btn:hover {
-      border-color: var(--accent-gold);
-      transform: scale(1.02);
-    }
-
-    .cue-btn:active {
-      transform: scale(0.98);
-    }
-
-    .cue-btn.primary {
-      background: var(--accent-gold);
-      border-color: var(--accent-gold);
-      color: var(--bg-deep);
-      grid-column: span 2;
-      font-size: 1.5rem;
-      padding: 1.25rem;
-    }
-
-    .cue-btn.danger {
-      border-color: var(--accent-red);
-      color: var(--accent-red);
-    }
-
-    /* Feedback Panel */
-    .feedback-panel {
-      background: var(--bg-card);
-      border-top: 1px solid var(--border);
-      padding: 1.5rem 2rem;
-      grid-column: span 2;
-    }
-
-    .feedback-row {
-      display: flex;
-      gap: 2rem;
-      align-items: center;
-    }
-
-    .feedback-group {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .feedback-group label {
-      font-size: 0.85rem;
-      color: var(--text-secondary);
-      min-width: 60px;
-    }
-
-    .feedback-btns {
-      display: flex;
-      gap: 0.25rem;
-    }
-
-    .feedback-btn {
-      background: var(--bg-elevated);
-      border: 1px solid var(--border);
-      color: var(--text-secondary);
-      padding: 0.4rem 0.75rem;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 0.85rem;
-      transition: all 0.15s;
-    }
-
-    .feedback-btn:hover {
-      border-color: var(--accent-gold-dim);
-      color: var(--text-primary);
-    }
-
-    .feedback-btn.selected {
-      background: var(--accent-gold);
-      border-color: var(--accent-gold);
-      color: var(--bg-deep);
-    }
-
-    .feedback-btn.negative.selected {
-      background: var(--accent-red);
-      border-color: var(--accent-red);
-    }
-
-    .feedback-btn.positive.selected {
-      background: var(--accent-green);
-      border-color: var(--accent-green);
-    }
-
-    .feedback-notes {
-      flex: 1;
-      display: flex;
-      gap: 0.5rem;
-    }
-
-    .feedback-notes input {
-      flex: 1;
-      background: var(--bg-input);
-      border: 1px solid var(--border);
-      color: var(--text-primary);
-      padding: 0.5rem 1rem;
-      border-radius: 6px;
-      font-size: 0.9rem;
-    }
-
-    .feedback-notes input:focus {
-      outline: none;
-      border-color: var(--accent-gold-dim);
-    }
-
-    .save-btn {
-      background: var(--accent-gold);
-      border: none;
-      color: var(--bg-deep);
-      padding: 0.5rem 1.5rem;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: 500;
     }
 
     /* Modal */
@@ -1321,18 +981,6 @@
       opacity: 1;
     }
 
-    .status-badge {
-      padding: 0.35rem 0.75rem;
-      border-radius: 20px;
-      font-size: 0.8rem;
-      font-weight: 500;
-    }
-
-    .status-badge.voorbereiding { background: var(--bg-elevated); color: var(--text-secondary); }
-    .status-badge.oefening { background: rgba(96, 165, 250, 0.2); color: var(--accent-blue); }
-    .status-badge.live { background: rgba(212, 168, 83, 0.2); color: var(--accent-gold); }
-    .status-badge.afgerond { background: rgba(74, 222, 128, 0.2); color: var(--accent-green); }
-
     /* Setlist Editor */
     .setlist-editor {
       display: grid;
@@ -1455,43 +1103,6 @@
       color: var(--text-muted);
     }
 
-    /* Song navigation */
-    .song-nav {
-      display: flex;
-      gap: 0.5rem;
-      margin-bottom: 1rem;
-    }
-
-    .nav-btn {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      color: var(--text-secondary);
-      padding: 0.5rem 1rem;
-      border-radius: 6px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      transition: all 0.15s;
-    }
-
-    .nav-btn:hover:not(:disabled) {
-      border-color: var(--accent-gold-dim);
-      color: var(--text-primary);
-    }
-
-    .nav-btn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
-    .song-position {
-      background: var(--bg-elevated);
-      padding: 0.5rem 1rem;
-      border-radius: 6px;
-      font-family: 'JetBrains Mono', monospace;
-    }
-
     /* Empty state */
     .empty-state {
       text-align: center;
@@ -1502,57 +1113,6 @@
     .empty-state h3 {
       margin-bottom: 0.5rem;
       color: var(--text-secondary);
-    }
-
-    /* History display */
-    .history-list {
-      margin-top: 1rem;
-    }
-
-    .history-item {
-      padding: 0.75rem;
-      background: var(--bg-elevated);
-      border-radius: 6px;
-      margin-bottom: 0.5rem;
-      font-size: 0.85rem;
-    }
-
-    .history-item .date {
-      color: var(--text-muted);
-    }
-
-    .history-item .feedback {
-      display: flex;
-      gap: 1rem;
-      margin-top: 0.25rem;
-    }
-
-    .history-item .feedback span {
-      color: var(--text-secondary);
-    }
-
-    .history-item .feedback .good { color: var(--accent-green); }
-    .history-item .feedback .bad { color: var(--accent-red); }
-
-    /* Keyboard shortcuts hint */
-    .shortcuts-hint {
-      position: fixed;
-      bottom: 1rem;
-      right: 1rem;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 0.75rem 1rem;
-      font-size: 0.8rem;
-      color: var(--text-muted);
-    }
-
-    .shortcuts-hint kbd {
-      background: var(--bg-elevated);
-      padding: 0.15rem 0.4rem;
-      border-radius: 3px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.75rem;
     }
 
     /* Section Editor */
@@ -1902,17 +1462,6 @@
   </header>
 
   <div class="main-container">
-    <!-- Sidebar (visible in live mode) -->
-    <aside class="sidebar" id="sidebar" style="display: none;">
-      <div class="sidebar-header">
-        <h2>Setlist</h2>
-        <span id="sidebar-setlist-name"></span>
-      </div>
-      <div class="sidebar-content" id="setlist-sidebar-songs">
-        <!-- Songs will be populated here -->
-      </div>
-    </aside>
-
     <!-- Main Content -->
     <main class="content">
       <!-- Songs View -->
@@ -1965,15 +1514,6 @@
             <div>
               <button class="btn btn-secondary" onclick="showView('setlists')">← Terug</button>
               <h2 style="display: inline; margin-left: 1rem;" id="editor-setlist-name"></h2>
-            </div>
-            <div style="display: flex; gap: 0.5rem;">
-              <select id="editor-status" onchange="updateSetlistStatus()">
-                <option value="voorbereiding">Voorbereiding</option>
-                <option value="oefening">Oefening</option>
-                <option value="live">Live</option>
-                <option value="afgerond">Afgerond</option>
-              </select>
-              <button class="btn btn-primary" onclick="startLiveWithSetlist()">▶ Start Live</button>
             </div>
           </div>
           <div class="setlist-editor">
@@ -2263,27 +1803,13 @@ And grace my fears relieved..."
     </div>
   </div>
 
-  <div class="shortcuts-hint" id="shortcuts-hint" style="display: none;">
-    <kbd>←</kbd> <kbd>→</kbd> Secties &nbsp;|&nbsp;
-    <kbd>Space</kbd> Pauze &nbsp;|&nbsp;
-    <kbd>1</kbd> Tel in &nbsp;|&nbsp;
-    <kbd>N</kbd> Volgend lied
-  </div>
-
   <script>
     // State
     let songs = [];
     let setlists = [];
     let categories = [];
-    let currentSetlist = null;
-    let currentSongIndex = 0;
-    let currentSectionIndex = 0;
     let currentView = 'songs';
     let editingSetlistId = null;
-
-    // Feedback state
-    let feedbackTempo = null;
-    let feedbackKey = null;
     let songsViewMode = 'grid'; // 'grid' or 'list'
 
     // Section editor state
@@ -3102,7 +2628,6 @@ And grace my fears relieved..."
             <span class="date">${sl.date || 'Geen datum'}</span>
           </div>
           <button class="icon-btn" onclick="event.stopPropagation(); openSetlistModal('${sl.id}')" title="Bewerken" style="margin-right: 0.5rem;">✏️</button>
-          <span class="status-badge ${sl.status}">${sl.status}</span>
         </div>
       `).join('');
     }
@@ -3125,12 +2650,6 @@ And grace my fears relieved..."
         document.getElementById(`view-${view}`).classList.add('active');
         document.getElementById(`btn-${view}`).classList.add('active');
       }
-
-      // Show/hide sidebar
-      document.getElementById('sidebar').style.display = view === 'live' ? 'flex' : 'none';
-
-      // Show shortcuts in live view
-      document.getElementById('shortcuts-hint').style.display = view === 'live' ? 'block' : 'none';
 
       // Load stats when showing stats view
       if (view === 'stats') {
@@ -3546,7 +3065,6 @@ And grace my fears relieved..."
       const setlist = await res.json();
 
       document.getElementById('editor-setlist-name').textContent = setlist.name;
-      document.getElementById('editor-status').value = setlist.status;
 
       renderSetlistSongs(setlist.songs || []);
       renderAvailableSongs(setlist.songs || []);
@@ -3701,306 +3219,6 @@ And grace my fears relieved..."
       });
       openSetlistEditor(editingSetlistId);
     }
-
-    async function updateSetlistStatus() {
-      const status = document.getElementById('editor-status').value;
-      const res = await fetch(`/api/setlists/${editingSetlistId}`);
-      const setlist = await res.json();
-
-      await fetch(`/api/setlists/${editingSetlistId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...setlist, status })
-      });
-    }
-
-    async function startLiveWithSetlist() {
-      const res = await fetch(`/api/setlists/${editingSetlistId}`);
-      currentSetlist = await res.json();
-
-      if (!currentSetlist.songs || currentSetlist.songs.length === 0) {
-        alert('Voeg eerst liedjes toe aan de setlist');
-        return;
-      }
-
-      currentSongIndex = 0;
-      currentSectionIndex = 0;
-
-      // Update sidebar
-      document.getElementById('sidebar-setlist-name').textContent = currentSetlist.name;
-      renderSidebarSongs();
-
-      // Send state to singers
-      sendWSMessage('setState', {
-        setlistId: currentSetlist.id,
-        currentSongIndex,
-        currentSectionIndex
-      });
-
-      showView('live');
-      loadCurrentSong();
-    }
-
-    function renderSidebarSongs() {
-      const container = document.getElementById('setlist-sidebar-songs');
-      container.innerHTML = currentSetlist.songs.map((song, i) => `
-        <div class="song-item ${i === currentSongIndex ? 'active' : ''}" onclick="goToSong(${i})">
-          <div class="title">${i + 1}. ${song.title}</div>
-          <div class="meta">
-            <span>${song.key || '-'}</span>
-            <span>${song.style || '-'}</span>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    function goToSong(index) {
-      currentSongIndex = index;
-      currentSectionIndex = 0;
-      loadCurrentSong();
-      renderSidebarSongs();
-
-      sendWSMessage('navigate', { songIndex: currentSongIndex, sectionIndex: 0 });
-    }
-
-    async function loadCurrentSong() {
-      if (!currentSetlist || !currentSetlist.songs[currentSongIndex]) return;
-
-      const song = currentSetlist.songs[currentSongIndex];
-      const res = await fetch(`/api/songs/${song.id}`);
-      const fullSong = await res.json();
-
-      // Update header
-      document.getElementById('current-song-title').textContent = fullSong.title;
-      document.getElementById('current-song-key').textContent = fullSong.key || '-';
-      document.getElementById('current-song-tempo').textContent = fullSong.tempo || '-';
-      document.getElementById('current-song-style').textContent = fullSong.style || '-';
-
-      // Karaoke link
-      const karaokeLink = document.getElementById('karaoke-link');
-      if (fullSong.karaoke_link) {
-        karaokeLink.href = fullSong.karaoke_link;
-        karaokeLink.style.display = 'inline-block';
-      } else {
-        karaokeLink.style.display = 'none';
-      }
-
-      // Position
-      document.getElementById('song-position').textContent =
-        `${currentSongIndex + 1}/${currentSetlist.songs.length}`;
-
-      // Nav buttons
-      document.getElementById('prev-song-btn').disabled = currentSongIndex === 0;
-      document.getElementById('next-song-btn').disabled = currentSongIndex === currentSetlist.songs.length - 1;
-
-      // Parse and render lyrics
-      renderLyrics(fullSong);
-
-      // Render structure nav
-      renderStructureNav(fullSong);
-
-      // Render history
-      renderSongHistory(fullSong.history || []);
-
-      // Reset feedback
-      resetFeedback();
-    }
-
-    function renderLyrics(song) {
-      const container = document.getElementById('lyrics-container');
-
-      if (!song.lyrics) {
-        container.innerHTML = '<div class="empty-state"><p>Geen tekst beschikbaar</p></div>';
-        return;
-      }
-
-      // Split by --- for sections
-      const sections = song.lyrics.split('---').map(s => s.trim()).filter(Boolean);
-
-      container.innerHTML = sections.map((section, i) => {
-        // Parse accents: **text** becomes <span class="accent">text</span>
-        const formattedText = section.replace(/\*\*([^*]+)\*\*/g, '<span class="accent">$1</span>');
-
-        return `
-          <div class="lyrics-section ${i === currentSectionIndex ? 'section-active' : ''}" data-section="${i}">
-            <div class="lyrics-text">${formattedText}</div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    function renderStructureNav(song) {
-      const container = document.getElementById('structure-nav');
-
-      if (!song.structure) {
-        container.innerHTML = '';
-        return;
-      }
-
-      const parts = song.structure.split(',').map(s => s.trim());
-
-      container.innerHTML = parts.map((part, i) => `
-        <button class="structure-btn ${i === currentSectionIndex ? 'active' : ''}" onclick="goToSection(${i})">
-          ${part}
-        </button>
-      `).join('');
-    }
-
-    function goToSection(index) {
-      currentSectionIndex = index;
-
-      // Update section highlighting
-      document.querySelectorAll('.lyrics-section').forEach((el, i) => {
-        el.classList.toggle('section-active', i === index);
-      });
-
-      document.querySelectorAll('.structure-btn').forEach((el, i) => {
-        el.classList.toggle('active', i === index);
-      });
-
-      // Scroll to section
-      const section = document.querySelector(`.lyrics-section[data-section="${index}"]`);
-      if (section) {
-        section.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
-
-      sendWSMessage('navigate', { sectionIndex: currentSectionIndex });
-    }
-
-    function prevSection() {
-      if (currentSectionIndex > 0) {
-        goToSection(currentSectionIndex - 1);
-      }
-    }
-
-    function nextSection() {
-      const sections = document.querySelectorAll('.lyrics-section');
-      if (currentSectionIndex < sections.length - 1) {
-        goToSection(currentSectionIndex + 1);
-      }
-    }
-
-    function prevSong() {
-      if (currentSongIndex > 0) {
-        goToSong(currentSongIndex - 1);
-      }
-    }
-
-    function nextSong() {
-      if (currentSongIndex < currentSetlist.songs.length - 1) {
-        goToSong(currentSongIndex + 1);
-      }
-    }
-
-    // Cues
-    function sendCue(cue) {
-      sendWSMessage('cue', { cue, timestamp: Date.now() });
-
-      // Visual feedback
-      const btn = event.target;
-      btn.style.transform = 'scale(0.95)';
-      setTimeout(() => btn.style.transform = '', 100);
-    }
-
-    // Feedback
-    function selectFeedback(btn) {
-      const type = btn.dataset.feedback;
-      const value = btn.dataset.value;
-
-      // Deselect siblings
-      btn.parentElement.querySelectorAll('.feedback-btn').forEach(b => {
-        b.classList.remove('selected');
-      });
-
-      btn.classList.add('selected');
-
-      if (type === 'tempo') feedbackTempo = value;
-      if (type === 'key') feedbackKey = value;
-    }
-
-    function resetFeedback() {
-      feedbackTempo = null;
-      feedbackKey = null;
-      document.getElementById('feedback-notes').value = '';
-      document.querySelectorAll('.feedback-btn').forEach(b => b.classList.remove('selected'));
-    }
-
-    async function saveFeedback() {
-      if (!currentSetlist || !currentSetlist.songs[currentSongIndex]) return;
-
-      const song = currentSetlist.songs[currentSongIndex];
-      const notes = document.getElementById('feedback-notes').value;
-
-      await fetch(`/api/songs/${song.id}/feedback`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          setlistId: currentSetlist.id,
-          keyUsed: song.key,
-          tempoFeedback: feedbackTempo,
-          keyFeedback: feedbackKey,
-          notes
-        })
-      });
-
-      // Reload song to show updated history
-      loadCurrentSong();
-    }
-
-    function renderSongHistory(history) {
-      const container = document.getElementById('song-history');
-
-      if (history.length === 0) {
-        container.innerHTML = '<p style="color: var(--text-muted); font-size: 0.85rem;">Nog geen historiek</p>';
-        return;
-      }
-
-      container.innerHTML = history.slice(0, 3).map(h => `
-        <div class="history-item">
-          <div class="date">${h.played_date} ${h.setlist_name ? `• ${h.setlist_name}` : ''}</div>
-          <div class="feedback">
-            ${h.tempo_feedback ? `<span class="${h.tempo_feedback === 'goed' ? 'good' : 'bad'}">Tempo: ${h.tempo_feedback}</span>` : ''}
-            ${h.key_feedback ? `<span class="${h.key_feedback === 'goed' ? 'good' : 'bad'}">Toon: ${h.key_feedback}</span>` : ''}
-          </div>
-          ${h.notes ? `<div style="margin-top: 0.25rem; color: var(--text-secondary);">${h.notes}</div>` : ''}
-        </div>
-      `).join('');
-    }
-
-    // Keyboard shortcuts
-    document.addEventListener('keydown', (e) => {
-      if (currentView !== 'live') return;
-      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
-
-      switch (e.key) {
-        case 'ArrowLeft':
-          prevSection();
-          e.preventDefault();
-          break;
-        case 'ArrowRight':
-          nextSection();
-          e.preventDefault();
-          break;
-        case ' ':
-          sendCue('PAUZE');
-          e.preventDefault();
-          break;
-        case '1':
-          sendCue('1-2-3!');
-          e.preventDefault();
-          break;
-        case 'n':
-        case 'N':
-          nextSong();
-          e.preventDefault();
-          break;
-        case 'p':
-        case 'P':
-          prevSong();
-          e.preventDefault();
-          break;
-      }
-    });
 
     // Initialize
     document.addEventListener('DOMContentLoaded', () => {
