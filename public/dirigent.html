@@ -1515,6 +1515,7 @@
               <button class="btn btn-secondary" onclick="showView('setlists')">← Terug</button>
               <h2 style="display: inline; margin-left: 1rem;" id="editor-setlist-name"></h2>
             </div>
+            <button class="btn btn-primary" onclick="openLive(editingSetlistId)">▶ Live</button>
           </div>
           <div class="setlist-editor">
             <div class="setlist-songs" id="editor-setlist-songs">
@@ -2627,6 +2628,7 @@ And grace my fears relieved..."
             <h3>${sl.pinned ? '📌 ' : ''}${sl.name}</h3>
             <span class="date">${sl.date || 'Geen datum'}</span>
           </div>
+          <button class="icon-btn" onclick="event.stopPropagation(); openLive('${sl.id}')" title="Open in Live" style="margin-right: 0.5rem;">▶</button>
           <button class="icon-btn" onclick="event.stopPropagation(); openSetlistModal('${sl.id}')" title="Bewerken" style="margin-right: 0.5rem;">✏️</button>
         </div>
       `).join('');
@@ -2635,6 +2637,15 @@ And grace my fears relieved..."
     async function togglePin(setlistId) {
       await fetch(`/api/setlists/${setlistId}/pin`, { method: 'PUT' });
       await loadSetlists();
+    }
+
+    function openLive(setlistId, songId) {
+      const params = new URLSearchParams();
+      params.set('setlist', setlistId);
+      if (songId) params.set('song', songId);
+      const w = Math.min(screen.availWidth, 1400);
+      const h = Math.min(screen.availHeight, 900);
+      window.open(`/live?${params}`, '_blank', `width=${w},height=${h}`);
     }
 
     // View Management
@@ -3088,6 +3099,7 @@ And grace my fears relieved..."
             <div class="title">${song.title}</div>
             <div class="meta">${song.key || '-'} • ${song.style || '-'}</div>
           </div>
+          <button class="icon-btn" onclick="event.stopPropagation(); openLive(editingSetlistId, '${song.id}')" title="Open in Live" style="margin-right: 0.5rem;">▶</button>
           <button class="remove-btn" onclick="removeSongFromSetlist('${song.id}')">×</button>
         </div>
       `).join('');
