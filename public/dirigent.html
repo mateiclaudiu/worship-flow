@@ -1810,6 +1810,17 @@ And grace my fears relieved..."
 
   <script>
     // State
+    // Accent-insensitive normalizer for search.
+    // Strips diacritics (Lăsaţi → lasati, Îngeri → ingeri), lowercases,
+    // and drops hyphens/commas so "1-2-3" matches "123" too.
+    const norm = (s) => (s || '').normalize('NFD')
+      .replace(/[̀-ͯ]/g, '')
+      .toLowerCase()
+      .replace(/đ/g, 'd')
+      .replace(/ț/g, 't')
+      .replace(/ș/g, 's')
+      .replace(/[-,]/g, '');
+
     let songs = [];
     let setlists = [];
     let categories = [];
@@ -2557,15 +2568,17 @@ And grace my fears relieved..."
     // Render Functions
     function renderSongs() {
       const grid = document.getElementById('songs-grid');
-      const search = document.getElementById('song-search').value.toLowerCase();
+      const search = norm(document.getElementById('song-search').value);
       const sortBy = document.getElementById('song-sort').value;
 
       // Filter
-      let filtered = songs.filter(s =>
-        s.title.toLowerCase().includes(search) ||
-        (s.category && s.category.toLowerCase().includes(search)) ||
-        (s.style && s.style.toLowerCase().includes(search))
-      );
+      let filtered = search
+        ? songs.filter(s =>
+            norm(s.title).includes(search) ||
+            norm(s.category).includes(search) ||
+            norm(s.style).includes(search)
+          )
+        : songs;
 
       // Sort
       filtered.sort((a, b) => {
@@ -3192,13 +3205,14 @@ And grace my fears relieved..."
 
     function renderAvailableSongs(setlistSongs) {
       const container = document.getElementById('available-songs-list');
-      const search = document.getElementById('editor-song-search')?.value?.toLowerCase() || '';
+      const search = norm(document.getElementById('editor-song-search')?.value || '');
       const setlistSongIds = setlistSongs.map(s => s.id);
 
       const available = songs.filter(s =>
         !setlistSongIds.includes(s.id) &&
-        (s.title.toLowerCase().includes(search) ||
-         (s.category && s.category.toLowerCase().includes(search)))
+        (!search ||
+          norm(s.title).includes(search) ||
+          norm(s.category).includes(search))
       );
 
       container.innerHTML = available.map(song => `
