@@ -1537,17 +1537,17 @@
       <div class="view" id="view-stats">
         <div class="stats-view">
           <h2>Statistieken</h2>
-          <p style="color: var(--text-secondary); margin-bottom: 2rem;">Liedjes die je hebt gezongen (via AMEN button)</p>
+          <p style="color: var(--text-secondary); margin-bottom: 2rem;">Hoe vaak liedjes voorkomen in je setlists</p>
 
           <div class="stats-grid">
             <div class="stats-card">
-              <h3>Top Liedjes</h3>
+              <h3>Meest gebruikt</h3>
               <div class="stats-list" id="stats-top-songs">
                 <p class="empty-state">Laden...</p>
               </div>
             </div>
             <div class="stats-card">
-              <h3>Recent Gezongen</h3>
+              <h3>Recent gebruikt</h3>
               <div class="stats-list" id="stats-recent">
                 <p class="empty-state">Laden...</p>
               </div>
@@ -2680,7 +2680,7 @@ And grace my fears relieved..."
         const recentContainer = document.getElementById('stats-recent');
 
         if (stats.length === 0) {
-          topSongsContainer.innerHTML = '<p class="empty-state">Nog geen liedjes gezongen. Gebruik de AMEN knop aan het einde van een liedje om het te loggen.</p>';
+          topSongsContainer.innerHTML = '<p class="empty-state">Nog geen liedjes in setlists.</p>';
           recentContainer.innerHTML = '<p class="empty-state">Nog geen data</p>';
           return;
         }
@@ -2692,16 +2692,16 @@ And grace my fears relieved..."
             <div class="rank">${i + 1}</div>
             <div class="info">
               <div class="title">${song.title}</div>
-              <div class="meta">Laatst: ${song.lastPerformed ? formatDate(song.lastPerformed) : '-'}</div>
+              <div class="meta">Laatst: ${song.lastUsed ? formatDate(song.lastUsed) : '-'}</div>
             </div>
             <div class="count">${song.count}x</div>
           </div>
         `).join('');
 
-        // Recent songs (sorted by last performed)
+        // Recent songs (sorted by last used)
         const recentSongs = [...stats]
-          .filter(s => s.lastPerformed)
-          .sort((a, b) => new Date(b.lastPerformed) - new Date(a.lastPerformed))
+          .filter(s => s.lastUsed)
+          .sort((a, b) => new Date(b.lastUsed) - new Date(a.lastUsed))
           .slice(0, 10);
 
         if (recentSongs.length === 0) {
@@ -2711,7 +2711,7 @@ And grace my fears relieved..."
             <div class="stats-item">
               <div class="info">
                 <div class="title">${song.title}</div>
-                <div class="meta">${formatDate(song.lastPerformed)}</div>
+                <div class="meta">${formatDate(song.lastUsed)}</div>
               </div>
               <div class="count">${song.count}x</div>
             </div>

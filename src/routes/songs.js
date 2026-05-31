@@ -31,27 +31,25 @@ router.get('/recent/performed', (req, res) => {
   const limit = parseInt(req.query.limit) || 10;
   const data = db.get();
 
-  // Get unique songs from history, sorted by most recent
-  const recentSongIds = [...new Set(
-    data.songHistory
-      .filter(h => h.type === 'amen' || h.performedAt)
-      .sort((a, b) => new Date(b.performedAt || b.playedDate) - new Date(a.performedAt || a.playedDate))
-      .map(h => h.songId)
-  )].slice(0, limit);
+  // Walk dated setlists from newest to oldest, collecting unique songIds.
+  const sortedSetlists = [...data.setlists]
+    .filter(sl => sl.date)
+    .sort((a, b) => b.date.localeCompare(a.date));
 
-  // Get song details
-  const recentSongs = recentSongIds
-    .map(id => data.songs.find(s => s.id === id))
-    .filter(Boolean)
-    .map(song => {
-      const lastPlayed = data.songHistory
-        .filter(h => h.songId === song.id)
-        .sort((a, b) => new Date(b.performedAt || b.playedDate) - new Date(a.performedAt || a.playedDate))[0];
-      return {
-        ...song,
-        lastPerformed: lastPlayed?.performedAt || lastPlayed?.playedDate
-      };
-    });
+  const lastSeen = new Map(); // songId -> setlist.date (most recent)
+  for (const sl of sortedSetlists) {
+    for (const entry of sl.songs || []) {
+      if (!lastSeen.has(entry.songId)) lastSeen.set(entry.songId, sl.date);
+    }
+  }
+
+  const recentSongs = [...lastSeen.entries()]
+    .slice(0, limit)
+    .map(([songId, date]) => {
+      const song = data.songs.find(s => s.id === songId);
+      return song ? { ...song, lastPerformed: date } : null;
+    })
+    .filter(Boolean);
 
   res.json(recentSongs);
 });
@@ -141,30 +139,6 @@ router.delete('/:id', (req, res) => {
 
   db.save();
   res.json({ success: true });
-});
-
-// Log song as performed (AMEN button)
-router.post('/:id/amen', (req, res) => {
-  const { setlistId } = req.body;
-  const data = db.get();
-  const song = data.songs.find(s => s.id === req.params.id);
-
-  if (!song) {
-    return res.status(404).json({ error: 'Song not found' });
-  }
-
-  const entry = {
-    id: uuidv4(),
-    songId: req.params.id,
-    setlistId: setlistId || null,
-    performedAt: new Date().toISOString(),
-    type: 'amen'
-  };
-
-  data.songHistory.push(entry);
-  db.save();
-
-  res.json({ success: true, id: entry.id });
 });
 
 // Song feedback

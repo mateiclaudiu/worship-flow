@@ -451,22 +451,6 @@
       font-size: 1.25rem;
     }
 
-    .amen-btn {
-      background: linear-gradient(135deg, #22c55e, #16a34a);
-      border-color: #22c55e;
-      color: white;
-    }
-
-    .amen-btn:hover {
-      background: linear-gradient(135deg, #16a34a, #15803d);
-      border-color: #16a34a;
-    }
-
-    .amen-btn.done {
-      background: linear-gradient(135deg, #a855f7, #9333ea);
-      border-color: #a855f7;
-      pointer-events: none;
-    }
 
     /* Waiting state */
     .waiting {
@@ -1208,10 +1192,6 @@
       <span>Volgende</span>
       <span class="arrow">▶</span>
     </button>
-    <button class="nav-btn amen-btn" id="amen-btn" onclick="logAmen()" style="display: none;">
-      <span>🙏</span>
-      <span>AMEN</span>
-    </button>
   </div>
 
   <div class="notification" id="notification"></div>
@@ -1566,7 +1546,6 @@
       currentSongId = songId;
       currentSong = currentSetlist?.songs?.find(s => s.id === songId);
       fontSizeOffset = 0;
-      resetAmenButton();
 
       // Update URL to persist song on refresh
       const url = new URL(window.location);
@@ -1605,7 +1584,6 @@
       currentSongId = songId;
       currentSong = null;
       fontSizeOffset = 0;
-      resetAmenButton();
 
       if (currentSetlist?.songs) {
         currentSong = currentSetlist.songs.find(s => s.id === songId);
@@ -1887,45 +1865,6 @@
       document.getElementById('section-total').textContent = sections.length || 1;
       document.getElementById('prev-btn').disabled = currentSectionIndex === 0;
       document.getElementById('next-btn').disabled = currentSectionIndex >= sections.length - 1;
-
-      // Show AMEN button only on last section
-      const isLastSection = currentSectionIndex >= sections.length - 1;
-      const amenBtn = document.getElementById('amen-btn');
-      if (amenBtn) amenBtn.style.display = isLastSection ? 'flex' : 'none';
-    }
-
-    // AMEN button - log song as performed
-    async function logAmen() {
-      if (!currentSongId) return;
-
-      const btn = document.getElementById('amen-btn');
-      if (!btn) return;
-      btn.disabled = true;
-
-      try {
-        await fetch(`/api/songs/${currentSongId}/amen`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ setlistId: currentSetlist?.id })
-        });
-
-        // Visual feedback
-        btn.classList.add('done');
-        btn.innerHTML = '<span>✓</span><span>AMEN</span>';
-        showNotification('Liedje gelogd!');
-      } catch (e) {
-        console.error('Amen error:', e);
-        btn.disabled = false;
-      }
-    }
-
-    // Reset AMEN button when song changes
-    function resetAmenButton() {
-      const btn = document.getElementById('amen-btn');
-      if (!btn) return;
-      btn.classList.remove('done');
-      btn.disabled = false;
-      btn.innerHTML = '<span>🙏</span><span>AMEN</span>';
     }
 
     // Notification
@@ -1997,7 +1936,6 @@
       currentSongId = songId;
       currentSong = currentSetlist?.songs?.find(s => s.id === songId);
       fontSizeOffset = 0;
-      resetAmenButton();
 
       // Update chips
       document.querySelectorAll('.song-chip').forEach(chip => {
@@ -2033,7 +1971,6 @@
         currentSongId = songId;
         currentSong = song;
         fontSizeOffset = 0;
-        resetAmenButton();
 
         document.getElementById('header-center').style.display = 'flex';
         document.getElementById('header-song-key').textContent = song.key || '-';
@@ -2205,7 +2142,6 @@
 
         currentSongId = songId;
         currentSong = song;
-        resetAmenButton();
 
         // Update URL to persist song on refresh
         const url = new URL(window.location);
