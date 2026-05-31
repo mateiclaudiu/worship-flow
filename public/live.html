@@ -1131,6 +1131,7 @@
       <div class="song-info" id="header-center" style="display: none;">
         <span class="song-info-item" title="Toon"><span class="label">🎵</span> <span class="value" id="header-song-key">-</span></span>
         <span class="song-info-item" title="Tempo"><span class="label">⏱</span> <span class="value" id="header-song-tempo">-</span></span>
+        <span class="song-info-item" title="Structuur (vers / refrein / bridge)"><span class="label">📖</span> <span class="value" id="header-song-structure">-</span></span>
       </div>
       <button class="icon-btn" onclick="openQuickAccess()" title="Zoek liedje (Ctrl+K)">🔍</button>
       <div class="menu-container">
@@ -1557,10 +1558,7 @@
         chip.classList.toggle('active', chip.dataset.songId === songId);
       });
 
-      // Update header center with key/tempo
-      document.getElementById('header-center').style.display = 'flex';
-      document.getElementById('header-song-key').textContent = currentSong?.key || '-';
-      document.getElementById('header-song-tempo').textContent = currentSong?.tempo ? `${currentSong.tempo} BPM` : '-';
+      setHeaderInfo(currentSong);
 
       // Parse and render
       if (currentSong) {
@@ -1595,10 +1593,7 @@
       }
 
       if (currentSong) {
-        // Update header center with key/tempo
-        document.getElementById('header-center').style.display = 'flex';
-        document.getElementById('header-song-key').textContent = currentSong.key || '-';
-        document.getElementById('header-song-tempo').textContent = currentSong.tempo ? `${currentSong.tempo} BPM` : '-';
+        setHeaderInfo(currentSong);
 
         // Update song dropdown (if element exists)
         const songSelect = document.getElementById('song-select');
@@ -1617,6 +1612,30 @@
       document.querySelectorAll('.song-chip').forEach(chip => {
         chip.classList.toggle('active', chip.dataset.songId === songId);
       });
+    }
+
+    // Compact structure summary like "3v 4r 1b" — only types that occur.
+    function structureSummary(song) {
+      if (!song?.structure) return '';
+      const parts = song.structure.split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+      let v = 0, r = 0, b = 0;
+      for (const p of parts) {
+        if (p.startsWith('vers')) v++;
+        else if (p.includes('refrein') || p.includes('chorus')) r++;
+        else if (p.includes('bridge')) b++;
+      }
+      const out = [];
+      if (v) out.push(`${v}v`);
+      if (r) out.push(`${r}r`);
+      if (b) out.push(`${b}b`);
+      return out.join(' ');
+    }
+
+    function setHeaderInfo(song) {
+      document.getElementById('header-center').style.display = 'flex';
+      document.getElementById('header-song-key').textContent = song?.key || '-';
+      document.getElementById('header-song-tempo').textContent = song?.tempo ? `${song.tempo} BPM` : '-';
+      document.getElementById('header-song-structure').textContent = structureSummary(song) || '-';
     }
 
     // Parse song into sections
@@ -1942,10 +1961,7 @@
         chip.classList.toggle('active', chip.dataset.songId === songId);
       });
 
-      // Update header center with key/tempo
-      document.getElementById('header-center').style.display = 'flex';
-      document.getElementById('header-song-key').textContent = currentSong?.key || '-';
-      document.getElementById('header-song-tempo').textContent = currentSong?.tempo ? `${currentSong.tempo} BPM` : '-';
+      setHeaderInfo(currentSong);
 
       // Parse and render
       if (currentSong) {
@@ -1972,9 +1988,7 @@
         currentSong = song;
         fontSizeOffset = 0;
 
-        document.getElementById('header-center').style.display = 'flex';
-        document.getElementById('header-song-key').textContent = song.key || '-';
-        document.getElementById('header-song-tempo').textContent = song.tempo ? `${song.tempo} BPM` : '-';
+        setHeaderInfo(song);
 
         parseSong(song);
         renderCurrentView();
@@ -2148,10 +2162,7 @@
         url.searchParams.set('song', songId);
         window.history.replaceState({}, '', url);
 
-        // Update header center with key/tempo
-        document.getElementById('header-center').style.display = 'flex';
-        document.getElementById('header-song-key').textContent = song.key || '-';
-        document.getElementById('header-song-tempo').textContent = song.tempo ? `${song.tempo} BPM` : '-';
+        setHeaderInfo(song);
 
         // Parse and render
         parseSong(song);
