@@ -1137,10 +1137,6 @@
   <!-- Header -->
   <header class="header" id="header">
     <div class="header-left">
-      <div class="view-toggle">
-        <button class="view-btn active" data-view="presentatie" onclick="setView('presentatie')">Scherm</button>
-        <button class="view-btn" data-view="zanger" onclick="setView('zanger')">Scroll</button>
-      </div>
       <select id="setlist-select" class="setlist-badge" onchange="loadSetlist()" title="Setlist">
         <option value="">-- Setlist --</option>
       </select>
@@ -1149,8 +1145,8 @@
     <div class="header-right">
       <div class="conn-dot" id="conn-dot" title="Verbonden"></div>
       <div class="song-info" id="header-center" style="display: none;">
-        <span class="song-info-item"><span class="label">Toon:</span> <span class="value" id="header-song-key">-</span></span>
-        <span class="song-info-item"><span class="label">Tempo:</span> <span class="value" id="header-song-tempo">-</span></span>
+        <span class="song-info-item" title="Toon"><span class="label">🎵</span> <span class="value" id="header-song-key">-</span></span>
+        <span class="song-info-item" title="Tempo"><span class="label">⏱</span> <span class="value" id="header-song-tempo">-</span></span>
       </div>
       <button class="icon-btn" onclick="openQuickAccess()" title="Zoek liedje (Ctrl+K)">🔍</button>
       <div class="menu-container">
@@ -1159,6 +1155,13 @@
           <button class="menu-item" id="live-btn" onclick="broadcastSong(); closeSettingsMenu()">📡 Broadcast</button>
           <button class="menu-item" onclick="toggleMonitorPanel(); closeSettingsMenu()">🎧 Monitor mix</button>
           <hr>
+          <div class="menu-row">
+            <span class="menu-label">Weergave</span>
+            <div class="view-toggle">
+              <button class="view-btn active" data-view="presentatie" onclick="setView('presentatie'); closeSettingsMenu()">Scherm</button>
+              <button class="view-btn" data-view="zanger" onclick="setView('zanger'); closeSettingsMenu()">Scroll</button>
+            </div>
+          </div>
           <div class="menu-row">
             <span class="menu-label">Tekstgrootte</span>
             <div class="menu-actions">
