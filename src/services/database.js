@@ -26,7 +26,6 @@ function getDefaultDB() {
       { id: uuidv4(), name: 'Modern', type: 'style' },
       { id: uuidv4(), name: 'Aanbidding', type: 'style' },
     ],
-    songHistory: [],
     mixerConfig: {
       ip: '10.10.1.1',
       showName: '',
