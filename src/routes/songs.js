@@ -68,7 +68,7 @@ router.get('/:id', (req, res) => {
 
 // Create song
 router.post('/', (req, res) => {
-  const { title, lyrics, key, tempo, category, style, karaoke_link, structure, mixerScene } = req.body;
+  const { title, lyrics, key, tempo, category, style, karaoke_link, structure, mixerScene, korgStyleName } = req.body;
   const data = db.get();
 
   const song = {
@@ -82,6 +82,7 @@ router.post('/', (req, res) => {
     karaoke_link,
     structure,
     mixerScene,
+    korgStyleName,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   };
@@ -93,7 +94,7 @@ router.post('/', (req, res) => {
 
 // Update song
 router.put('/:id', (req, res) => {
-  const { title, lyrics, key, tempo, category, style, karaoke_link, structure, mixerScene } = req.body;
+  const { title, lyrics, key, tempo, category, style, karaoke_link, structure, mixerScene, korgStyleName } = req.body;
   const data = db.get();
   const index = data.songs.findIndex(s => s.id === req.params.id);
 
@@ -109,6 +110,7 @@ router.put('/:id', (req, res) => {
       karaoke_link,
       structure,
       mixerScene,
+      korgStyleName,
       updatedAt: new Date().toISOString()
     };
     db.save();

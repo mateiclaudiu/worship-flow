@@ -1615,6 +1615,10 @@
                   <label>Mixer Scene (UI24)</label>
                   <input type="text" id="song-mixer-scene" placeholder="Snapshot naam...">
                 </div>
+                <div class="form-group" style="margin-bottom: 0; flex: 1;">
+                  <label>Korg Style</label>
+                  <input type="text" id="song-korg-style" placeholder="Style-naam op Korg keyboard">
+                </div>
               </div>
             </div>
           </details>
@@ -2826,6 +2830,7 @@ And grace my fears relieved..."
         document.getElementById('song-category').value = song.category || '';
         document.getElementById('song-style').value = song.style || '';
         document.getElementById('song-mixer-scene').value = song.mixerScene || '';
+        document.getElementById('song-korg-style').value = song.korgStyleName || '';
         updateTitlePreview();
 
         // Parse existing lyrics into sections
@@ -2877,6 +2882,7 @@ And grace my fears relieved..."
         category: document.getElementById('song-category').value,
         style: document.getElementById('song-style').value,
         mixerScene: document.getElementById('song-mixer-scene').value,
+        korgStyleName: document.getElementById('song-korg-style').value,
         structure: structure,
         lyrics: lyrics
       };
