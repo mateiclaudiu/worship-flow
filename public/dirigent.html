@@ -1106,10 +1106,18 @@
     }
 
     .available-song-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
       padding: 0.75rem;
       border-radius: 6px;
       cursor: pointer;
       transition: all 0.15s;
+    }
+
+    .available-song-item .info {
+      min-width: 0;
     }
 
     .available-song-item:hover {
@@ -1125,13 +1133,15 @@
       color: var(--text-muted);
     }
 
-    .available-song-item.overdue {
-      border-left: 3px solid var(--accent-gold);
-      padding-left: calc(0.75rem - 3px);
-    }
-
     .available-song-item.planned {
       opacity: 0.5;
+    }
+
+    .available-song-item .overdue-badge {
+      flex-shrink: 0;
+      font-size: 0.7rem;
+      color: var(--accent-gold-dim);
+      white-space: nowrap;
     }
 
     .available-sort {
@@ -3328,12 +3338,17 @@ And grace my fears relieved..."
         available.sort((a, b) => (rotationById[b.id]?.score ?? -1) - (rotationById[a.id]?.score ?? -1));
       }
 
-      container.innerHTML = available.map(song => `
-        <div class="available-song-item${rotationClass(rotationById[song.id])}" onclick="addSongToSetlist('${song.id}')">
-          <div class="title">${song.title}</div>
-          <div class="meta">${song.key || '-'} • ${song.category || '-'}${rotationLabel(rotationById[song.id])}</div>
-        </div>
-      `).join('');
+      container.innerHTML = available.map(song => {
+        const rot = rotationById[song.id];
+        return `
+        <div class="available-song-item${rotationClass(rot)}" title="${rotationTitle(rot)}" onclick="addSongToSetlist('${song.id}')">
+          <div class="info">
+            <div class="title">${song.title}</div>
+            <div class="meta">${song.key || '-'} • ${song.category || '-'}</div>
+          </div>
+          ${rotationBadge(rot)}
+        </div>`;
+      }).join('');
     }
 
     function toggleAvailableSort() {
@@ -3343,19 +3358,25 @@ And grace my fears relieved..."
       filterAvailableSongs();
     }
 
-    // Voorrang: ingepland boven nooit-gezongen boven achterstallig.
+    // Een lied is achterstallig als het minstens twee keer zijn eigen rustperiode stil ligt.
+    const OVERDUE_THRESHOLD = 2;
+
+    const isOverdue = (rot) => !!rot && rot.status === 'ok' && rot.score >= OVERDUE_THRESHOLD;
+
     function rotationClass(rot) {
-      if (!rot) return '';
-      if (rot.status === 'planned') return ' planned';
-      if (rot.status === 'never') return '';
-      return rot.score >= 2 ? ' overdue' : '';
+      return rot && rot.status === 'planned' ? ' planned' : '';
     }
 
-    function rotationLabel(rot) {
+    // Alleen achterstallige liedjes krijgen een markering; de rest blijft rustig.
+    function rotationBadge(rot) {
+      return isOverdue(rot) ? `<span class="overdue-badge">&bull; ${formatWeeks(rot.weeksSince)}</span>` : '';
+    }
+
+    function rotationTitle(rot) {
       if (!rot) return '';
-      if (rot.status === 'planned') return ` • ${formatShortDay(rot.plannedDate)} ingepland`;
-      if (rot.status === 'never') return ' • nooit gezongen';
-      return ` • ${formatWeeks(rot.weeksSince)} stil`;
+      if (rot.status === 'planned') return `Al ingepland op ${formatShortDay(rot.plannedDate)}`;
+      if (rot.status === 'never') return 'Nog nooit gezongen';
+      return `${formatWeeks(rot.weeksSince)} stil · normaal om de ${formatWeeks(rot.intervalWeeks)}`;
     }
 
     function formatShortDay(dateStr) {
