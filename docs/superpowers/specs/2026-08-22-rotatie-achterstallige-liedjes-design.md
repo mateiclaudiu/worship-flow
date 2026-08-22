@@ -45,10 +45,12 @@ deterministisch te testen is. De route geeft de actuele datum door.
 Algoritme, per lied:
 
 1. **Datums verzamelen.** Alle setlists met een niet-lege `date` waarin het lied voorkomt.
-2. **Gelegenheden clusteren.** Datums die binnen 14 dagen van elkaar liggen tellen als één
-   gelegenheid; de laatste datum van de cluster is de datum van de gelegenheid. Dit vangt
-   twee gevallen: zaterdagoefening plus zondagdienst is één keer zingen, en kerstavond plus
-   kerstdag maakt het kerstinterval niet "2 dagen".
+2. **Gelegenheden clusteren.** Een nieuwe cluster begint zodra een datum minstens 3 dagen na
+   de *eerste* datum van de lopende cluster ligt; de laatste datum van de cluster is de datum
+   van de gelegenheid. Dit vangt twee gevallen: zaterdagoefening plus zondagdienst is één keer
+   zingen, en kerstavond plus kerstdag maakt het kerstinterval niet "2 dagen". Het venster is
+   bewust krap: bij 14 dagen zouden twee opeenvolgende zondagen (7 dagen ertussen) tot één
+   gelegenheid samensmelten, wat de telling structureel verkeerd maakt.
 3. **Toekomst afsplitsen.** Gelegenheden na `today` tellen niet als gezongen. Staat een lied
    in zo'n setlist, dan krijgt het `status: 'planned'` en `plannedDate` (de eerstvolgende
    toekomstige datum). `status` kent één waarde met deze voorrang: `planned` boven `never`
@@ -127,13 +129,14 @@ Scenario's:
 2. Kerstlied op 24 en 25 december in twee opeenvolgende jaren → clustering geeft 2
    gelegenheden en een interval van ongeveer 52 weken, niet 0.
 3. Zaterdagoefening en zondagdienst in dezelfde week → één gelegenheid, `count` is 1.
-4. Lied dat in geen enkele setlist zit → `status: 'never'`, interval is de portfoliomediaan,
+4. Twee opeenvolgende zondagen → 2 gelegenheden (regressietest op het clustervenster).
+5. Lied dat in geen enkele setlist zit → `status: 'never'`, interval is de portfoliomediaan,
    weken geteld vanaf `createdAt`.
-5. Lied dat alleen in een setlist met een datum in de toekomst zit → `status: 'planned'`,
+6. Lied dat alleen in een setlist met een datum in de toekomst zit → `status: 'planned'`,
    `plannedDate` gevuld, telt niet als gezongen.
-6. Lied met precies één gelegenheid → valt terug op de portfoliomediaan.
-7. Setlists zonder datum tellen niet mee.
-8. Lege portfolio zonder enig interval → fallback van 8 weken.
+7. Lied met precies één gelegenheid → valt terug op de portfoliomediaan.
+8. Setlists zonder datum tellen niet mee.
+9. Lege portfolio zonder enig interval → fallback van 8 weken.
 
 ## Buiten scope
 

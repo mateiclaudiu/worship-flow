@@ -5,6 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
+    "test": "node --test",
     "dev": "nodemon server.js",
     "predev": "lsof -ti:3000 | xargs kill -9 2>/dev/null || true",
     "prestart": "lsof -ti:3000 | xargs kill -9 2>/dev/null || true"

@@ -448,6 +448,28 @@
       letter-spacing: 0.05em;
     }
 
+    .stats-card-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .stats-card-head h3 {
+      margin-bottom: 0;
+    }
+
+    .stats-toggle {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
     .stats-list {
       display: flex;
       flex-direction: column;
@@ -1103,6 +1125,26 @@
       color: var(--text-muted);
     }
 
+    .available-song-item.overdue {
+      border-left: 3px solid var(--accent-gold);
+      padding-left: calc(0.75rem - 3px);
+    }
+
+    .available-song-item.planned {
+      opacity: 0.5;
+    }
+
+    .available-sort {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 0.75rem;
+    }
+
+    .available-sort button {
+      font-size: 0.75rem;
+      padding: 0.35rem 0.7rem;
+    }
+
     /* Empty state */
     .empty-state {
       text-align: center;
@@ -1525,6 +1567,9 @@
             <div class="available-songs">
               <h3 style="margin-bottom: 1rem; color: var(--text-secondary);">Beschikbare Liedjes</h3>
               <input type="text" class="search-input" placeholder="Zoek..." id="editor-song-search" oninput="filterAvailableSongs()">
+              <div class="available-sort">
+                <button class="btn btn-secondary" id="available-sort-btn" onclick="toggleAvailableSort()">Sorteer: A-Z</button>
+              </div>
               <div id="available-songs-list">
                 <!-- Available songs will be here -->
               </div>
@@ -1549,6 +1594,18 @@
             <div class="stats-card">
               <h3>Recent gebruikt</h3>
               <div class="stats-list" id="stats-recent">
+                <p class="empty-state">Laden...</p>
+              </div>
+            </div>
+            <div class="stats-card">
+              <div class="stats-card-head">
+                <h3>Al lang niet meer gezongen</h3>
+                <label class="stats-toggle">
+                  <input type="checkbox" id="stats-show-never" checked onchange="renderOverdue()">
+                  nooit-gezongen tonen
+                </label>
+              </div>
+              <div class="stats-list" id="stats-overdue">
                 <p class="empty-state">Laden...</p>
               </div>
             </div>
@@ -1826,6 +1883,8 @@ And grace my fears relieved..."
     let categories = [];
     let currentView = 'songs';
     let editingSetlistId = null;
+    let rotationById = {};
+    let availableSortMode = 'title'; // 'title' or 'overdue'
     let songsViewMode = 'grid'; // 'grid' or 'list'
 
     // Section editor state
@@ -2688,55 +2747,100 @@ And grace my fears relieved..."
     }
 
     // Stats
+    // /api/stats/songs geeft alle liedjes terug, gesorteerd op rotatiescore. De drie
+    // kaarten sorteren dus zelf op wat ze nodig hebben.
+    let statsCache = [];
+
     async function loadStats() {
       try {
         const res = await fetch('/api/stats/songs');
-        const stats = await res.json();
+        statsCache = await res.json();
 
-        const topSongsContainer = document.getElementById('stats-top-songs');
-        const recentContainer = document.getElementById('stats-recent');
-
-        if (stats.length === 0) {
-          topSongsContainer.innerHTML = '<p class="empty-state">Nog geen liedjes in setlists.</p>';
-          recentContainer.innerHTML = '<p class="empty-state">Nog geen data</p>';
-          return;
-        }
-
-        // Top songs (sorted by count)
-        const topSongs = [...stats].slice(0, 10);
-        topSongsContainer.innerHTML = topSongs.map((song, i) => `
-          <div class="stats-item">
-            <div class="rank">${i + 1}</div>
-            <div class="info">
-              <div class="title">${song.title}</div>
-              <div class="meta">Laatst: ${song.lastUsed ? formatDate(song.lastUsed) : '-'}</div>
-            </div>
-            <div class="count">${song.count}x</div>
-          </div>
-        `).join('');
-
-        // Recent songs (sorted by last used)
-        const recentSongs = [...stats]
-          .filter(s => s.lastUsed)
-          .sort((a, b) => new Date(b.lastUsed) - new Date(a.lastUsed))
-          .slice(0, 10);
-
-        if (recentSongs.length === 0) {
-          recentContainer.innerHTML = '<p class="empty-state">Nog geen data</p>';
-        } else {
-          recentContainer.innerHTML = recentSongs.map(song => `
-            <div class="stats-item">
-              <div class="info">
-                <div class="title">${song.title}</div>
-                <div class="meta">${formatDate(song.lastUsed)}</div>
-              </div>
-              <div class="count">${song.count}x</div>
-            </div>
-          `).join('');
-        }
+        renderTopSongs();
+        renderRecentSongs();
+        renderOverdue();
       } catch (e) {
         console.error('Error loading stats:', e);
       }
+    }
+
+    function renderTopSongs() {
+      const container = document.getElementById('stats-top-songs');
+      const topSongs = statsCache
+        .filter(s => s.count > 0)
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 10);
+
+      if (topSongs.length === 0) {
+        container.innerHTML = '<p class="empty-state">Nog geen liedjes in setlists.</p>';
+        return;
+      }
+
+      container.innerHTML = topSongs.map((song, i) => `
+        <div class="stats-item">
+          <div class="rank">${i + 1}</div>
+          <div class="info">
+            <div class="title">${song.title}</div>
+            <div class="meta">Laatst: ${song.lastSung ? formatDate(song.lastSung) : '-'}</div>
+          </div>
+          <div class="count">${song.count}x</div>
+        </div>
+      `).join('');
+    }
+
+    function renderRecentSongs() {
+      const container = document.getElementById('stats-recent');
+      const recentSongs = statsCache
+        .filter(s => s.lastSung)
+        .sort((a, b) => new Date(b.lastSung) - new Date(a.lastSung))
+        .slice(0, 10);
+
+      if (recentSongs.length === 0) {
+        container.innerHTML = '<p class="empty-state">Nog geen data</p>';
+        return;
+      }
+
+      container.innerHTML = recentSongs.map(song => `
+        <div class="stats-item">
+          <div class="info">
+            <div class="title">${song.title}</div>
+            <div class="meta">${formatDate(song.lastSung)}</div>
+          </div>
+          <div class="count">${song.count}x</div>
+        </div>
+      `).join('');
+    }
+
+    function renderOverdue() {
+      const container = document.getElementById('stats-overdue');
+      const showNever = document.getElementById('stats-show-never').checked;
+
+      // Ingeplande liedjes staan al op een komende setlist; die zijn geregeld.
+      const overdue = statsCache
+        .filter(s => s.status !== 'planned' && (showNever || s.status !== 'never'))
+        .slice(0, 10);
+
+      if (overdue.length === 0) {
+        container.innerHTML = '<p class="empty-state">Nog geen data</p>';
+        return;
+      }
+
+      container.innerHTML = overdue.map((song, i) => `
+        <div class="stats-item">
+          <div class="rank">${i + 1}</div>
+          <div class="info">
+            <div class="title">${song.title}</div>
+            <div class="meta">${song.status === 'never'
+              ? `nog nooit gezongen &middot; ${formatWeeks(song.weeksSince)} in de lijst`
+              : `${formatWeeks(song.weeksSince)} stil &middot; normaal om de ${formatWeeks(song.intervalWeeks)}`}</div>
+          </div>
+          <div class="count">${song.score.toFixed(1)}&times;</div>
+        </div>
+      `).join('');
+    }
+
+    function formatWeeks(weeks) {
+      return `${Math.round(weeks)}w`;
     }
 
     function formatDate(dateStr) {
@@ -3089,8 +3193,13 @@ And grace my fears relieved..."
     // Setlist Editor
     async function openSetlistEditor(id) {
       editingSetlistId = id;
-      const res = await fetch(`/api/setlists/${id}`);
-      const setlist = await res.json();
+      const [setlistRes, rotationRes] = await Promise.all([
+        fetch(`/api/setlists/${id}`),
+        fetch('/api/stats/songs')
+      ]);
+      const setlist = await setlistRes.json();
+      const rotation = await rotationRes.json();
+      rotationById = Object.fromEntries(rotation.map(r => [r.songId, r]));
 
       document.getElementById('editor-setlist-name').textContent = setlist.name;
 
@@ -3215,12 +3324,42 @@ And grace my fears relieved..."
           norm(s.category).includes(search))
       );
 
+      if (availableSortMode === 'overdue') {
+        available.sort((a, b) => (rotationById[b.id]?.score ?? -1) - (rotationById[a.id]?.score ?? -1));
+      }
+
       container.innerHTML = available.map(song => `
-        <div class="available-song-item" onclick="addSongToSetlist('${song.id}')">
+        <div class="available-song-item${rotationClass(rotationById[song.id])}" onclick="addSongToSetlist('${song.id}')">
           <div class="title">${song.title}</div>
-          <div class="meta">${song.key || '-'} • ${song.category || '-'}</div>
+          <div class="meta">${song.key || '-'} • ${song.category || '-'}${rotationLabel(rotationById[song.id])}</div>
         </div>
       `).join('');
+    }
+
+    function toggleAvailableSort() {
+      availableSortMode = availableSortMode === 'title' ? 'overdue' : 'title';
+      document.getElementById('available-sort-btn').textContent =
+        availableSortMode === 'title' ? 'Sorteer: A-Z' : 'Sorteer: Achterstallig eerst';
+      filterAvailableSongs();
+    }
+
+    // Voorrang: ingepland boven nooit-gezongen boven achterstallig.
+    function rotationClass(rot) {
+      if (!rot) return '';
+      if (rot.status === 'planned') return ' planned';
+      if (rot.status === 'never') return '';
+      return rot.score >= 2 ? ' overdue' : '';
+    }
+
+    function rotationLabel(rot) {
+      if (!rot) return '';
+      if (rot.status === 'planned') return ` • ${formatShortDay(rot.plannedDate)} ingepland`;
+      if (rot.status === 'never') return ' • nooit gezongen';
+      return ` • ${formatWeeks(rot.weeksSince)} stil`;
+    }
+
+    function formatShortDay(dateStr) {
+      return new Date(dateStr).toLocaleDateString('nl-NL', { weekday: 'short', day: 'numeric', month: 'numeric' });
     }
 
     async function filterAvailableSongs() {
